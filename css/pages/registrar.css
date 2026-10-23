@@ -14,7 +14,7 @@
 .hero-bg {
     background: linear-gradient(145deg, rgba(15, 23, 42, 0.08), rgba(15, 23, 42, 0.22)),
                 url('../../assets/img/pexels-anna-klymenko-2154232859-38264204.jpg') center/cover no-repeat;
-    filter: brightness(1.25) saturate(.88);
+    filter: brightness(0.60) saturate(.88);
     transform: scale(1.02);
 }
 
