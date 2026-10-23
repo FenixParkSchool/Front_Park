@@ -12,12 +12,25 @@
 }
 
 .hero-bg {
-    background: linear-gradient(135deg, rgba(29, 57, 125, 0.85), rgba(28, 73, 102, 0.9)),
+    background: linear-gradient(145deg, rgba(15, 23, 42, 0.08), rgba(15, 23, 42, 0.22)),
                 url('../../assets/img/pexels-anna-klymenko-2154232859-38264204.jpg') center/cover no-repeat;
+    filter: brightness(1.25) saturate(.88);
+    transform: scale(1.02);
 }
 
 .text-layer {
     z-index: var(--z-index-dropdown);
+}
+
+.text-layer h1 {
+    max-width: 38rem;
+    line-height: 1.12;
+    text-wrap: balance;
+}
+
+.text-layer .hero-description {
+    max-width: 38rem;
+    text-wrap: balance;
 }
 
 .badge-tag {
