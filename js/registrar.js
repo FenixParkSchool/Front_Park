@@ -1,12 +1,22 @@
 document.addEventListener('DOMContentLoaded', () => {
     const formRegistro = document.getElementById('formRegistro');
+    const inputNome = document.getElementById('nome');
+    const inputEmail = document.getElementById('email');
+    const inputPerfil = document.getElementById('perfil');
     const inputSenha = document.getElementById('senha');
     const inputConfirmarSenha = document.getElementById('confirmarSenha');
     const passwordFeedback = document.getElementById('passwordMismatchFeedback');
     const toggleButtons = document.querySelectorAll('.btn-toggle-password');
+    const btnCadastrar = formRegistro.querySelector('button[type="submit"]');
 
     const btnAceitarModal = document.getElementById("btn_aceitar_modal");
     const checkboxTermosPrincipal = document.getElementById("termos");
+
+    // Limpeza de storages antigos e dados sensíveis conforme restrições
+    localStorage.removeItem('park_solicitacoes');
+    localStorage.removeItem('senha');
+    localStorage.removeItem('user');
+    sessionStorage.clear();
 
     if (btnAceitarModal && checkboxTermosPrincipal) {
         btnAceitarModal.addEventListener("click", function () {
@@ -60,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
     inputSenha.addEventListener('input', validarSenhas);
     inputConfirmarSenha.addEventListener('input', validarSenhas);
 
-    formRegistro.addEventListener('submit', (event) => {
+    formRegistro.addEventListener('submit', async (event) => {
         event.preventDefault();
 
         const senhasConferem = validarSenhas();
@@ -71,29 +81,56 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const dadosFormulario = {
-            id: Date.now().toString(),
-            nome: document.getElementById('nome').value.trim(),
-            email: document.getElementById('email').value.trim(),
-            perfil: document.getElementById('perfil').value,
-            telefone: '',
-            senha: inputSenha.value,
-            status: 'pendente',
-            criadoEm: new Date().toISOString()
-        };
+        const username = inputNome.value.trim();
+        const email = inputEmail.value.trim();
+        const perfilVal = inputPerfil.value;
+        const senhaHash = inputSenha.value;
 
-        const solicitacoes = JSON.parse(localStorage.getItem('park_solicitacoes') || '[]');
-        solicitacoes.push(dadosFormulario);
-        localStorage.setItem('park_solicitacoes', JSON.stringify(solicitacoes));
+        // Mapear o select de perfil para o ID numérico correspondente na API (conforme B09/B13)
+        // Ajuste os valores conforme o seu banco/contrato (ex: 1 para Funcionário, 2 para Vigilante, etc.)
+        let idTipoUsuario = 1;
+        if (perfilVal === 'supervisor') idTipoUsuario = 2; // Vigilância
+        else if (perfilVal === 'admin') idTipoUsuario = 1; // Funcionário/Admin
 
-        const cadastroAtual = {
-            nome: dadosFormulario.nome,
-            email: dadosFormulario.email,
-            perfil: dadosFormulario.perfil
-        };
-        sessionStorage.setItem('cadastroRecente', JSON.stringify(cadastroAtual));
+        // Desabilitar o botão enquanto aguarda a resposta da API
+        if (btnCadastrar) {
+            btnCadastrar.disabled = true;
+            btnCadastrar.textContent = "A cadastrar...";
+        }
 
-        alert('Cadastro realizado. Continue preenchendo os dados do veículo.');
-        window.location.href = 'cadastro_veiculo.html';
+        try {
+            const response = await fetch("http://localhost:3000/users", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    username: username,
+                    email: email,
+                    senhaHash: senhaHash, // A API recebe a senha neste campo e calcula o hash no servidor
+                    idTipoUsuario: Number(idTipoUsuario)
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.status === 201) {
+                alert("Conta cadastrada com sucesso! Redirecionando para o login.");
+                window.location.href = 'login.html';
+            } else if (response.status === 409) {
+                alert(data.error || "Este e-mail já está cadastrado no sistema.");
+                inputEmail.focus();
+            } else {
+                alert(data.error || "Erro ao realizar o cadastro. Verifique os dados.");
+            }
+        } catch (error) {
+            console.error("Erro na comunicação com a API:", error);
+            alert("Não foi possível conectar ao servidor. Tente novamente mais tarde.");
+        } finally {
+            if (btnCadastrar) {
+                btnCadastrar.disabled = false;
+                btnCadastrar.textContent = "Criar Conta";
+            }
+        }
     });
 });
