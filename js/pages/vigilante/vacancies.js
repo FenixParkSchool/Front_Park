@@ -10,7 +10,7 @@ export function updateMetrics() {
   Object.entries(values).forEach(([id, value]) => { const element = document.getElementById(id); if (element) element.textContent = String(value); });
 }
 
-export function renderVacancies({ showToast, onChanged = () => {} }) {
+export function renderVacancies({ showToast, onChanged = () => { } }) {
   const container = document.getElementById('containerVagas');
   if (!container) return;
   const search = document.getElementById('buscaVaga')?.value.trim() || '';
