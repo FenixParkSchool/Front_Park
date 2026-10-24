@@ -1,56 +1,34 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#1D397D">
   <title>Painel administrativo | ParkSchool</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css"
-    rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=Inter:wght@400;500;600&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/styles.css">
 </head>
-
-<body class="admin-page">
+<body class="admin-page" data-page="admin">
   <div class="admin-app d-flex" id="app">
-    <aside id="sidebar" class="admin-sidebar d-flex flex-column justify-content-between"
-      aria-label="Navegação administrativa">
+    <aside id="sidebar" class="admin-sidebar d-flex flex-column justify-content-between" aria-label="Navegação administrativa">
       <div>
-        <a class="navbar-brand d-flex align-items-center gap-2 text-white fw-bold" href="home.html">
-                <img class="logo-home" src="../assets/logo_pkg/08_branca/08_branca_icone_200.webp" alt="">
-                <span>ParkSchool</span>
-            </a>
+        <a class="admin-brand" href="../index.html" aria-label="ParkSchool — página inicial">
+          <span class="admin-brand-mark" aria-hidden="true"><i class="bi bi-p-square-fill"></i></span>
+          <span class="admin-brand-copy"><strong>ParkSchool</strong><small>Administração</small></span>
         </a>
         <div class="sidebar-caption">GERENCIAMENTO</div>
         <nav class="nav flex-column admin-nav" aria-label="Seções do painel">
-          <button type="button" class="nav-link active" data-nav="vagas" aria-current="page" aria-controls="tela-vagas"
-            onclick="mudarTela('vagas')"><i class="bi bi-grid-3x3-gap"
-              aria-hidden="true"></i><span>Vagas</span></button>
-          <button type="button" class="nav-link" data-nav="funcionarios" aria-controls="tela-funcionarios"
-            onclick="mudarTela('funcionarios')"><i class="bi bi-people"
-              aria-hidden="true"></i><span>Funcionários</span></button>
-          <button type="button" class="nav-link" data-nav="novo-funcionario" aria-controls="tela-novo-funcionario"
-            onclick="mudarTela('novo-funcionario')"><i class="bi bi-person-plus" aria-hidden="true"></i><span>Novo
-              funcionário</span></button>
-          <button type="button" class="nav-link" data-nav="veiculos" aria-controls="tela-veiculos"
-            onclick="mudarTela('veiculos')"><i class="bi bi-car-front"
-              aria-hidden="true"></i><span>Veículos</span></button>
-          <button type="button" class="nav-link" data-nav="solicitacoes" aria-controls="tela-solicitacoes"
-            onclick="mudarTela('solicitacoes')"><i class="bi bi-envelope-paper"
-              aria-hidden="true"></i><span>Solicitações</span></button>
-          <button type="button" class="nav-link" data-nav="visitas" aria-controls="tela-visitas"
-            onclick="mudarTela('visitas')"><i class="bi bi-calendar2-check"
-              aria-hidden="true"></i><span>Visitas</span></button>
+          <button type="button" class="nav-link active" data-nav="vagas" aria-current="page" aria-controls="tela-vagas"><i class="bi bi-grid-3x3-gap" aria-hidden="true"></i><span>Vagas</span></button>
+          <button type="button" class="nav-link" data-nav="funcionarios" aria-controls="tela-funcionarios"><i class="bi bi-people" aria-hidden="true"></i><span>Funcionários</span></button>
+          <button type="button" class="nav-link" data-nav="novo-funcionario" aria-controls="tela-novo-funcionario"><i class="bi bi-person-plus" aria-hidden="true"></i><span>Novo funcionário</span></button>
+          <button type="button" class="nav-link" data-nav="veiculos" aria-controls="tela-veiculos"><i class="bi bi-car-front" aria-hidden="true"></i><span>Veículos</span></button>
+          <button type="button" class="nav-link" data-nav="solicitacoes" aria-controls="tela-solicitacoes"><i class="bi bi-envelope-paper" aria-hidden="true"></i><span>Solicitações</span></button>
+          <button type="button" class="nav-link" data-nav="visitas" aria-controls="tela-visitas"><i class="bi bi-calendar2-check" aria-hidden="true"></i><span>Visitas</span></button>
         </nav>
       </div>
       <div class="sidebar-footer">
-        <div class="sidebar-user"><span class="sidebar-user-avatar"
-            aria-hidden="true">A</span><span><strong>Administrador</strong><small>Acesso autorizado</small></span></div>
-        <button id="btn-sair" type="button" onclick="sair()"><i class="bi bi-box-arrow-left"
-            aria-hidden="true"></i><span>Sair da administração</span></button>
+        <div class="sidebar-user"><span class="sidebar-user-avatar" aria-hidden="true">A</span><span><strong>Administrador</strong><small>Acesso autorizado</small></span></div>
+        <button id="btn-sair" type="button"><i class="bi bi-box-arrow-left" aria-hidden="true"></i><span>Sair da administração</span></button>
       </div>
     </aside>
 
@@ -60,183 +38,72 @@
           <header class="page-heading">
             <span class="page-eyebrow">PAINEL DE CONTROLE</span>
             <h1 id="titulo-vagas">Vagas de estacionamento</h1>
-            <p>42 vagas ao todo nesta unidade. Esta tela é somente para consulta — o status de cada vaga é atualizado
-              pelo sistema, sem reserva manual.</p>
+            <p>42 vagas ao todo nesta unidade. Esta tela é somente para consulta — o status de cada vaga é atualizado pelo sistema, sem reserva manual.</p>
           </header>
           <div class="row g-3 admin-stats" aria-label="Resumo das vagas">
-            <div class="col-6 col-sm-5 col-lg-3">
-              <article class="stat-card stat-card-primary"><span class="stat-icon" aria-hidden="true"><i
-                    class="bi bi-grid-3x3-gap"></i></span>
-                <div>
-                  <p>Total de vagas</p><strong class="valor" id="stat-total">42</strong>
-                </div>
-              </article>
-            </div>
-            <div class="col-6 col-sm-5 col-lg-3">
-              <article class="stat-card stat-card-success"><span class="stat-icon" aria-hidden="true"><i
-                    class="bi bi-check2-circle"></i></span>
-                <div>
-                  <p>Livres agora</p><strong class="valor" id="stat-livres">0</strong>
-                </div>
-              </article>
-            </div>
+            <div class="col-6 col-sm-5 col-lg-3"><article class="stat-card stat-card-primary"><span class="stat-icon" aria-hidden="true"><i class="bi bi-grid-3x3-gap"></i></span><div><p>Total de vagas</p><strong class="valor" id="stat-total">42</strong></div></article></div>
+            <div class="col-6 col-sm-5 col-lg-3"><article class="stat-card stat-card-success"><span class="stat-icon" aria-hidden="true"><i class="bi bi-check2-circle"></i></span><div><p>Livres agora</p><strong class="valor" id="stat-livres">0</strong></div></article></div>
           </div>
-          <div class="section-heading">
-            <div>
-              <h2>Mapa de vagas</h2>
-              <p>Acompanhe a disponibilidade por categoria.</p>
-            </div><span class="live-indicator"><span></span> Atualizado pelo sistema</span>
-          </div>
+          <div class="section-heading"><div><h2>Mapa de vagas</h2><p>Acompanhe a disponibilidade por categoria.</p></div><span class="live-indicator"><span></span> Atualizado pelo sistema</span></div>
           <div id="grupos-vagas" aria-live="polite"></div>
         </section>
 
-        <section id="tela-funcionarios" data-tela="funcionarios" class="admin-screen"
-          aria-labelledby="titulo-funcionarios">
-          <header class="page-heading"><span class="page-eyebrow">PESSOAS</span>
-            <h1 id="titulo-funcionarios">Funcionários</h1>
-            <p>Pesquise um funcionário e marque-o como ativo ou inativo quando ele sair ou voltar à unidade.</p>
-          </header>
-          <div class="toolbar-row">
-            <div class="admin-search"><label class="visually-hidden" for="busca-input">Buscar funcionário por
-                nome</label>
-              <div class="input-group ds-input-group"><span class="input-group-text border-end-0"><i
-                    class="bi bi-search" aria-hidden="true"></i></span><input id="busca-input" type="search"
-                  class="form-control border-start-0 ps-0" placeholder="Buscar por nome..."
-                  oninput="renderizarFuncionarios()"></div>
-            </div>
-            <button class="btn ds-btn-primary d-inline-flex align-items-center gap-2" type="button"
-              onclick="mudarTela('novo-funcionario')"><i class="bi bi-person-plus" aria-hidden="true"></i> Novo
-              funcionário</button>
-          </div>
+        <section id="tela-funcionarios" data-tela="funcionarios" class="admin-screen" aria-labelledby="titulo-funcionarios">
+          <header class="page-heading"><span class="page-eyebrow">PESSOAS</span><h1 id="titulo-funcionarios">Funcionários</h1><p>Pesquise um funcionário e marque-o como ativo ou inativo quando ele sair ou voltar à unidade.</p></header>
+          <div class="toolbar-row"><div class="admin-search"><label class="visually-hidden" for="busca-input">Buscar funcionário por nome</label><div class="input-group ds-input-group"><span class="input-group-text border-end-0"><i class="bi bi-search" aria-hidden="true"></i></span><input id="busca-input" type="search" class="form-control border-start-0 ps-0" placeholder="Buscar por nome..."></div></div>
+            <button class="btn ds-btn-primary d-inline-flex align-items-center gap-2" type="button" data-action="ir-para-tela" data-screen="novo-funcionario"><i class="bi bi-person-plus" aria-hidden="true"></i> Novo funcionário</button></div>
           <div class="filter-list" role="group" aria-label="Filtrar funcionários por status">
-            <button class="filtro-btn active" type="button" data-filtro="todos" onclick="definirFiltro('todos')">Todos
-              <span id="cont-todos">0</span></button>
-            <button class="filtro-btn" type="button" data-filtro="ativo" onclick="definirFiltro('ativo')">Ativos <span
-                id="cont-ativos">0</span></button>
-            <button class="filtro-btn" type="button" data-filtro="inativo" onclick="definirFiltro('inativo')">Inativos
-              <span id="cont-inativos">0</span></button>
+            <button class="filtro-btn active" type="button" data-filtro="todos">Todos <span id="cont-todos">0</span></button>
+            <button class="filtro-btn" type="button" data-filtro="ativo">Ativos <span id="cont-ativos">0</span></button>
+            <button class="filtro-btn" type="button" data-filtro="inativo">Inativos <span id="cont-inativos">0</span></button>
           </div>
           <div class="lista-func admin-list" id="lista-funcionarios" aria-live="polite"></div>
         </section>
 
-        <section id="tela-novo-funcionario" data-tela="novo-funcionario" class="admin-screen"
-          aria-labelledby="titulo-novo-funcionario">
-          <header class="page-heading"><span class="page-eyebrow">PESSOAS</span>
-            <h1 id="titulo-novo-funcionario">Cadastrar funcionário</h1>
-            <p>Preencha os dados abaixo para cadastrar manualmente um novo funcionário no sistema.</p>
-          </header>
-          <form class="card-form admin-form" onsubmit="cadastrarFuncionarioAdmin(event)">
-            <div class="form-section-title"><span class="form-section-icon"><i class="bi bi-person-vcard"
-                  aria-hidden="true"></i></span>
-              <div>
-                <h2>Dados do funcionário</h2>
-                <p>Os campos marcados são obrigatórios.</p>
-              </div>
-            </div>
+        <section id="tela-novo-funcionario" data-tela="novo-funcionario" class="admin-screen" aria-labelledby="titulo-novo-funcionario">
+          <header class="page-heading"><span class="page-eyebrow">PESSOAS</span><h1 id="titulo-novo-funcionario">Cadastrar funcionário</h1><p>Preencha os dados abaixo para cadastrar manualmente um novo funcionário no sistema.</p></header>
+          <form id="formNovoFuncionarioAdmin" class="card-form admin-form">
+            <div class="form-section-title"><span class="form-section-icon"><i class="bi bi-person-vcard" aria-hidden="true"></i></span><div><h2>Dados do funcionário</h2><p>Os campos marcados são obrigatórios.</p></div></div>
             <div class="row g-3">
-              <div class="col-12"><label class="form-label" for="novo-func-nome">Nome completo</label><input type="text"
-                  id="novo-func-nome" class="form-control" placeholder="Ex.: Maria Oliveira" autocomplete="name"
-                  required></div>
-              <div class="col-md-6"><label class="form-label" for="novo-func-telefone">Telefone</label><input type="tel"
-                  id="novo-func-telefone" class="form-control" placeholder="(00) 00000-0000" autocomplete="tel"
-                  required></div>
-              <div class="col-md-6"><label class="form-label" for="novo-func-email">E-mail</label><input type="email"
-                  id="novo-func-email" class="form-control" placeholder="email@empresa.com" autocomplete="email"
-                  required></div>
-              <div class="col-md-6"><label class="form-label" for="novo-func-id">ID do funcionário</label><input
-                  type="text" id="novo-func-id" class="form-control" placeholder="Ex.: 1050" inputmode="numeric"
-                  required></div>
-              <fieldset class="col-md-6">
-                <legend class="form-label">Deficiência física (PCD)</legend>
-                <div class="form-choice-row">
-                  <div class="form-check"><input class="form-check-input" type="radio" name="novo-func-pcd" id="pcd-sim"
-                      value="sim"><label class="form-check-label" for="pcd-sim">Sim</label></div>
-                  <div class="form-check"><input class="form-check-input" type="radio" name="novo-func-pcd" id="pcd-nao"
-                      value="nao" checked><label class="form-check-label" for="pcd-nao">Não</label></div>
-                </div>
-              </fieldset>
+              <div class="col-12"><label class="form-label" for="novo-func-nome">Nome completo</label><input type="text" id="novo-func-nome" class="form-control" placeholder="Ex.: Maria Oliveira" autocomplete="name" required></div>
+              <div class="col-md-6"><label class="form-label" for="novo-func-telefone">Telefone</label><input type="tel" id="novo-func-telefone" class="form-control" placeholder="(00) 00000-0000" autocomplete="tel" required></div>
+              <div class="col-md-6"><label class="form-label" for="novo-func-email">E-mail</label><input type="email" id="novo-func-email" class="form-control" placeholder="email@empresa.com" autocomplete="email" required></div>
+              <div class="col-md-6"><label class="form-label" for="novo-func-id">ID do funcionário</label><input type="text" id="novo-func-id" class="form-control" placeholder="Ex.: 1050" inputmode="numeric" required></div>
+              <fieldset class="col-md-6"><legend class="form-label">Deficiência física (PCD)</legend><div class="form-choice-row"><div class="form-check"><input class="form-check-input" type="radio" name="novo-func-pcd" id="pcd-sim" value="sim"><label class="form-check-label" for="pcd-sim">Sim</label></div><div class="form-check"><input class="form-check-input" type="radio" name="novo-func-pcd" id="pcd-nao" value="nao" checked><label class="form-check-label" for="pcd-nao">Não</label></div></div></fieldset>
             </div>
-            <div class="form-actions"><button type="submit"
-                class="btn ds-btn-primary d-inline-flex align-items-center gap-2"><i class="bi bi-check2"
-                  aria-hidden="true"></i> Salvar funcionário</button></div>
+            <div class="form-actions"><button type="submit" class="btn ds-btn-primary d-inline-flex align-items-center gap-2"><i class="bi bi-check2" aria-hidden="true"></i> Salvar funcionário</button></div>
           </form>
         </section>
 
         <section id="tela-veiculos" data-tela="veiculos" class="admin-screen" aria-labelledby="titulo-veiculos">
-          <header class="page-heading"><span class="page-eyebrow">CADASTROS</span>
-            <h1 id="titulo-veiculos">Cadastro de veículos</h1>
-            <p>Escolha o funcionário e cadastre o veículo. Se ele tiver mais de um, adicione quantos forem necessários
-              antes de salvar.</p>
-          </header>
-          <div class="admin-form-field"><label class="form-label" for="select-funcionario">Selecionar
-              funcionário</label><select id="select-funcionario" class="form-select"></select></div>
+          <header class="page-heading"><span class="page-eyebrow">CADASTROS</span><h1 id="titulo-veiculos">Cadastro de veículos</h1><p>Escolha o funcionário e cadastre o veículo. Se ele tiver mais de um, adicione quantos forem necessários antes de salvar.</p></header>
+          <div class="admin-form-field"><label class="form-label" for="select-funcionario">Selecionar funcionário</label><select id="select-funcionario" class="form-select"></select></div>
           <div id="lista-forms-veiculo"></div>
-          <div class="vehicle-actions"><button type="button"
-              class="btn ds-btn-outline d-inline-flex align-items-center justify-content-center gap-2"
-              onclick="adicionarFormVeiculo()"><i class="bi bi-plus-lg" aria-hidden="true"></i> Adicionar outro
-              veículo</button><button type="button"
-              class="btn ds-btn-primary d-inline-flex align-items-center justify-content-center gap-2"
-              onclick="salvarVeiculos()"><i class="bi bi-check2" aria-hidden="true"></i> Cadastrar veículo(s)</button>
-          </div>
-          <div class="section-heading">
-            <div>
-              <h2>Veículos cadastrados recentemente</h2>
-              <p>Registros vinculados aos funcionários da unidade.</p>
-            </div>
-          </div>
+          <div class="vehicle-actions"><button type="button" id="btnAdicionarFormVeiculo" class="btn ds-btn-outline d-inline-flex align-items-center justify-content-center gap-2"><i class="bi bi-plus-lg" aria-hidden="true"></i> Adicionar outro veículo</button><button type="button" id="btnSalvarVeiculosAdmin" class="btn ds-btn-primary d-inline-flex align-items-center justify-content-center gap-2"><i class="bi bi-check2" aria-hidden="true"></i> Cadastrar veículo(s)</button></div>
+          <div class="section-heading"><div><h2>Veículos cadastrados recentemente</h2><p>Registros vinculados aos funcionários da unidade.</p></div></div>
           <div class="lista-veiculos-cadastrados" id="lista-veiculos-cadastrados" aria-live="polite"></div>
         </section>
 
-        <section id="tela-solicitacoes" data-tela="solicitacoes" class="admin-screen"
-          aria-labelledby="titulo-solicitacoes">
-          <header class="page-heading"><span class="page-eyebrow">PENDÊNCIAS</span>
-            <h1 id="titulo-solicitacoes">Solicitações de cadastro</h1>
-            <p>Acompanhe os cadastros de funcionários, vigilantes e patrimônio que aguardam aprovação do administrador.
-            </p>
-          </header>
+        <section id="tela-solicitacoes" data-tela="solicitacoes" class="admin-screen" aria-labelledby="titulo-solicitacoes">
+          <header class="page-heading"><span class="page-eyebrow">PENDÊNCIAS</span><h1 id="titulo-solicitacoes">Solicitações de cadastro</h1><p>Acompanhe os cadastros de funcionários, vigilantes e patrimônio que aguardam aprovação do administrador.</p></header>
           <div id="lista-solicitacoes" class="admin-list" aria-live="polite"></div>
         </section>
 
         <section id="tela-visitas" data-tela="visitas" class="admin-screen" aria-labelledby="titulo-visitas">
-          <header class="page-heading"><span class="page-eyebrow">ACESSO À UNIDADE</span>
-            <h1 id="titulo-visitas">Registrar visita</h1>
-            <p>Cadastre a visita aqui no painel do administrador e atribua a vaga disponível.</p>
-          </header>
+          <header class="page-heading"><span class="page-eyebrow">ACESSO À UNIDADE</span><h1 id="titulo-visitas">Registrar visita</h1><p>Cadastre a visita aqui no painel do administrador e atribua a vaga disponível.</p></header>
           <form id="formNovaVisitaAdmin" class="card-form admin-form">
-            <div class="form-section-title"><span class="form-section-icon"><i class="bi bi-calendar2-check"
-                  aria-hidden="true"></i></span>
-              <div>
-                <h2>Dados da visita</h2>
-                <p>Informe os dados para registrar o acesso.</p>
-              </div>
-            </div>
+            <div class="form-section-title"><span class="form-section-icon"><i class="bi bi-calendar2-check" aria-hidden="true"></i></span><div><h2>Dados da visita</h2><p>Informe os dados para registrar o acesso.</p></div></div>
             <div class="row g-3">
-              <div class="col-md-7"><label class="form-label" for="visita-nome">Nome do visitante</label><input
-                  type="text" id="visita-nome" class="form-control" placeholder="Ex.: Mariana Souza" autocomplete="name"
-                  required></div>
-              <div class="col-md-5"><label class="form-label" for="visita-vaga">Vaga</label><select id="visita-vaga"
-                  class="form-select" required></select></div>
-              <div class="col-12"><label class="form-label" for="visita-motivo">Motivo da visita</label><input
-                  type="text" id="visita-motivo" class="form-control" placeholder="Ex.: Reunião com a coordenação"
-                  required></div>
-              <div class="col-md-4"><label class="form-label" for="visita-placa">Placa</label><input type="text"
-                  id="visita-placa" class="form-control text-uppercase" placeholder="ABC1D23" maxlength="8" required>
-              </div>
-              <div class="col-md-4"><label class="form-label" for="visita-entrada">Entrada</label><input type="time"
-                  id="visita-entrada" class="form-control" value="08:00" required></div>
-              <div class="col-md-4"><label class="form-label" for="visita-saida">Saída</label><input type="time"
-                  id="visita-saida" class="form-control" value="12:00" required></div>
+              <div class="col-md-7"><label class="form-label" for="visita-nome">Nome do visitante</label><input type="text" id="visita-nome" class="form-control" placeholder="Ex.: Mariana Souza" autocomplete="name" required></div>
+              <div class="col-md-5"><label class="form-label" for="visita-vaga">Vaga</label><select id="visita-vaga" class="form-select" required></select></div>
+              <div class="col-12"><label class="form-label" for="visita-motivo">Motivo da visita</label><input type="text" id="visita-motivo" class="form-control" placeholder="Ex.: Reunião com a coordenação" required></div>
+              <div class="col-md-4"><label class="form-label" for="visita-placa">Placa</label><input type="text" id="visita-placa" class="form-control text-uppercase" placeholder="ABC1D23" maxlength="8" required></div>
+              <div class="col-md-4"><label class="form-label" for="visita-entrada">Entrada</label><input type="time" id="visita-entrada" class="form-control" value="08:00" required></div>
+              <div class="col-md-4"><label class="form-label" for="visita-saida">Saída</label><input type="time" id="visita-saida" class="form-control" value="12:00" required></div>
             </div>
-            <div class="form-actions"><button type="submit"
-                class="btn ds-btn-primary d-inline-flex align-items-center gap-2"><i class="bi bi-check2"
-                  aria-hidden="true"></i> Salvar visita</button></div>
+            <div class="form-actions"><button type="submit" class="btn ds-btn-primary d-inline-flex align-items-center gap-2"><i class="bi bi-check2" aria-hidden="true"></i> Salvar visita</button></div>
           </form>
-          <div class="section-heading">
-            <div>
-              <h2>Visitas cadastradas</h2>
-              <p>Consulte os registros de acesso à unidade.</p>
-            </div>
-          </div>
+          <div class="section-heading"><div><h2>Visitas cadastradas</h2><p>Consulte os registros de acesso à unidade.</p></div></div>
           <div id="lista-visitas-admin" class="admin-list" aria-live="polite"></div>
         </section>
       </div>
@@ -245,19 +112,13 @@
 
   <section id="tela-saida" class="admin-exit d-none" aria-labelledby="titulo-saida">
     <div class="exit-card text-center">
-      <div class="icon-circle icon-circle-lg icon-circle-primary mx-auto mb-4" aria-hidden="true"><i
-          class="bi bi-box-arrow-left"></i></div>
+      <div class="icon-circle icon-circle-lg icon-circle-primary mx-auto mb-4" aria-hidden="true"><i class="bi bi-box-arrow-left"></i></div>
       <span class="page-eyebrow">SESSÃO ENCERRADA</span>
       <h1 id="titulo-saida">Você saiu do painel</h1>
       <p>O acesso à administração foi encerrado nesta sessão.</p>
-      <button class="btn ds-btn-outline w-100 d-inline-flex align-items-center justify-content-center gap-2"
-        type="button" onclick="entrarNovamente()"><i class="bi bi-arrow-left-circle" aria-hidden="true"></i> Entrar
-        novamente</button>
+      <button data-action="entrar-novamente" class="btn ds-btn-outline w-100 d-inline-flex align-items-center justify-content-center gap-2" type="button"><i class="bi bi-arrow-left-circle" aria-hidden="true"></i> Entrar novamente</button>
     </div>
   </section>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
-  <script src="../js/admin.js"></script>
+    <script type="module" src="../js/main.js"></script>
 </body>
-
 </html>

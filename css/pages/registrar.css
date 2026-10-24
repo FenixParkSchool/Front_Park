@@ -14,12 +14,23 @@
 .hero-bg {
     background: linear-gradient(145deg, rgba(15, 23, 42, 0.08), rgba(15, 23, 42, 0.22)),
                 url('../../assets/img/pexels-anna-klymenko-2154232859-38264204.jpg') center/cover no-repeat;
-    filter: brightness(0.60) saturate(.88);
+    filter: brightness(1.25) saturate(.88);
     transform: scale(1.02);
 }
 
 .text-layer {
     z-index: var(--z-index-dropdown);
+}
+
+.hero-copy {
+    width: min(100%, 42rem);
+    padding: var(--spacing-6);
+    border: 1px solid rgba(255, 255, 255, .2);
+    border-radius: var(--radius-xl);
+    background: color-mix(in srgb, var(--text-primary) 78%, transparent);
+    box-shadow: var(--shadow-lg);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
 }
 
 .text-layer h1 {
@@ -31,6 +42,7 @@
 .text-layer .hero-description {
     max-width: 38rem;
     text-wrap: balance;
+    margin-bottom: 0 !important;
 }
 
 .badge-tag {
