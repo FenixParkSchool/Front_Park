@@ -42,8 +42,13 @@ let contadorFormsVeiculo = 0; // ids dos formulários abertos
 function mudarTela(nome){
   document.querySelectorAll("[data-tela]").forEach(el => el.classList.remove("ativa"));
   document.querySelector(`[data-tela="${nome}"]`).classList.add("ativa");
-  document.querySelectorAll("#sidebar .nav-link").forEach(el => el.classList.remove("active"));
-  document.querySelector(`[data-nav="${nome}"]`).classList.add("active");
+  document.querySelectorAll("#sidebar .nav-link").forEach(el => {
+    el.classList.remove("active");
+    el.removeAttribute("aria-current");
+  });
+  const botaoAtivo = document.querySelector(`[data-nav="${nome}"]`);
+  botaoAtivo.classList.add("active");
+  botaoAtivo.setAttribute("aria-current", "page");
 }
 
 function sair(){
