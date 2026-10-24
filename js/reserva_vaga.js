@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-
     // ELEMENTOS DO FORMULÁRIO
 
     const form = document.getElementById("formReserva");
@@ -110,7 +109,7 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-==
+
         // VALIDAR PLACA
 
         // Formato antigo
