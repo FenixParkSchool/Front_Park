@@ -48,16 +48,16 @@
     z-index: 2;
 }
 
-.btn-hero-outline {
-    background-color: transparent;
-    color: var(--color-white);
-    border: var(--border-width-thin) solid rgba(255, 255, 255, 0.5);
+.btn.btn-secundario.btn-hero-outline {
+    background-color: var(--color-white);
+    color: var(--color-primary);
+    border: var(--border-width-thin) solid var(--color-white);
 }
 
-.btn-hero-outline:hover {
-    background-color: rgba(255, 255, 255, 0.12);
-    color: var(--color-white);
-    border-color: var(--color-white);
+.btn.btn-secundario.btn-hero-outline:hover {
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+    border-color: var(--color-primary-light);
 }
 
 .hero-titledisplay-5 {

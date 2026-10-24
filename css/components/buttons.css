@@ -1,75 +1,89 @@
-/* =========================================
-   BUTTON COMPONENTS (Bootstrap 5 Overrides & Customs)
-   ========================================= */
-
-/* Botão Primário (Login, Registro, Esqueci a Senha) e Admin */
-.ds-btn-primary, 
+.ds-btn-primary,
 .btn-primario,
-.btn-primary {
-    background-color: var(--color-primary);
-    color: var(--color-white);
-    border: var(--border-width-thin) solid var(--color-primary);
-    border-radius: var(--radius-md);
-    padding: var(--spacing-2) var(--spacing-4);
-    font-weight: var(--font-weight-semibold);
-    font-family: var(--font-family-base);
-    transition: background-color var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
+.btn-primary,
+.btn.ds-btn-primary,
+.btn.btn-primario,
+.btn.btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: var(--border-width-thin) solid var(--color-primary);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-2) var(--spacing-4);
+  font-weight: var(--font-weight-semibold);
+  font-family: var(--font-family-base);
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-fast);
 }
 
 .ds-btn-primary:hover:not(:disabled),
 .btn-primario:hover:not(:disabled),
-.btn-primary:hover:not(:disabled) {
-    background-color: var(--color-primary-hover);
-    border-color: var(--color-primary-hover);
-    color: var(--color-white);
+.btn-primary:hover:not(:disabled),
+.btn.ds-btn-primary:hover:not(:disabled),
+.btn.btn-primario:hover:not(:disabled),
+.btn.btn-primary:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+  color: var(--color-white);
 }
 
 .ds-btn-primary:active:not(:disabled),
 .btn-primario:active:not(:disabled),
-.btn-primary:active:not(:disabled) {
-    background-color: var(--color-primary-active);
-    border-color: var(--color-primary-active);
-    transform: translateY(1px);
+.btn-primary:active:not(:disabled),
+.btn.ds-btn-primary:active:not(:disabled),
+.btn.btn-primario:active:not(:disabled),
+.btn.btn-primary:active:not(:disabled) {
+  background-color: var(--color-primary-active);
+  border-color: var(--color-primary-active);
+  transform: translateY(1px);
 }
 
 .ds-btn-primary:disabled,
 .btn-primario:disabled,
-.btn-primary:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    background-color: var(--color-primary);
-    border-color: var(--color-primary);
+.btn-primary:disabled,
+.btn.ds-btn-primary:disabled,
+.btn.btn-primario:disabled,
+.btn.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
 }
 
 /* Botão Secundário / Outline (Usado no painel Admin) */
 .btn-secundario,
-.ds-btn-outline {
-    background-color: var(--color-white);
-    color: var(--color-primary);
-    border: var(--border-width-thin) solid var(--color-gray-200);
-    border-radius: var(--radius-md);
-    padding: var(--spacing-2) var(--spacing-4);
-    font-weight: var(--font-weight-medium);
-    transition: all var(--transition-fast);
+.ds-btn-outline,
+.btn.btn-secundario,
+.btn.ds-btn-outline {
+  background-color: var(--color-white);
+  color: var(--color-primary);
+  border: var(--border-width-thin) solid var(--color-gray-200);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-2) var(--spacing-4);
+  font-weight: var(--font-weight-medium);
+  transition: all var(--transition-fast);
 }
 
 .btn-secundario:hover,
-.ds-btn-outline:hover {
-    background-color: var(--color-primary-light);
-    border-color: var(--color-primary-light);
-    color: var(--color-primary);
+.ds-btn-outline:hover,
+.btn.btn-secundario:hover,
+.btn.ds-btn-outline:hover {
+  background-color: var(--color-primary-light);
+  border-color: var(--color-primary-light);
+  color: var(--color-primary);
 }
 
 /* Botão de revelar senha (ícone de olho) */
 .btn-toggle-password {
-    background-color: transparent;
-    border: var(--border-width-thin) solid var(--border-color);
-    color: var(--text-secondary);
-    transition: color var(--transition-fast);
-    padding: 0 var(--spacing-3);
-    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  background-color: transparent;
+  border: var(--border-width-thin) solid var(--border-color);
+  color: var(--text-secondary);
+  transition: color var(--transition-fast);
+  padding: 0 var(--spacing-3);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
 }
 
 .btn-toggle-password:hover {
-    color: var(--color-primary);
+  color: var(--color-primary);
 }
