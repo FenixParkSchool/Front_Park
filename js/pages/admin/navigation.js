@@ -18,13 +18,4 @@ export function initAdminNavigation() {
     });
   });
 
-  document.getElementById('btn-sair')?.addEventListener('click', () => {
-    document.getElementById('app')?.classList.add('d-none');
-    document.getElementById('tela-saida')?.classList.remove('d-none');
-  });
-
-  document.querySelector('[data-action="entrar-novamente"]')?.addEventListener('click', () => {
-    document.getElementById('tela-saida')?.classList.add('d-none');
-    document.getElementById('app')?.classList.remove('d-none');
-  });
 }

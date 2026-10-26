@@ -59,13 +59,6 @@ export function init() {
       return;
     }
 
-    const userTypeId = Number(profile.value);
-    if (![1, 2].includes(userTypeId)) {
-      profile.focus();
-      window.alert('Selecione um nível de acesso válido.');
-      return;
-    }
-
     if (submitButton) {
       submitButton.disabled = true;
       submitButton.textContent = 'A cadastrar...';
@@ -79,7 +72,6 @@ export function init() {
           username: name.value.trim(),
           email: email.value.trim(),
           senhaHash: password.value,
-          idTipoUsuario: userTypeId,
         }),
       });
       const data = await response.json().catch(() => ({}));

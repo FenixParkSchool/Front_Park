@@ -1,3 +1,4 @@
+import { api } from '../../services/auth.js';
 import { localStore, sessionStore } from '../../shared/storage.js';
 import { isValidPlate, normalizePlate } from '../../shared/utils.js';
 
@@ -45,13 +46,8 @@ export function init() {
   });
   addForm();
 
-  form.addEventListener('submit', (event) => {
+  form.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const recent = sessionStore.get('cadastroRecente');
-    if (!recent) {
-      window.alert('Nenhum cadastro recente foi encontrado. Volte para a etapa anterior.');
-      return;
-    }
     const created = [];
     for (const card of container.querySelectorAll('.card-vehicle')) {
       const model = card.querySelector('.campo-modelo').value.trim();
@@ -69,12 +65,12 @@ export function init() {
         card.querySelector('.campo-placa').focus();
         return;
       }
-      created.push({ id: Date.now() + created.length, usuario: recent.email || 'usuario@empresa.com', nomeUsuario: recent.nome || 'Usuário', perfil: recent.perfil || 'funcionario', modelo: model, tipo: type, ano: Number(year), cor: color, placa: plate });
+      created.push({ modeloVeiculo: model, tipoVeiculo: type, anoVeiculo: year, corVeiculo: color, placaVeiculo: plate });
     }
-    const stored = localStore.get('park_veiculos', []);
-    localStore.set('park_veiculos', [...(Array.isArray(stored) ? stored : []), ...created]);
-    sessionStore.remove('cadastroRecente');
+    try {
+      for (const vehicle of created) await api('/veiculos', { method: 'POST', body: JSON.stringify(vehicle) });
+    } catch (error) { window.alert(error.message); return; }
     window.alert('Veículos cadastrados com sucesso!');
-    window.location.href = 'login.html';
+    form.reset();
   });
 }
