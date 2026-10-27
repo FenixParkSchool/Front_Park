@@ -30,6 +30,20 @@ test('todas as páginas HTML identificam seu módulo e carregam o entrypoint mai
   }
 });
 
+test('o Admin tem uma navegação e uma tela própria para Perfis de acesso', () => {
+  const adminHtml = readFileSync(join(pagesDirectory, 'admin.html'), 'utf8');
+  const adminScript = readFileSync(join(projectRoot, 'js/pages/admin/index.js'), 'utf8');
+  const adminCss = readFileSync(join(projectRoot, 'css/pages/admin.css'), 'utf8');
+
+  assert.match(adminHtml, /<button[^>]*data-nav="perfis"[^>]*aria-controls="tela-perfis"/u);
+  assert.match(adminHtml, /<section[^>]*id="tela-perfis"[^>]*data-tela="perfis"/u);
+  assert.match(adminHtml, /<tbody id="lista-perfis"><\/tbody>/u);
+  assert.match(adminScript, /getElementById\('lista-perfis'\)/u);
+  assert.match(adminScript, /roleCell\.dataset\.label = 'Perfil de acesso'/u);
+  assert.doesNotMatch(adminScript, /getElementById\('app'\)\.append/u);
+  assert.match(adminCss, /@media \(max-width: 767\.98px\)[\s\S]*?\.admin-profile-table tbody \{/u);
+});
+
 test('fontes do frontend são UTF-8, textos não têm acentos substituídos e páginas carregam recursos tipográficos', () => {
   for (const sourcePath of sourceFiles) {
     const filename = sourcePath.slice(projectRoot.length + 1);
