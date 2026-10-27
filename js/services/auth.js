@@ -11,7 +11,7 @@ export async function guardPage(page) {
   if (!allowed) return true;
   document.body.style.visibility = 'hidden';
   try {
-    const user = await api('/users');
+    const user = await api('/me');
     if (!allowed.includes(user.role)) { location.replace(homeForRole(user.role)); return false; }
     document.body.style.visibility = '';
     return true;
