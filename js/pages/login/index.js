@@ -28,7 +28,7 @@ export function init() {
           password: passwordInput.value,
         }),
       });
-      const destination = loginDestinationForProfile(user?.perfil);
+      const destination = loginDestinationForProfile(user?.perfil ?? user?.role);
       if (!destination) {
         throw new Error('Conta sem perfil autorizado. Contate a administração.');
       }

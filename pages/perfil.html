@@ -11,7 +11,14 @@
     <link rel="stylesheet" href="../css/styles.css">
 </head>
 
-<body data-page="perfil">
+<body data-page="perfil" data-access-required="true" data-access-state="checking">
+    <div id="access-state" class="access-state" role="status" aria-live="polite">
+        <div class="access-state__panel">
+            <p id="access-message" class="mb-3">Verificando acesso...</p>
+            <button id="access-retry" class="ds-btn-primary" type="button" hidden>Tentar novamente</button>
+        </div>
+    </div>
+    <div id="access-feedback" class="access-feedback" role="alert" aria-live="assertive" hidden></div>
     <main class="container min-vh-100 d-flex align-items-center justify-content-center py-5">
         <div class="row justify-content-center w-100">
             <div class="col-12 col-lg-8 col-xl-7">

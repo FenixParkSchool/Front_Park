@@ -1,4 +1,5 @@
-import { guardPage, logout } from './services/auth.js';
+import { protectPage, isProtectedPage } from './sessao.js';
+import { logout } from './services/auth.js';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap';
 
@@ -15,12 +16,20 @@ const pageLoaders = {
 const pageName = document.body.dataset.page;
 const loadPage = pageLoaders[pageName];
 
-if (loadPage && await guardPage(pageName)) {
-  loadPage()
-    .then((page) => page.init())
-    .catch((error) => {
-      console.error(`Não foi possível inicializar a página "${pageName}".`, error);
-    });
+async function initializePage() {
+  if (!loadPage) return;
+  try {
+    const page = await loadPage();
+    await page.init();
+  } catch (error) {
+    console.error(`Não foi possível inicializar a página "${pageName}".`, error);
+  }
+}
+
+if (isProtectedPage(pageName)) {
+  await protectPage(pageName, initializePage);
+} else {
+  await initializePage();
 }
 
 document.getElementById('btn-sair')?.addEventListener('click', () => logout().catch(error => window.alert(error.message)));

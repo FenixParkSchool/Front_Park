@@ -23,3 +23,54 @@
 @import "components/toast.css";
 @import "components/navbar.css";
 @import "components/logos.css";
+
+
+/* Proteção de páginas privadas: o conteúdo só aparece após autorização da API. */
+body[data-access-required="true"]:not([data-access-state="ready"]) > :not(#access-state):not(#access-feedback) {
+  visibility: hidden !important;
+}
+
+#access-state {
+  display: none;
+}
+
+body[data-access-required="true"]:not([data-access-state="ready"]) > #access-state {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-index-modal);
+  display: grid;
+  place-items: center;
+  padding: var(--spacing-4);
+  background-color: var(--bg-body);
+  visibility: visible !important;
+}
+
+.access-state__panel {
+  width: min(100%, 32rem);
+  padding: var(--spacing-8);
+  border: var(--border-width-thin) solid var(--border-color);
+  border-radius: var(--radius-lg);
+  background-color: var(--bg-surface);
+  box-shadow: var(--shadow-md);
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.access-feedback {
+  position: fixed;
+  z-index: var(--z-index-modal);
+  inset-block-start: var(--spacing-4);
+  inset-inline-start: 50%;
+  width: min(calc(100% - 2 * var(--spacing-4)), 42rem);
+  transform: translateX(-50%);
+  padding: var(--spacing-4);
+  border: var(--border-width-thin) solid var(--color-warning);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-surface);
+  box-shadow: var(--shadow-md);
+  color: var(--text-primary);
+}
+
+.access-feedback[hidden] {
+  display: none !important;
+}

@@ -102,6 +102,10 @@ test('o login envia e-mail e senha separadamente com sessão por cookie e encami
     assert.equal(result.submitButton.disabled, false);
     assert.equal(result.submitLabel.textContent, 'Entrar');
   }
+  const roleResult = await submitLogin({
+    response: { ok: true, status: 200, json: async () => ({ user: { role: 'ADMIN' } }) },
+  });
+  assert.equal(roleResult.destination, 'admin.html');
   assert.equal(loginDestinationForProfile('toString'), null);
 });
 
