@@ -19,7 +19,7 @@ export function init() {
 async function initRoles() {
   const section = document.createElement('section');
   section.className = 'container py-4';
-  section.innerHTML = '<h2>Perfis de acesso</h2><p>Selecione o perfil e salve para aplicar as permiss?es da conta.</p>';
+  section.innerHTML = '<h2>Perfis de acesso</h2><p>Selecione o perfil e salve para aplicar as permissões da conta.</p>';
   document.getElementById('app').append(section);
   try {
     const employees = await api('/funcionarios');
@@ -46,17 +46,17 @@ async function initRoles() {
         finally { save.disabled = false; }
       });
       const employeeSelect = document.createElement('select');
-      employeeSelect.setAttribute('aria-label', `Funcion?rio vinculado a ${user.username}`);
-      employeeSelect.add(new Option('Sem v?nculo', '', false, !user.idFuncionario));
+      employeeSelect.setAttribute('aria-label', `Funcionário vinculado a ${user.username}`);
+      employeeSelect.add(new Option('Sem vínculo', '', false, !user.idFuncionario));
       for (const employee of employees) employeeSelect.add(new Option(employee.nomeFuncionario, employee.idFuncionario, false, employee.idFuncionario === user.idFuncionario));
       const link = document.createElement('button');
-      link.textContent = 'Salvar v?nculo';
+      link.textContent = 'Salvar vínculo';
       link.className = 'btn btn-secondary btn-sm';
       link.addEventListener('click', async () => {
         link.disabled = true;
         try {
           await api(`/admin/users/${user.idUsuario}/funcionario`, { method: 'PATCH', body: JSON.stringify({ idFuncionario: employeeSelect.value ? Number(employeeSelect.value) : null }) });
-          window.alert('V?nculo atualizado.');
+          window.alert('Vínculo atualizado.');
         } catch (error) { window.alert(error.message); }
         finally { link.disabled = false; }
       });

@@ -2,7 +2,7 @@ export const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL || 'http://local
 export async function api(path, options = {}) {
   const response = await fetch(`${API_BASE_URL}${path}`, { ...options, credentials: 'include', headers: { 'Content-Type': 'application/json', ...options.headers } });
   const data = response.status === 204 ? null : await response.json().catch(() => ({}));
-  if (!response.ok) throw Object.assign(new Error(data.error || 'N?o foi poss?vel concluir a opera??o.'), { status: response.status });
+  if (!response.ok) throw Object.assign(new Error(data.error || 'Não foi possível concluir a operação.'), { status: response.status });
   return data;
 }
 export const homeForRole = role => ({ ADMIN: 'admin.html', VIGILANTE: 'tela-vigilante.html', FUNCIONARIO: 'cadastro_veiculo.html' }[role] || 'login.html');

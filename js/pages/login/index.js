@@ -7,7 +7,7 @@ export function init() {
     button.disabled = true;
     try {
       const { user } = await api('/login', { method: 'POST', body: JSON.stringify({ email: document.getElementById('email').value.trim(), password: document.getElementById('senha').value }) });
-      if (!['ADMIN', 'VIGILANTE', 'FUNCIONARIO'].includes(user.role)) throw new Error('Conta sem perfil autorizado. Contate a administra??o.');
+      if (!['ADMIN', 'VIGILANTE', 'FUNCIONARIO'].includes(user.role)) throw new Error('Conta sem perfil autorizado. Contate a administração.');
       location.assign(homeForRole(user.role));
     } catch (error) { window.alert(error.message); }
     finally { button.disabled = false; }
