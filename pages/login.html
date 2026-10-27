@@ -4,22 +4,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Login | ParkSchool</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-
     <link
         href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=Inter:wght@400;500;600&display=swap"
         rel="stylesheet">
-
-    <!-- Estilos globais e da página -->
     <link rel="stylesheet" href="../css/styles.css">
 </head>
 
 <body data-page="login">
-
     <div class="container-fluid p-0">
         <div class="row vh-100 g-0">
-
             <div class="col-lg-6 d-none d-lg-block p-0 position-relative h-100">
                 <div id="carouselExampleSlidesOnly" class="carousel slide h-100" data-bs-ride="carousel"
                     data-bs-pause="false" data-bs-interval="4000">
@@ -37,17 +32,15 @@
 
                 <div
                     class="text-layer position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center align-items-center p-5 text-white text-center pe-none">
-                    <div class="restrita-text text-uppercase fw-semibold tracking-wide mb-4">
-                        Área Restrita
-                    </div>
+                    <div class="restrita-text text-uppercase fw-semibold tracking-wide mb-4">Área Restrita</div>
                     <h1 class="display-5 fw-bold mb-3">Gestão de Estacionamento</h1>
                     <p class="monitore-text fs-5 mb-5">
                         Monitore vagas em tempo real, gerencie reservas e acompanhe o histórico de acessos em um único
                         painel.
                     </p>
                     <div class="acesso-text d-flex align-items-center justify-content-center">
-                        <i class="fa-solid fa-shield me-2 fs-5"></i>
-                        Acesso exclusivo para administradores autorizados
+                        <i class="fa-solid fa-shield me-2 fs-5" aria-hidden="true"></i>
+                        Acesso exclusivo para pessoas autorizadas
                     </div>
                 </div>
             </div>
@@ -58,46 +51,36 @@
                     <h2 class="fw-bold mb-2">Acesso do Login</h2>
                     <p class="ds-text-secondary mb-4">Informe suas credenciais para entrar no painel.</p>
 
-                    <form>
+                    <form id="login-form">
                         <div class="mb-3">
                             <label for="email" class="form-label fw-medium">E-mail</label>
                             <div class="input-group ds-input-group">
-                                <span class="input-group-text border-end-0"><i
-                                        class="fa-regular fa-envelope"></i></span>
-                                <input type="email" class="form-control border-start-0 ps-0" id="email"
-                                    placeholder="admin@estacionamento.com" required>
+                                <span class="input-group-text border-end-0"><i class="fa-regular fa-envelope"
+                                        aria-hidden="true"></i></span>
+                                <input type="email" class="form-control border-start-0 ps-0" id="email" name="email"
+                                    placeholder="nome@escola.com" autocomplete="email" required>
                             </div>
                         </div>
 
                         <div class="mb-4">
                             <label for="senha" class="form-label fw-medium">Senha</label>
                             <div class="input-group ds-input-group">
-                                <span class="input-group-text border-end-0"><i class="fa-solid fa-lock"></i></span>
-                                <input type="password" class="form-control border-start-0 ps-0"
-                                    placeholder="insira sua senha..." id="senha" required>
+                                <span class="input-group-text border-end-0"><i class="fa-solid fa-lock"
+                                        aria-hidden="true"></i></span>
+                                <input type="password" class="form-control border-start-0 ps-0" id="senha"
+                                    name="password" placeholder="Insira sua senha" autocomplete="current-password"
+                                    required>
                             </div>
                         </div>
 
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="lembrar" style="cursor: pointer;">
-                                <label class="form-check-label ds-text-secondary" for="lembrar"
-                                    style="cursor: pointer;">Manter conectado</label>
-                            </div>
-                            <a href="esqueci_senha.html" class="text-decoration-none ds-text-primary fw-medium">Esqueci
-                                a senha</a>
-                        </div>
-
-                        <button type="submit" class="ds-btn-primary w-100 py-2 fw-semibold">Entrar</button>
-                        <div>
-                            <a class="d-flex justify-content-center text-decoration-none" href="registrar.html">Não tem
-                                uma conta? Criar uma conta </a>
-                        </div>
-
+                        <button id="login-submit" type="submit" class="ds-btn-primary w-100 py-2 fw-semibold">
+                            <span id="login-submit-label">Entrar</span>
+                        </button>
+                        <div id="login-feedback" class="alert alert-danger d-none mt-3 mb-0" role="alert"
+                            aria-live="assertive"></div>
                     </form>
                 </div>
             </div>
-
         </div>
     </div>
     <script type="module" src="../js/main.js"></script>

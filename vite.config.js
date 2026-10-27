@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 
 const pages = [
-  'admin', 'cadastro_veiculo', 'esqueci_senha', 'login',
+  'admin', 'cadastro_veiculo', 'esqueci_senha', 'login', 'perfil',
   'registrar', 'reserva_vaga', 'sobre', 'tela-vigilante', 'tela_termos',
 ];
 const input = Object.fromEntries(pages.map((page) => [page, fileURLToPath(new URL(`./pages/${page}.html`, import.meta.url))]));
