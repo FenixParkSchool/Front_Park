@@ -8,7 +8,9 @@
   "scripts": {
     "test": "node --test",
     "dev": "vite",
-    "build": "vite build",
+    "dev:prod": "vite --mode production",
+    "build": "vite build --mode production",
+    "build:local": "vite build --mode development",
     "preview": "vite preview"
   },
   "repository": {
