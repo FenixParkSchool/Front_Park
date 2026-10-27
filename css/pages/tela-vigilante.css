@@ -262,11 +262,11 @@ body.vigilante-page {
   box-shadow: 0 0 0 0.2rem rgba(29, 57, 125, 0.12);
 }
 
-.vagas-grid {
+body.vigilante-page .vagas-grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: var(--spacing-2);
-  padding: 0 var(--spacing-3) var(--spacing-3);
+  padding: var(--spacing-2) var(--spacing-3) var(--spacing-3);
   min-height: 0;
   width: 100%;
   max-width: 100%;
@@ -276,7 +276,7 @@ body.vigilante-page {
   flex: 1;
 }
 
-.vaga-card {
+body.vigilante-page .vaga-card {
   position: relative;
   text-align: center;
   border: 1.5px solid var(--border-color);
@@ -295,7 +295,7 @@ body.vigilante-page {
   align-items: center;
 }
 
-.vaga-card:hover {
+body.vigilante-page .vaga-card:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
@@ -696,7 +696,7 @@ body.vigilante-page {
 }
 
 @media (max-width: 1050px) {
-  .vagas-grid {
+  body.vigilante-page .vagas-grid {
     grid-template-columns: repeat(5, 1fr);
   }
 
@@ -730,9 +730,9 @@ body.vigilante-page {
     align-self: flex-start;
   }
 
-  .vagas-grid {
+  body.vigilante-page .vagas-grid {
     grid-template-columns: repeat(3, 1fr);
-    padding: 0 var(--spacing-3) var(--spacing-4);
+    padding: var(--spacing-2) var(--spacing-3) var(--spacing-4);
   }
 
   .panel-header {

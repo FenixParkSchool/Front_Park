@@ -1,18 +1,18 @@
-.vaga-titulo {
+body.vigilante-page .vaga-titulo {
     background-color: var(--color-success) !important; 
     color: var(--text-inverse) !important;
     transition: background-color var(--transition-normal); 
 }
 
-.vaga-titulo.bg-vermelho {
+body.vigilante-page .vaga-titulo.bg-vermelho {
     background-color: var(--color-danger) !important;
 }
 
-.vaga-card {
+body.vigilante-page .vaga-card {
     cursor: pointer;
     transition: transform var(--transition-fast);
 }
 
-.vaga-card:hover {
+body.vigilante-page .vaga-card:hover {
     transform: scale(1.05);
 }

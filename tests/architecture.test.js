@@ -44,6 +44,20 @@ test('o Admin tem uma navegação e uma tela própria para Perfis de acesso', ()
   assert.match(adminCss, /@media \(max-width: 767\.98px\)[\s\S]*?\.admin-profile-table tbody \{/u);
 });
 
+test('estilos de hover e overflow do Vigilante não vazam para o mapa do Admin', () => {
+  const adminCss = readFileSync(join(projectRoot, 'css/pages/admin.css'), 'utf8');
+  const securityCss = readFileSync(join(projectRoot, 'css/pages/tela-seguranca.css'), 'utf8');
+  const vigilanteCss = readFileSync(join(projectRoot, 'css/pages/tela-vigilante.css'), 'utf8');
+
+  assert.match(adminCss, /#grupos-vagas \.vaga-card\s*\{[^}]*cursor:\s*default/u);
+  assert.match(vigilanteCss, /body\.vigilante-page \.vagas-grid\s*\{[^}]*overflow-y:\s*auto;[^}]*overflow-x:\s*hidden;/u);
+  assert.match(vigilanteCss, /body\.vigilante-page \.vaga-card:hover\s*\{/u);
+  assert.match(securityCss, /body\.vigilante-page \.vaga-card:hover\s*\{/u);
+  assert.doesNotMatch(vigilanteCss, /(?:^|\n)\s*\.vagas-grid\s*\{/u);
+  assert.doesNotMatch(vigilanteCss, /(?:^|\n)\s*\.vaga-card:hover\s*\{/u);
+  assert.doesNotMatch(securityCss, /(?:^|\n)\s*\.vaga-card:hover\s*\{/u);
+});
+
 test('fontes do frontend são UTF-8, textos não têm acentos substituídos e páginas carregam recursos tipográficos', () => {
   for (const sourcePath of sourceFiles) {
     const filename = sourcePath.slice(projectRoot.length + 1);
