@@ -757,3 +757,53 @@ body.vigilante-page .vaga-card:hover {
     display: none;
   }
 }
+.vigilante-page .nav-user {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  margin-left: var(--spacing-5); /* espaço depois do "Entrar" */
+}
+
+.vigilante-page .nav-user-avatar {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-circle);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-bold);
+  flex-shrink: 0;
+}
+
+.vigilante-page .nav-user-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+  color: #fff;
+}
+
+.vigilante-page .nav-user-info small {
+  font-size: var(--font-size-xs);
+  opacity: 0.85;
+}
+
+.vigilante-page .nav-user #btn-sair {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* centraliza o texto */
+  height: 40px;
+  padding: 0 var(--spacing-4);
+  color: #fff;
+  background: transparent;
+  border: 1px solid #fff;
+  border-radius: var(--radius-md);
+  font-weight: var(--font-weight-semibold);
+}
+
+.vigilante-page .nav-user #btn-sair:hover {
+  background: #fff;
+  color: var(--color-primary);
+}
+
+
