@@ -4,6 +4,8 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import {
   canOpenPage,
+  bindLogout,
+  logout,
   pageForProfile,
   profileFromSession,
   protectPage,
@@ -69,7 +71,8 @@ test('cada página privada permite somente o perfil autorizado', () => {
   assert.equal(canOpenPage('admin', 'FUNCIONARIO'), false);
   assert.equal(canOpenPage('reserva', 'VIGILANTE'), false);
   assert.equal(canOpenPage('perfil', 'ADMINISTRADOR'), false);
-  assert.equal(canOpenPage('cadastroVeiculo', 'FUNCIONARIO'), false);
+  assert.equal(canOpenPage('cadastroVeiculo', 'FUNCIONARIO'), true);
+  assert.equal(canOpenPage('cadastroVeiculo', 'ADMINISTRADOR'), false);
 });
 
 test('perfil autorizado libera a página depois de consultar a sessão e só então inicializa dados', async () => {
@@ -111,6 +114,18 @@ test('a página legada de veículos valida a sessão e redireciona o funcionári
   assert.equal(allowed, false);
   assert.equal(initialized, false);
   assert.deepEqual(harness.redirects, ['perfil.html']);
+});
+
+test('o cadastro de veículos é liberado somente quando o funcionário possui ficha vinculada', async () => {
+  const harness = createHarness({ href: 'https://app.example/pages/cadastro_veiculo.html' });
+  let initialized = false;
+  const allowed = await protectPage('cadastroVeiculo', () => { initialized = true; }, dependencies(
+    harness,
+    async () => ({ user: { role: 'FUNCIONARIO', idFuncionario: 27 } }),
+  ));
+  assert.equal(allowed, true);
+  assert.equal(initialized, true);
+  assert.deepEqual(harness.redirects, []);
 });
 
 test('401 na consulta inicial exige login e não inicializa a página', async () => {
@@ -173,6 +188,53 @@ test('401 posterior oculta novamente a página protegida e redireciona para o lo
   harness.handlers.get('parkschool:session-expired')();
   assert.equal(harness.body.dataset.accessState, 'expired');
   assert.deepEqual(harness.redirects, ['login.html']);
+});
+
+test('logout envia POST, limpa o estado privado e abre o login somente após sucesso', async () => {
+  const harness = createHarness();
+  let cleared = 0;
+  const originalStorage = globalThis.sessionStorage;
+  Object.defineProperty(globalThis, 'sessionStorage', {
+    configurable: true,
+    value: { clear: () => { cleared += 1; } },
+  });
+  try {
+    const requests = [];
+    await logout({
+      apiClient: async (path, options) => { requests.push({ path, options }); },
+      documentRef: harness.documentRef,
+      windowRef: harness.windowRef,
+    });
+    assert.deepEqual(requests, [{ path: '/logout', options: { method: 'POST' } }]);
+    assert.equal(cleared, 1);
+    assert.equal(harness.body.dataset.accessState, 'expired');
+    assert.deepEqual(harness.redirects, ['login.html']);
+  } finally {
+    if (originalStorage) Object.defineProperty(globalThis, 'sessionStorage', { configurable: true, value: originalStorage });
+    else delete globalThis.sessionStorage;
+  }
+});
+
+test('falha de rede no logout mantém o botão disponível e exibe erro sem redirecionar', async () => {
+  const harness = createHarness();
+  const button = {
+    disabled: false,
+    handler: null,
+    addEventListener(eventName, handler) {
+      if (eventName === 'click') this.handler = handler;
+    },
+  };
+  harness.documentRef.querySelectorAll = () => [button];
+  bindLogout({
+    documentRef: harness.documentRef,
+    windowRef: harness.windowRef,
+    apiClient: async () => { throw new TypeError('Falha de rede.'); },
+  });
+  await button.handler();
+  assert.equal(button.disabled, false);
+  assert.equal(harness.feedback.hidden, false);
+  assert.equal(harness.feedback.textContent, 'Falha de rede.');
+  assert.deepEqual(harness.redirects, []);
 });
 
 test('todas as páginas privadas apresentam gate antes do conteúdo e carregam main.js', () => {

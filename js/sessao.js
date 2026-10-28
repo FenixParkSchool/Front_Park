@@ -11,7 +11,7 @@ const PAGE_POLICIES = Object.freeze({
   vigilante: ['VIGILANTE'],
   perfil: ['FUNCIONARIO'],
   reserva: ['ADMINISTRADOR'],
-  cadastroVeiculo: [],
+  cadastroVeiculo: ['FUNCIONARIO'],
 });
 
 export const isProtectedPage = (pageName) => Object.hasOwn(PAGE_POLICIES, pageName);
@@ -33,8 +33,59 @@ export function pageForProfile(profile) {
 }
 
 export function canOpenPage(pageName, profile) {
-  if (!Object.hasOwn(PAGE_POLICIES, pageName) || pageName === 'cadastroVeiculo') return false;
+  if (!Object.hasOwn(PAGE_POLICIES, pageName)) return false;
   return PAGE_POLICIES[pageName].includes(canonicalProfile(profile));
+}
+
+export async function logout({
+  apiClient = api,
+  documentRef = globalThis.document,
+  windowRef = globalThis.window,
+} = {}) {
+  await apiClient('/logout', { method: 'POST' });
+
+  if (typeof globalThis.sessionStorage?.clear === 'function') {
+    globalThis.sessionStorage.clear();
+  }
+  if (documentRef?.body) {
+    documentRef.body.dataset.accessState = 'expired';
+  }
+  windowRef.location.replace('login.html');
+}
+
+function showLogoutError(documentRef, message) {
+  const feedback = documentRef.getElementById('logout-feedback')
+    || documentRef.getElementById('access-feedback');
+  if (!feedback) return;
+  feedback.textContent = message || 'Não foi possível sair agora. Confira a conexão e tente novamente.';
+  feedback.hidden = false;
+}
+
+export function bindLogout({
+  documentRef = globalThis.document,
+  windowRef = globalThis.window,
+  apiClient = api,
+} = {}) {
+  if (documentRef.body?.dataset.logoutBound === 'true') return;
+  const buttons = [...(documentRef.querySelectorAll?.('[data-action="logout"]') || [])];
+  if (buttons.length === 0) return;
+  documentRef.body.dataset.logoutBound = 'true';
+
+  let requestInFlight = false;
+  buttons.forEach((button) => {
+    button.addEventListener('click', async () => {
+      if (requestInFlight) return;
+      requestInFlight = true;
+      buttons.forEach((item) => { item.disabled = true; });
+      try {
+        await logout({ apiClient, documentRef, windowRef });
+      } catch (error) {
+        requestInFlight = false;
+        buttons.forEach((item) => { item.disabled = false; });
+        showLogoutError(documentRef, error.message);
+      }
+    });
+  });
 }
 
 function setGateMessage(documentRef, message) {
@@ -145,10 +196,11 @@ export async function protectPage(
       return false;
     }
 
-    if (pageName === 'cadastroVeiculo') {
+    const funcionarioId = sessionData?.user?.idFuncionario ?? sessionData?.idFuncionario;
+    if (pageName === 'cadastroVeiculo' && !funcionarioId) {
       body.dataset.accessState = 'redirecting';
-      setGateMessage(documentRef, 'Esta página foi substituída. Redirecionando para sua área...');
-      windowRef.location.replace(home);
+      setGateMessage(documentRef, 'Complete sua ficha antes de cadastrar veículos. Redirecionando...');
+      windowRef.location.replace('perfil.html');
       return false;
     }
 

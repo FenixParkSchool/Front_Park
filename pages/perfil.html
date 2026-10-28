@@ -1,16 +1,13 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#1D397D">
     <title>Meu perfil | ParkSchool</title>
-    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=Inter:wght@400;500;600&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/styles.css">
 </head>
-
 <body data-page="perfil" data-access-required="true" data-access-state="checking">
     <div id="access-state" class="access-state" role="status" aria-live="polite">
         <div class="access-state__panel">
@@ -19,18 +16,82 @@
         </div>
     </div>
     <div id="access-feedback" class="access-feedback" role="alert" aria-live="assertive" hidden></div>
-    <main class="container min-vh-100 d-flex align-items-center justify-content-center py-5">
-        <div class="row justify-content-center w-100">
-            <div class="col-12 col-lg-8 col-xl-7">
-                <section class="card border-0 shadow-sm p-4 p-md-5" aria-labelledby="titulo-perfil">
-                    <p class="text-uppercase fw-semibold ds-text-primary mb-2">Área do funcionário</p>
-                    <h1 id="titulo-perfil" class="fw-bold mb-3">Meu perfil</h1>
-                    <p class="ds-text-secondary mb-0">Suas informações de perfil serão exibidas nesta área.</p>
-                </section>
+
+    <main class="container perfil-shell py-5">
+        <header class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-4">
+            <div>
+                <p class="text-uppercase fw-semibold ds-text-primary mb-2">Área do funcionário</p>
+                <h1 class="fw-bold mb-2">Meu perfil</h1>
+                <p class="ds-text-secondary mb-0">Mantenha seus dados atualizados para cadastrar e consultar seus veículos.</p>
             </div>
-        </div>
+            <button class="btn ds-btn-outline" data-action="logout" type="button">Sair</button>
+        </header>
+
+        <div id="perfil-feedback" class="access-feedback position-static translate-none w-100 mb-4" role="status" aria-live="polite" hidden></div>
+
+        <section class="perfil-card p-4 p-md-5 mb-4" aria-labelledby="titulo-conta">
+            <h2 id="titulo-conta" class="h4 fw-bold mb-3">Minha conta</h2>
+            <div class="perfil-account">
+                <div>
+                    <span class="perfil-account__label d-block">Nome da conta</span>
+                    <strong id="conta-nome">Carregando…</strong>
+                </div>
+                <div>
+                    <span class="perfil-account__label d-block">E-mail da conta</span>
+                    <strong id="conta-email">Carregando…</strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="perfil-card p-4 p-md-5 mb-4" aria-labelledby="titulo-ficha">
+            <div class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-3">
+                <div>
+                    <h2 id="titulo-ficha" class="h4 fw-bold mb-2">Dados do funcionário</h2>
+                    <p id="orientacao-ficha" class="ds-text-secondary mb-0" hidden>Preencha sua primeira ficha. Depois de salvar, o cadastro de veículos será liberado.</p>
+                </div>
+            </div>
+            <form id="form-funcionario" novalidate>
+                <div class="row g-3">
+                    <div class="col-12 col-md-6">
+                        <label class="form-label" for="nomeFuncionario">Nome completo</label>
+                        <input class="form-control" id="nomeFuncionario" name="nomeFuncionario" type="text" maxlength="100" required>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label" for="telefoneFuncionario">Telefone</label>
+                        <input class="form-control" id="telefoneFuncionario" name="telefoneFuncionario" type="tel" maxlength="15" required>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label" for="emailFuncionario">E-mail da conta</label>
+                        <input class="form-control" id="emailFuncionario" name="emailFuncionario" type="email" readonly aria-readonly="true">
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label" for="identificaOFuncionario">Matrícula/identificação funcional</label>
+                        <input class="form-control" id="identificaOFuncionario" name="identificaOFuncionario" type="text" maxlength="100" required>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-check">
+                            <input class="form-check-input" id="pcdFuncionario" name="pcdFuncionario" type="checkbox">
+                            <label class="form-check-label" for="pcdFuncionario">Sou uma pessoa com deficiência (PCD)</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end mt-4">
+                    <button class="btn ds-btn-primary" type="submit">Salvar dados</button>
+                </div>
+            </form>
+        </section>
+
+        <section id="secao-veiculos" class="perfil-card p-4 p-md-5" aria-labelledby="titulo-veiculos" hidden>
+            <h2 id="titulo-veiculos" class="h4 fw-bold mb-2">Meus veículos</h2>
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+                <p class="ds-text-secondary mb-0">Veículos vinculados à sua ficha funcional.</p>
+                <a class="btn ds-btn-primary" href="cadastro_veiculo.html">Cadastrar veículo</a>
+            </div>
+            <div id="lista-meus-veiculos" class="row g-3"></div>
+            <p id="veiculos-vazio" class="ds-text-secondary mb-0">Nenhum veículo cadastrado.</p>
+        </section>
     </main>
+
     <script type="module" src="../js/main.js"></script>
 </body>
-
 </html>

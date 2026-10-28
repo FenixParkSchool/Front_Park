@@ -1,5 +1,4 @@
-import { protectPage, isProtectedPage } from './sessao.js';
-import { logout } from './services/auth.js';
+import { bindLogout, protectPage, isProtectedPage } from './sessao.js';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap';
 
@@ -11,6 +10,7 @@ const pageLoaders = {
   esqueciSenha: () => import('./pages/esqueci-senha/index.js'),
   reserva: () => import('./pages/reserva/index.js'),
   vigilante: () => import('./pages/vigilante/index.js'),
+  perfil: () => import('./pages/perfil.js'),
 };
 
 const pageName = document.body.dataset.page;
@@ -27,9 +27,14 @@ async function initializePage() {
 }
 
 if (isProtectedPage(pageName)) {
-  await protectPage(pageName, initializePage);
+  const verifyCurrentSession = async () => {
+    const authorized = await protectPage(pageName, initializePage);
+    if (authorized) bindLogout();
+  };
+  await verifyCurrentSession();
+  window.addEventListener('pageshow', (event) => {
+    if (event.persisted) verifyCurrentSession();
+  });
 } else {
   await initializePage();
 }
-
-document.getElementById('btn-sair')?.addEventListener('click', () => logout().catch(error => window.alert(error.message)));

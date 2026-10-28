@@ -1,0 +1,42 @@
+body[data-page="perfil"] {
+  background: var(--bg-body);
+}
+
+.perfil-shell {
+  max-width: 62rem;
+}
+
+.perfil-card {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.perfil-account {
+  display: grid;
+  gap: var(--spacing-1);
+  padding: var(--spacing-4);
+  border-radius: var(--radius-md);
+  background: var(--bg-body);
+}
+
+.perfil-account__label {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.perfil-vehicle-card {
+  padding: var(--spacing-4);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+}
+
+#perfil-feedback[data-tone="error"] {
+  border-color: var(--color-danger, #b42318);
+}
+
+#perfil-feedback[data-tone="success"] {
+  border-color: var(--color-success, #087443);
+}

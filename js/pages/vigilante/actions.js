@@ -30,5 +30,4 @@ export function initVigilanteActions(context) {
   document.getElementById('btnVerReservas')?.addEventListener('click', () => act('reservas'));
   document.getElementById('buscaVaga')?.addEventListener('input', () => renderVacancies(context));
   document.getElementById('filtroTipo')?.addEventListener('change', () => renderVacancies(context));
-  document.getElementById('btnSair')?.addEventListener('click', () => context.showToast('Sessão encerrada apenas nesta demonstração.'));
 }
