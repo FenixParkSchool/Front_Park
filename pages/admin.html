@@ -34,8 +34,6 @@
             aria-controls="tela-vagas"><i class="bi bi-grid-3x3-gap" aria-hidden="true"></i><span>Vagas</span></button>
           <button type="button" class="nav-link" data-nav="funcionarios" aria-controls="tela-funcionarios"><i
               class="bi bi-people" aria-hidden="true"></i><span>Funcionários</span></button>
-          <button type="button" class="nav-link" data-nav="perfis" aria-controls="tela-perfis"><i
-              class="bi bi-person-gear" aria-hidden="true"></i><span>Perfis de acesso</span></button>
           <button type="button" class="nav-link" data-nav="novo-funcionario" aria-controls="tela-novo-funcionario"><i
               class="bi bi-person-plus" aria-hidden="true"></i><span>Novo funcionário</span></button>
           <button type="button" class="nav-link" data-nav="veiculos" aria-controls="tela-veiculos"><i
@@ -117,42 +115,12 @@
           <div class="lista-func admin-list" id="lista-funcionarios" aria-live="polite"></div>
         </section>
 
-        <section id="tela-perfis" data-tela="perfis" class="admin-screen" aria-labelledby="titulo-perfis">
-          <header class="page-heading">
-            <span class="page-eyebrow">ADMINISTRAÇÃO</span>
-            <h1 id="titulo-perfis">Perfis de acesso</h1>
-            <p>Gerencie as permissões das contas e vincule usuários aos respectivos cadastros de funcionário.</p>
-          </header>
-          <div class="admin-profile-panel">
-            <div class="admin-profile-panel-heading">
-              <div>
-                <h2>Contas do sistema</h2>
-                <p>Atualize o perfil ou o vínculo de cada usuário. Cada alteração é salva separadamente.</p>
-              </div>
-            </div>
-            <div id="perfis-feedback" class="admin-profile-feedback" role="status" aria-live="polite">Carregando
-              contas...</div>
-            <div class="table-responsive admin-profile-table-wrap">
-              <table class="table admin-profile-table">
-                <caption class="visually-hidden">Gerenciar perfis de acesso e vínculos de funcionários</caption>
-                <thead>
-                  <tr>
-                    <th scope="col">Usuário</th>
-                    <th scope="col">Perfil de acesso</th>
-                    <th scope="col">Vínculo com funcionário</th>
-                  </tr>
-                </thead>
-                <tbody id="lista-perfis"></tbody>
-              </table>
-            </div>
-          </div>
-        </section>
 
         <section id="tela-novo-funcionario" data-tela="novo-funcionario" class="admin-screen"
           aria-labelledby="titulo-novo-funcionario">
           <header class="page-heading"><span class="page-eyebrow">PESSOAS</span>
             <h1 id="titulo-novo-funcionario">Cadastrar funcionário</h1>
-            <p>Preencha os dados abaixo para cadastrar manualmente um novo funcionário no sistema.</p>
+            <p id="desc-novo-funcionario">Preencha os dados abaixo para cadastrar manualmente um novo funcionário no sistema.</p>
           </header>
           <form id="formNovoFuncionarioAdmin" class="card-form admin-form">
             <div class="form-section-title"><span class="form-section-icon"><i class="bi bi-person-vcard"
@@ -185,9 +153,13 @@
                 </div>
               </fieldset>
             </div>
-            <div class="form-actions"><button type="submit"
-                class="btn ds-btn-primary d-inline-flex align-items-center gap-2"><i class="bi bi-check2"
-                  aria-hidden="true"></i> Salvar funcionário</button></div>
+            <div class="form-actions">
+              <button type="submit" class="btn ds-btn-primary d-inline-flex align-items-center gap-2">
+                <i class="bi bi-check2" aria-hidden="true"></i>
+                <span id="btn-salvar-func-texto">Salvar funcionário</span>
+              </button>
+              <button type="button" id="btn-cancelar-edicao" class="btn ds-btn-outline" hidden>Cancelar edição</button>
+            </div>
           </form>
         </section>
 
