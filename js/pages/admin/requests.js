@@ -37,5 +37,18 @@ export function initAdminRequests({ upsertEmployee, refreshEmployees }) {
     requestsRepo.save(requests.filter((item) => String(item.id) !== button.dataset.id));
     render();
   });
+
+  // Botão "Atualizar": relê os dados e redesenha a lista, sem precisar do F5
+  const refreshBtn = document.getElementById('btn-atualizar-solicitacoes');
+  refreshBtn?.addEventListener('click', () => {
+    const icon = refreshBtn.querySelector('i');
+    icon?.classList.add('girando');
+    render();
+    setTimeout(() => icon?.classList.remove('girando'), 600);
+  });
+
+  // Atualiza sozinho quando outra aba alterar os dados (localStorage)
+  window.addEventListener('storage', render);
+
   render();
 }
