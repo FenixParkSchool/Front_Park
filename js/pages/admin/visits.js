@@ -92,7 +92,7 @@ export function initAdminVisits() {
       window.alert('Informe uma placa válida.');
       return;
     }
- 
+
     const submit = form.querySelector('[type="submit"]');
     if (submit) submit.disabled = true;
     try {
