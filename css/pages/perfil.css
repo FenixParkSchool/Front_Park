@@ -6,6 +6,12 @@ body[data-page="perfil"] {
   max-width: 62rem;
 }
 
+#perfil-feedback {
+  margin-left: 50%;
+  margin-right: auto;
+  text-align: center;
+}
+
 .perfil-card {
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
