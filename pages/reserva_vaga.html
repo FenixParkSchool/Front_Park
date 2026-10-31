@@ -1,23 +1,16 @@
 <!doctype html>
 <html lang="pt-BR">
-
+ 
 <head>
-
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    <title>Reserva de Vaga | ParkSchool</title>
+ 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=Inter:wght@400;500;600&display=swap">
-
-    <title>Reserva de Vaga</title>
-
-    <!-- Bootstrap 5 -->
-
-    <!-- CSS próprio -->
     <link rel="stylesheet" href="../css/styles.css">
-
 </head>
-
+ 
 <body data-page="reserva" data-access-required="true" data-access-state="checking">
     <div id="access-state" class="access-state" role="status" aria-live="polite">
         <div class="access-state__panel">
@@ -26,184 +19,92 @@
         </div>
     </div>
     <div id="access-feedback" class="access-feedback" role="alert" aria-live="assertive" hidden></div>
-
-    <!-- NAVBAR -->
+ 
     <nav class="navbar navbar-expand-lg navbar-home px-3 px-lg-4 py-3">
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center gap-2 text-white fw-bold" href="../index.html">
                 <i class="fa-solid fa-square-parking fs-3"></i>
                 <span>ParkSchool</span>
             </a>
-            <span class="nav-link-home fw-semibold text-white ms-auto">
-                Reserva de vaga
+            <span class="ms-auto d-flex align-items-center gap-3">
+                <a class="nav-link-home fw-semibold text-white" href="admin.html">Painel administrativo</a>
+                <span class="nav-link-home fw-semibold text-white">Reserva de vaga</span>
             </span>
         </div>
     </nav>
-
-
-    <!-- ÁREA PRINCIPAL -->
+ 
     <div class="container-fluid">
-
         <div class="row justify-content-center mt-5">
-
-            <!-- CONTEÚDO -->
             <div class="col-10 col-md-8 col-lg-6">
-
-                <!-- FORMULÁRIO -->
+ 
                 <form id="formReserva" class="row g-3">
-
-                    <!-- TÍTULO -->
                     <div class="col-12 mt-4">
-
-                        <h4 class="titulo-secao">
-                            Reserva de vaga
-                        </h4>
-
+                        <h4 class="titulo-secao">Reserva de vaga para visita</h4>
+                        <p class="text-secondary mb-0">Escolha o visitante e o veículo cadastrados, a vaga, o dia e o intervalo.</p>
                     </div>
-
-
-                    <!-- VAGA -->
+ 
                     <div class="col-md-6">
-
-                        <label for="n_vaga" class="form-label fw-semibold">
-                            Nº da vaga
-                        </label>
-
-                        <input type="text" class="form-control" id="n_vaga" name="vaga" placeholder="Ex: 1, 2, 3..."
-                            required>
-
-                    </div>
-
-
-                    <!-- PLACA -->
-                    <div class="col-md-6">
-
-                        <label for="placaVeiculo_visitante" class="form-label fw-semibold">
-                            Placa do veículo
-                        </label>
-
-                        <input type="text" class="form-control" id="placaVeiculo_visitante" name="placaVeiculo"
-                            placeholder="ABC-1234 ou ABC1D23" maxlength="8" required>
-
-                    </div>
-
-
-                    <!-- TIPO DA VAGA -->
-                    <div class="col-md-6">
-
-                        <label for="tipo_vaga" class="form-label fw-semibold">
-                            Tipo de vaga
-                        </label>
-
-                        <select class="form-select" id="tipo_vaga" name="tipo_vaga" required>
-
-                            <option value="">
-                                Selecione o tipo de vaga
-                            </option>
-
-                            <option value="carro">
-                                Carro
-                            </option>
-
-                            <option value="pcd">
-                                Carro PCD
-                            </option>
-
-                            <option value="moto">
-                                Moto
-                            </option>
-
-                            <option value="carga">
-                                Carga
-                            </option>
-
+                        <label for="reserva-visitante" class="form-label fw-semibold">Visitante</label>
+                        <select class="form-select" id="reserva-visitante" required>
+                            <option value="">Selecione o visitante</option>
                         </select>
-
                     </div>
-
-
-                    <!-- MOTIVO -->
+ 
                     <div class="col-md-6">
-
-                        <label for="motivo_vaga" class="form-label fw-semibold">
-                            Motivo da reserva
-                        </label>
-
-                        <input type="text" class="form-control" id="motivo_vaga" name="motivo_vaga"
-                            placeholder="Ex: Manutenção, evento, reforma..." required>
-
+                        <label for="reserva-veiculo" class="form-label fw-semibold">Veículo do visitante</label>
+                        <select class="form-select" id="reserva-veiculo" required>
+                            <option value="">Selecione o visitante primeiro</option>
+                        </select>
                     </div>
-
-
-                    <!-- DATA -->
+ 
                     <div class="col-md-6">
-
-                        <label for="data_vaga" class="form-label fw-semibold">
-                            Data da reserva
-                        </label>
-
-                        <input type="date" class="form-control" id="data_vaga" name="data_vaga" required>
-
+                        <label for="reserva-vaga" class="form-label fw-semibold">Vaga</label>
+                        <select class="form-select" id="reserva-vaga" required>
+                            <option value="">Selecione a vaga</option>
+                        </select>
                     </div>
-
-
-                    <!-- HORÁRIO DE ENTRADA -->
+ 
                     <div class="col-md-6">
-
-                        <label for="hora_entrada" class="form-label fw-semibold">
-                            Horário de entrada
-                        </label>
-
-                        <input type="time" class="form-control" id="hora_entrada" name="hora_entrada" required>
-
+                        <label for="reserva-placa" class="form-label fw-semibold">Placa do veículo</label>
+                        <input type="text" class="form-control" id="reserva-placa" placeholder="Preenchida pelo veículo" readonly>
                     </div>
-
-
-                    <!-- HORÁRIO DE SAÍDA -->
-                    <div class="col-md-6">
-
-                        <label for="hora_saida" class="form-label fw-semibold">
-                            Horário de saída
-                        </label>
-
-                        <input type="time" class="form-control" id="hora_saida" name="hora_saida" required>
-
+ 
+                    <div class="col-12">
+                        <label for="motivo_vaga" class="form-label fw-semibold">Motivo da reserva</label>
+                        <input type="text" class="form-control" id="motivo_vaga" placeholder="Ex.: Reunião" maxlength="500" required>
                     </div>
-
-
-                    <!-- BOTÕES -->
-                    <div class="col-12 mt-4 mb-5">
-
-                        <button type="submit" class="btn btn-primary me-2" id="btnCadastrar_reserva">
-
-                            Cadastrar
-
-                        </button>
-
-
-                        <button type="reset" class="btn btn-secondary" id="btnLimpar_reserva">
-
-                            Limpar
-
-                        </button>
-
+ 
+                    <div class="col-md-4">
+                        <label for="data_vaga" class="form-label fw-semibold">Data</label>
+                        <input type="date" class="form-control" id="data_vaga" required>
                     </div>
-
+                    <div class="col-md-4">
+                        <label for="hora_entrada" class="form-label fw-semibold">Entrada</label>
+                        <input type="time" class="form-control" id="hora_entrada" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="hora_saida" class="form-label fw-semibold">Saída</label>
+                        <input type="time" class="form-control" id="hora_saida" required>
+                    </div>
+ 
+                    <p id="reserva-status" class="form-text mb-0" role="status" aria-live="polite"></p>
+ 
+                    <div class="col-12 mt-2 mb-4">
+                        <button type="submit" class="btn btn-primary me-2" id="btnCadastrar_reserva">Reservar</button>
+                        <button type="reset" class="btn btn-secondary" id="btnLimpar_reserva">Limpar</button>
+                    </div>
                 </form>
-
+ 
+                <section aria-labelledby="titulo-reservas" class="mb-5">
+                    <h4 class="titulo-secao" id="titulo-reservas">Reservas cadastradas</h4>
+                    <div id="lista-reservas" class="admin-list" aria-live="polite"></div>
+                </section>
+ 
             </div>
-
         </div>
-
     </div>
-
-
-    <!-- Bootstrap JS -->
-
-
-    <!-- JavaScript da reserva -->
-
+ 
     <script type="module" src="../js/main.js"></script>
 </body>
-
+ 
 </html>
