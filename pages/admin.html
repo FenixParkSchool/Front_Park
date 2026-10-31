@@ -42,6 +42,11 @@
               class="bi bi-envelope-paper" aria-hidden="true"></i><span>Solicitações</span></button>
           <button type="button" class="nav-link" data-nav="visitas" aria-controls="tela-visitas"><i
               class="bi bi-calendar2-check" aria-hidden="true"></i><span>Visitas</span></button>
+            
+          <button type="button" class="nav-link" href="reserva_vaga.html"><i 
+              class="bi bi-calendar-plus" aria-hidden="true"></i><span>Reservar vaga</span></button>  
+
+
         </nav>
       </div>
       <div class="sidebar-footer">
@@ -56,38 +61,45 @@
     <main id="conteudo" class="admin-content flex-grow-1">
       <div class="admin-content-inner">
         <section id="tela-vagas" data-tela="vagas" class="admin-screen ativa" aria-labelledby="titulo-vagas">
-          <header class="page-heading">
-            <span class="page-eyebrow">PAINEL DE CONTROLE</span>
-            <h1 id="titulo-vagas">Vagas de estacionamento</h1>
-            <p>42 vagas ao todo nesta unidade. Esta tela é somente para consulta — o status de cada vaga é atualizado
-              pelo sistema, sem reserva manual.</p>
-          </header>
-          <div class="row g-3 admin-stats" aria-label="Resumo das vagas">
-            <div class="col-6 col-sm-5 col-lg-3">
-              <article class="stat-card stat-card-primary"><span class="stat-icon" aria-hidden="true"><i
-                    class="bi bi-grid-3x3-gap"></i></span>
-                <div>
-                  <p>Total de vagas</p><strong class="valor" id="stat-total">42</strong>
-                </div>
-              </article>
-            </div>
-            <div class="col-6 col-sm-5 col-lg-3">
-              <article class="stat-card stat-card-success"><span class="stat-icon" aria-hidden="true"><i
-                    class="bi bi-check2-circle"></i></span>
-                <div>
-                  <p>Livres agora</p><strong class="valor" id="stat-livres">0</strong>
-                </div>
-              </article>
-            </div>
-          </div>
-          <div class="section-heading">
-            <div>
-              <h2>Mapa de vagas</h2>
-              <p>Acompanhe a disponibilidade por categoria.</p>
-            </div><span class="live-indicator"><span></span> Atualizado pelo sistema</span>
-          </div>
-          <div id="grupos-vagas" aria-live="polite"></div>
-        </section>
+  <header class="page-heading">
+    <span class="page-eyebrow">PAINEL DE CONTROLE</span>
+    <h1 id="titulo-vagas">Vagas de estacionamento</h1>
+    <p>Cadastre, edite e exclua as vagas usadas em todas as telas do estacionamento.</p>
+  </header>
+ 
+  <div class="row g-3 admin-stats" aria-label="Resumo das vagas">
+    <div class="col-6 col-sm-5 col-lg-3">
+      <article class="stat-card stat-card-primary"><span class="stat-icon" aria-hidden="true"><i class="bi bi-grid-3x3-gap"></i></span>
+        <div><p>Total de vagas</p><strong class="valor" id="stat-total">0</strong></div>
+      </article>
+    </div>
+  </div>
+ 
+  <div class="toolbar-row">
+    <button id="btn-nova-vaga" class="btn ds-btn-primary d-inline-flex align-items-center gap-2" type="button"><i class="bi bi-plus-lg" aria-hidden="true"></i> Nova vaga</button>
+  </div>
+ 
+  <form id="form-vaga" class="card-form admin-form d-none" novalidate>
+    <div class="form-section-title"><span class="form-section-icon"><i class="bi bi-grid-3x3-gap" aria-hidden="true"></i></span>
+      <div><h2 id="titulo-form-vaga">Nova vaga</h2><p>O número da vaga é único: não pode se repetir, mesmo em outra categoria.</p></div>
+    </div>
+    <div class="row g-3">
+      <div class="col-md-4"><label class="form-label" for="vaga-numero">Número da vaga</label><input type="number" id="vaga-numero" class="form-control" min="1" step="1" placeholder="Ex.: 10" required></div>
+      <div class="col-md-8"><label class="form-label" for="vaga-tipo">Tipo / categoria</label><input type="text" id="vaga-tipo" class="form-control" list="vaga-tipos" maxlength="20" placeholder="Ex.: visitante" autocomplete="off" required><datalist id="vaga-tipos"></datalist></div>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn ds-btn-primary d-inline-flex align-items-center gap-2"><i class="bi bi-check2" aria-hidden="true"></i> Salvar vaga</button>
+      <button type="button" id="btn-cancelar-vaga" class="btn ds-btn-outline">Cancelar</button>
+    </div>
+  </form>
+ 
+  <p id="vagas-feedback" class="form-text mt-3" role="status" aria-live="polite"></p>
+ 
+  <div class="section-heading">
+    <div><h2>Vagas cadastradas</h2><p>Agrupadas por categoria. A ocupação em tempo real será exibida quando o controle de entrada e saída estiver disponível.</p></div>
+  </div>
+  <div id="grupos-vagas" aria-live="polite"></div>
+</section>
  
         <section id="tela-funcionarios" data-tela="funcionarios" class="admin-screen"
           aria-labelledby="titulo-funcionarios">
@@ -237,11 +249,12 @@
           <div id="lista-solicitacoes" class="admin-list" aria-live="polite"></div>
         </section>
  
-        <section id="tela-visitas" data-tela="visitas" class="admin-screen" aria-labelledby="titulo-visitas">
+        
+  <section id="tela-visitas" data-tela="visitas" class="admin-screen" aria-labelledby="titulo-visitas">
   <header class="page-heading">
     <span class="page-eyebrow">ACESSO À UNIDADE</span>
     <h1 id="titulo-visitas">Registrar visita</h1>
-    <p>Cadastre quem vai visitar e qual veículo será usado, antes de reservar uma vaga.</p>
+    <p>Cadastre quem vai visitar e qual veículo será usado, antes de reservar uma vaga. Para quem já foi cadastrado, basta selecioná-lo.</p>
   </header>
  
   <form id="formNovaVisitaAdmin" class="card-form admin-form">
@@ -249,10 +262,14 @@
       <span class="form-section-icon"><i class="bi bi-person-vcard" aria-hidden="true"></i></span>
       <div>
         <h2>Dados do visitante</h2>
-        <p>Todos os campos são obrigatórios.</p>
+        <p>Escolha um visitante já cadastrado ou preencha os dados de um novo.</p>
       </div>
     </div>
     <div class="row g-3">
+      <div class="col-12">
+        <label class="form-label" for="visita-visitante-select">Visitante cadastrado</label>
+        <select id="visita-visitante-select" class="form-select"><option value="">Novo visitante</option></select>
+      </div>
       <div class="col-md-6"><label class="form-label" for="visita-nome">Nome do visitante</label><input type="text" id="visita-nome" class="form-control" placeholder="Ex.: Mariana Souza" autocomplete="name" minlength="2" maxlength="100" required></div>
       <div class="col-md-6"><label class="form-label" for="visita-telefone">Telefone</label><input type="tel" id="visita-telefone" class="form-control" placeholder="(12) 91234-5678" autocomplete="tel" inputmode="tel" maxlength="16" required></div>
       <div class="col-12"><label class="form-label" for="visita-evento">Evento / motivo da visita</label><input type="text" id="visita-evento" class="form-control" placeholder="Ex.: Reunião com a coordenação" minlength="2" maxlength="100" required></div>
@@ -262,10 +279,14 @@
       <span class="form-section-icon"><i class="bi bi-car-front" aria-hidden="true"></i></span>
       <div>
         <h2>Veículo do visitante</h2>
-        <p>Informe o veículo que será usado na visita.</p>
+        <p>Escolha um veículo do visitante selecionado ou cadastre um novo.</p>
       </div>
     </div>
     <div class="row g-3">
+      <div class="col-12">
+        <label class="form-label" for="visita-veiculo-select">Veículo cadastrado</label>
+        <select id="visita-veiculo-select" class="form-select"><option value="">Novo veículo</option></select>
+      </div>
       <div class="col-md-4">
         <label class="form-label" for="visita-tipo">Tipo</label>
         <select id="visita-tipo" class="form-select" required>
@@ -281,6 +302,7 @@
       <div class="col-md-4"><label class="form-label" for="visita-placa">Placa</label><input type="text" id="visita-placa" class="form-control text-uppercase" placeholder="ABC1D23" maxlength="8" required></div>
     </div>
  
+    <p id="visita-status" class="form-text mt-3 mb-0" role="status" aria-live="polite"></p>
     <div class="form-actions"><button type="submit" class="btn ds-btn-primary d-inline-flex align-items-center gap-2"><i class="bi bi-check2" aria-hidden="true"></i> Salvar visita</button></div>
   </form>
  
