@@ -10,7 +10,6 @@ const PAGE_POLICIES = Object.freeze({
   admin: ['ADMINISTRADOR'],
   vigilante: ['VIGILANTE'],
   perfil: ['FUNCIONARIO'],
-  reserva: ['ADMINISTRADOR'],
   cadastroVeiculo: ['FUNCIONARIO'],
 });
 

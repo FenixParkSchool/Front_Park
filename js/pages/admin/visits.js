@@ -1,8 +1,8 @@
 import { escapeHtml, isValidPlate, normalizePlate } from '../../shared/utils.js';
- 
-// URL da API que o projeto usa.
+
+// Troque esta linha pela constante/serviço de URL da API que o projeto já usa.
 const API_URL = (window.API_URL ?? 'http://localhost:3000').replace(/\/$/, '');
- 
+
 function errorMessage(data, status) {
   if (data?.errors?.[0]?.message) return data.errors[0].message;
   if (data?.error) return data.error;
@@ -10,7 +10,7 @@ function errorMessage(data, status) {
   if (status === 403) return 'Você não tem permissão para esta ação.';
   return 'Não foi possível concluir a operação. Tente novamente.';
 }
- 
+
 async function api(path, { method = 'GET', body } = {}) {
   const response = await fetch(`${API_URL}${path}`, {
     method,
@@ -27,15 +27,15 @@ async function api(path, { method = 'GET', body } = {}) {
   }
   return data;
 }
- 
+
 const $ = (id) => document.getElementById(id);
 const VISITOR_FIELDS = ['visita-nome', 'visita-telefone', 'visita-evento'];
 const VEHICLE_FIELDS = ['visita-tipo', 'visita-modelo', 'visita-cor', 'visita-ano', 'visita-placa'];
 const onlyDigits = (value) => String(value ?? '').replace(/\D/g, '');
- 
+
 // Popup de confirmação (adiado para o navegador atualizar a lista antes de abrir)
 const popup = (text) => setTimeout(() => window.alert(text), 0);
- 
+
 function setField(id, value) {
   const el = $(id);
   if (!el) return;
@@ -44,11 +44,11 @@ function setField(id, value) {
   }
   el.value = value ?? '';
 }
- 
+
 function setLocked(ids, locked) {
   ids.forEach((id) => { const el = $(id); if (el) el.disabled = locked; });
 }
- 
+
 // getVacancies não é mais usado: a vaga é reservada depois do cadastro. Mantido para não quebrar o main.js.
 export function initAdminVisits() {
   const form = $('formNovaVisitaAdmin');
@@ -57,22 +57,22 @@ export function initAdminVisits() {
   const visitorSelect = $('visita-visitante-select');
   const vehicleSelect = $('visita-veiculo-select');
   const status = $('visita-status');
- 
+
   let visitantes = [];
   let veiculos = [];
   let visitorLocked = false;
   let vehicleLocked = false;
- 
+
   const say = (text = '', isError = false) => {
     if (!status) return;
     status.textContent = text;
     status.classList.toggle('text-danger', isError);
   };
- 
+
   const loadData = async () => {
     [visitantes, veiculos] = await Promise.all([api('/visitantes'), api('/veiculoVisitantes')]);
   };
- 
+
   // ---- seletores -----------------------------------------------------------
   const applyVehicle = () => {
     const veiculo = veiculos.find((v) => String(v.idVeiculoVisitante) === vehicleSelect.value);
@@ -91,7 +91,7 @@ export function initAdminVisits() {
       vehicleLocked = false;
     }
   };
- 
+
   const applyVisitor = (selectedVehicleId = '') => {
     const visitante = visitantes.find((v) => String(v.idVisitante) === visitorSelect.value);
     if (visitante) {
@@ -112,14 +112,14 @@ export function initAdminVisits() {
     vehicleSelect.value = String(selectedVehicleId || '');
     applyVehicle();
   };
- 
+
   const renderSelectors = (selectedVisitorId = '', selectedVehicleId = '') => {
     visitorSelect.innerHTML = '<option value="">Novo visitante</option>' + visitantes.map((v) =>
       `<option value="${v.idVisitante}">${escapeHtml(v.nomeVisitante)} · ${escapeHtml(v.telefoneVisitante)}</option>`).join('');
     visitorSelect.value = String(selectedVisitorId || '');
     applyVisitor(selectedVehicleId);
   };
- 
+
   // ---- lista ---------------------------------------------------------------
   const renderList = () => {
     if (!list) return;
@@ -139,34 +139,34 @@ export function initAdminVisits() {
       </div></article>`;
     }).join('');
   };
- 
+
   const refresh = async (selectedVisitorId = '', selectedVehicleId = '') => {
     await loadData();
     renderSelectors(selectedVisitorId, selectedVehicleId);
     renderList();
   };
- 
+
   // ---- eventos -------------------------------------------------------------
   visitorSelect.addEventListener('change', () => { say(); applyVisitor(); });
   vehicleSelect.addEventListener('change', () => { say(); applyVehicle(); });
- 
+
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     say();
     const get = (id) => $(id)?.value.trim() || '';
     let visitorId = Number(visitorSelect.value) || null;
     const existingVehicleId = Number(vehicleSelect.value) || null;
- 
+
     // visitante e veículo já cadastrados: nada a criar, só fica selecionado para a reserva
     if (visitorId && existingVehicleId) {
       document.dispatchEvent(new CustomEvent('visita-selecionada', { detail: { idVisitante: visitorId, idVeiculoVisitante: existingVehicleId } }));
       say('Visitante e veículo já cadastrados. Registro selecionado.');
       return;
     }
- 
+
     const telefone = onlyDigits(get('visita-telefone'));
     const placa = normalizePlate(get('visita-placa'));
- 
+
     if (!visitorId) {
       if (!get('visita-nome') || !get('visita-evento') || !telefone) return say('Preencha os dados do visitante.', true);
       if (!/^\d{10,11}$/.test(telefone)) return say('Informe o telefone com DDD (10 ou 11 dígitos).', true);
@@ -174,7 +174,7 @@ export function initAdminVisits() {
     if (!VEHICLE_FIELDS.every((id) => get(id))) return say('Preencha todos os dados do veículo.', true);
     if (!/^(19|20)\d{2}$/.test(get('visita-ano'))) return say('Informe o ano do veículo com 4 dígitos.', true);
     if (!isValidPlate(placa)) return say('Informe uma placa válida.', true);
- 
+
     const submit = form.querySelector('[type="submit"]');
     if (submit) submit.disabled = true;
     let createdVisitorNow = false;
@@ -200,7 +200,7 @@ export function initAdminVisits() {
           return;
         }
       }
- 
+
       // 2) veículo
       try {
         await api('/veiculoVisitantes', {
@@ -226,18 +226,18 @@ export function initAdminVisits() {
         }
         return;
       }
- 
+
       form.reset();
       await refresh('', '');
-      say('Visitante e veículo cadastrados com sucesso.');
-      popup('Visitante e veículo cadastrados com sucesso!');
+      say('Cadastro de visitante e veículo concluído.');
+      popup('Cadastro de visitante e veículo concluído.');
     } catch (error) {
       say(error.message, true);
     } finally {
       if (submit) submit.disabled = false;
     }
   });
- 
+
   refresh().catch((error) => {
     if (list) list.innerHTML = `<p class="text-center py-4 mb-0 empty-state">${escapeHtml(error.message)}</p>`;
   });

@@ -5,8 +5,7 @@ import { getEmployees, initAdminEmployees, refreshEmployees, upsertEmployee } fr
 import { initAdminVehicles } from './vehicles.js';
 import { initAdminRequests } from './requests.js';
 import { initAdminVisits } from './visits.js';
-import { init as initReserva } from '../reserva/index.js';
-
+import { init as initAdminReservation } from '../reserva/index.js';
 
 const roleLabels = {
   ADMIN: 'Administrador',
@@ -22,7 +21,7 @@ export function init() {
   initAdminVehicles(getEmployees);
   initAdminRequests({ upsertEmployee, refreshEmployees });
   initAdminVisits(getAdminVacancies);
-  initReserva();
+  initAdminReservation();
 }
 
 async function initRoles() {
@@ -95,7 +94,6 @@ async function initRoles() {
       roleControls.append(roleSelect, saveRole);
       roleCell.append(roleControls);
 
-      
       // "Funcionário da conta": cadastro do funcionário associado a esta conta de login
       const employeeCell = document.createElement('td');
       employeeCell.dataset.label = 'Funcionário da conta';
@@ -103,7 +101,7 @@ async function initRoles() {
       employeeControls.className = 'admin-profile-control';
       const employeeSelect = document.createElement('select');
       employeeSelect.className = 'form-select form-select-sm';
-      employeeSelect.setAttribute('aria-label', `Funcionário da conta ${user.username}`);
+      employeeSelect.setAttribute('aria-label', `Funcionário associado à conta ${user.username}`);
       employeeSelect.add(new Option('Nenhum funcionário associado', '', false, !user.idFuncionario));
       for (const employee of employees) {
         employeeSelect.add(new Option(
@@ -116,7 +114,7 @@ async function initRoles() {
       const saveEmployeeLink = document.createElement('button');
       saveEmployeeLink.type = 'button';
       saveEmployeeLink.className = 'btn ds-btn-outline btn-sm';
-      saveEmployeeLink.textContent = 'Salvar funcionário';
+      saveEmployeeLink.textContent = 'Salvar associação';
       saveEmployeeLink.addEventListener('click', async () => {
         saveEmployeeLink.disabled = true;
         try {
@@ -135,7 +133,7 @@ async function initRoles() {
       });
       employeeControls.append(employeeSelect, saveEmployeeLink);
       employeeCell.append(employeeControls);
- 
+
       row.append(userCell, roleCell, employeeCell);
       list.append(row);
     }
