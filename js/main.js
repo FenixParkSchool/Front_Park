@@ -8,7 +8,6 @@ const pageLoaders = {
   registrar: () => import('./pages/registrar/index.js'),
   cadastroVeiculo: () => import('./pages/cadastro-veiculo/index.js'),
   esqueciSenha: () => import('./pages/esqueci-senha/index.js'),
-  reserva: () => import('./pages/reserva/index.js'),
   vigilante: () => import('./pages/vigilante/index.js'),
   perfil: () => import('./pages/perfil.js'),
 };

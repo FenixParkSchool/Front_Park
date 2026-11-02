@@ -42,10 +42,10 @@
               class="bi bi-envelope-paper" aria-hidden="true"></i><span>Solicitações</span></button>
           <button type="button" class="nav-link" data-nav="visitas" aria-controls="tela-visitas"><i
               class="bi bi-calendar2-check" aria-hidden="true"></i><span>Visitas</span></button>
-            
-          <button type="button" class="nav-link" href="reserva_vaga.html"><i 
-              class="bi bi-calendar-plus" aria-hidden="true"></i><span>Reservar vaga</span></button>  
-
+          <button type="button" class="nav-link" data-nav="reserva" aria-controls="tela-reserva"><i
+         class="bi bi-calendar-plus" aria-hidden="true"></i><span>Reservar vaga</span></button>
+          <button type="button" class="nav-link" data-nav="perfis" aria-controls="tela-perfis"><i 
+              class="bi bi-person-gear" aria-hidden="true"></i><span>Perfis de acesso</span></button>
 
         </nav>
       </div>
@@ -145,12 +145,12 @@
               contas...</div>
             <div class="table-responsive admin-profile-table-wrap">
               <table class="table admin-profile-table">
-                <caption class="visually-hidden">Gerenciar perfis de acesso e vínculos de funcionários</caption>
+                <caption class="visually-hidden">Gerencie as permissões das contas e associe cada conta ao funcionário correspondente.</caption>
                 <thead>
                   <tr>
                     <th scope="col">Usuário</th>
                     <th scope="col">Perfil de acesso</th>
-                    <th scope="col">Vínculo com funcionário</th>
+                    <th scope="col">Funcionário da conta</th>
                   </tr>
                 </thead>
                 <tbody id="lista-perfis"></tbody>
@@ -314,6 +314,79 @@
   </div>
   <div id="lista-visitas-admin" class="admin-list" aria-live="polite"></div>
 </section>
+
+
+<section id="tela-reserva" data-tela="reserva" class="admin-screen" aria-labelledby="titulo-reserva">
+  <header class="page-heading">
+    <span class="page-eyebrow">ACESSO À UNIDADE</span>
+    <h1 id="titulo-reserva">Reservar vaga</h1>
+    <p>Reserve para a visita de alguém ou bloqueie a vaga para outra ocasião, sem vincular uma pessoa.</p>
+  </header>
+
+    <form id="formReserva" class="card-form admin-form">
+    <div class="form-section-title"><span class="form-section-icon"><i class="bi bi-calendar-plus" aria-hidden="true"></i></span>
+      <div>
+        <h2>Dados da reserva</h2>
+        <p>Escolha o tipo, a vaga, o dia e o intervalo.</p>
+      </div>
+    </div>
+
+    <div class="row g-3">
+      <fieldset class="col-12">
+        <legend class="form-label">Tipo de reserva</legend>
+        <div class="form-choice-row">
+          <div class="form-check"><input class="form-check-input" type="radio" name="reserva-tipo" id="tipo-visita" value="VISITA" checked><label class="form-check-label" for="tipo-visita">Visita</label></div>
+          <div class="form-check"><input class="form-check-input" type="radio" name="reserva-tipo" id="tipo-outro" value="OUTRO"><label class="form-check-label" for="tipo-outro">Outra ocasião (evento, manutenção, reforma...)</label></div>
+        </div>
+      </fieldset>
+
+      <div class="col-12" id="campos-visita">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="reserva-visitante" class="form-label">Visitante</label>
+            <select class="form-select" id="reserva-visitante" required><option value="">Selecione o visitante</option></select>
+          </div>
+          <div class="col-md-6">
+            <label for="reserva-veiculo" class="form-label">Veículo do visitante</label>
+            <select class="form-select" id="reserva-veiculo" required><option value="">Selecione o visitante primeiro</option></select>
+          </div>
+          <div class="col-md-6">
+            <label for="reserva-placa" class="form-label">Placa do veículo</label>
+            <input type="text" class="form-control" id="reserva-placa" placeholder="Preenchida pelo veículo" readonly>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <label for="reserva-vaga" class="form-label">Vaga</label>
+        <select class="form-select" id="reserva-vaga" required><option value="">Selecione a vaga</option></select>
+      </div>
+      <div class="col-12">
+        <label for="motivo_vaga" class="form-label" id="rotulo-motivo">Motivo da visita</label>
+        <input type="text" class="form-control" id="motivo_vaga" placeholder="Ex.: Reunião" maxlength="500" required>
+      </div>
+      <div class="col-md-4"><label for="data_vaga" class="form-label">Data</label><input type="date" class="form-control" id="data_vaga" required></div>
+      <div class="col-md-4"><label for="hora_entrada" class="form-label">Entrada</label><input type="time" class="form-control" id="hora_entrada" required></div>
+      <div class="col-md-4"><label for="hora_saida" class="form-label">Saída</label><input type="time" class="form-control" id="hora_saida" required></div>
+    </div>
+
+    <p id="reserva-status" class="form-text mt-3 mb-0" role="status" aria-live="polite"></p>
+    <div class="form-actions">
+      <button type="submit" class="btn ds-btn-primary d-inline-flex align-items-center gap-2" id="btnCadastrar_reserva"><i class="bi bi-check2" aria-hidden="true"></i> Reservar</button>
+      <button type="reset" class="btn ds-btn-outline" id="btnLimpar_reserva">Limpar</button>
+    </div>
+  </form>
+
+  <div class="section-heading">
+    <div>
+      <h2>Reservas cadastradas</h2>
+      <p>Visitas e bloqueios de vaga por outras ocasiões.</p>
+    </div>
+  </div>
+  <div id="lista-reservas" class="admin-list" aria-live="polite"></div>
+</section>
+
+
       </div>
     </main>
   </div>
