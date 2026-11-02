@@ -1,5 +1,40 @@
-import { employeesRepo } from '../../services/repositories.js';
+import { api } from '../../services/auth.js';
 import { escapeHtml } from '../../shared/utils.js';
+
+/* ===== Contrato com a API de /funcionarios =====
+   Da API eu só conheço idFuncionario e nomeFuncionario. Os demais nomes e formatos são SUPOSIÇÃO:
+   se o servidor responder "Unrecognized key" ou 400, ajuste apenas este bloco. */
+const FIELD = {
+  id: 'idFuncionario',
+  nome: 'nomeFuncionario',
+  telefone: 'telefoneFuncionario',
+  email: 'emailFuncionario',
+  pcd: 'pcdFuncionario',
+  status: 'statusFuncionario',
+};
+const PCD_BOOLEANO = true;     // true: a API guarda PCD como true/false; false: como 'sim'/'nao'
+const STATUS_BOOLEANO = false; // true: a API guarda ativo como true/false; false: como 'ativo'/'inativo'
+
+const fromApi = (row) => ({
+  id: row[FIELD.id],
+  nome: row[FIELD.nome] ?? '',
+  telefone: row[FIELD.telefone] ?? '',
+  email: row[FIELD.email] ?? '',
+  pcd: [true, 'sim', 'SIM', 1].includes(row[FIELD.pcd]) ? 'sim' : 'nao',
+  status: row[FIELD.status] === undefined || [true, 'ativo', 'ATIVO'].includes(row[FIELD.status]) ? 'ativo' : 'inativo',
+});
+
+// Só envia o que foi informado (serve para criar e para editar parcialmente).
+function toApi(data) {
+  const body = {};
+  if (data.id !== undefined) body[FIELD.id] = data.id;
+  if (data.nome !== undefined) body[FIELD.nome] = data.nome;
+  if (data.telefone !== undefined) body[FIELD.telefone] = data.telefone;
+  if (data.email !== undefined) body[FIELD.email] = data.email;
+  if (data.pcd !== undefined) body[FIELD.pcd] = PCD_BOOLEANO ? data.pcd === 'sim' : data.pcd;
+  if (data.status !== undefined) body[FIELD.status] = STATUS_BOOLEANO ? data.status === 'ativo' : data.status;
+  return body;
+}
 
 let employees = [];
 let currentFilter = 'todos';
@@ -9,15 +44,43 @@ const $ = (id) => document.getElementById(id);
 
 export const getEmployees = () => employees;
 
-export function refreshEmployees() {
-  employees = employeesRepo.list();
+async function loadEmployees() {
+  const rows = await api('/funcionarios');
+  employees = rows.map(fromApi);
   renderEmployees();
+  // avisa outros módulos (ex.: lista de funcionários no cadastro de veículos)
+  document.dispatchEvent(new CustomEvent('funcionarios-atualizados'));
   return employees;
 }
 
-export function upsertEmployee(employee) {
-  employees = employeesRepo.upsert(employee);
-  renderEmployees();
+// Mantém a assinatura antiga (usada em requests.js): devolve a lista que já está em memória
+// e atualiza em segundo plano.
+export function refreshEmployees() {
+  loadEmployees().catch(() => {});
+  return employees;
+}
+
+async function saveEmployee(data, { creating }) {
+  if (creating) {
+    await api('/funcionarios', { method: 'POST', body: JSON.stringify(toApi(data)) });
+  } else {
+    const { id, ...changes } = data;
+    await api(`/funcionarios/${id}`, { method: 'PUT', body: JSON.stringify(toApi(changes)) });
+  }
+  await loadEmployees();
+}
+
+// Mantém a assinatura antiga (usada em requests.js). Nunca rejeita: mostra o erro num alerta.
+export async function upsertEmployee(employee) {
+  try {
+    const exists = employees.some((item) => String(item.id) === String(employee.id));
+    const { cargo, ...data } = employee;
+    const idValido = Number.isInteger(Number(data.id)) && Number(data.id) >= 1 && Number(data.id) <= 2147483647;
+    if (!exists && !idValido) delete data.id; // ids antigos (Date.now()) não cabem: o banco gera um
+    await saveEmployee(data, { creating: !exists });
+  } catch (error) {
+    window.alert(error.message);
+  }
   return employees;
 }
 
@@ -56,11 +119,14 @@ function renderEmployees() {
   }).join('');
 }
 
-function changeEmployeeStatus(id) {
+async function changeEmployeeStatus(id) {
   const employee = employees.find((item) => String(item.id) === String(id));
   if (!employee) return;
-  employees = employeesRepo.upsert({ ...employee, status: employee.status === 'ativo' ? 'inativo' : 'ativo' });
-  renderEmployees();
+  try {
+    await saveEmployee({ id: employee.id, status: employee.status === 'ativo' ? 'inativo' : 'ativo' }, { creating: false });
+  } catch (error) {
+    window.alert(error.message);
+  }
 }
 
 function setFilter(filter) {
@@ -117,7 +183,7 @@ function startEdit(id) {
 
 /* ---------- Criar / salvar ---------- */
 
-function handleCreateEmployee(event) {
+async function handleCreateEmployee(event) {
   event.preventDefault();
   const form = event.currentTarget;
   const data = {
@@ -127,30 +193,36 @@ function handleCreateEmployee(event) {
     pcd: document.querySelector('input[name="novo-func-pcd"]:checked')?.value || 'nao',
   };
 
-  if (editingId !== null) {
-    const current = employees.find((item) => String(item.id) === String(editingId));
-    if (!current) return;
-    employees = employeesRepo.upsert({ ...current, ...data });
-    exitEditMode();
-  } else {
-    const id = Number($('novo-func-id')?.value.trim());
-    if (employees.some((employee) => Number(employee.id) === id)) {
-      window.alert('Já existe um funcionário cadastrado com este ID.');
-      return;
+  const submit = form.querySelector('[type="submit"]');
+  if (submit) submit.disabled = true;
+  try {
+    if (editingId !== null) {
+      await saveEmployee({ id: editingId, ...data }, { creating: false });
+      exitEditMode();
+    } else {
+      const id = Number($('novo-func-id')?.value.trim());
+      if (!Number.isInteger(id) || id < 1 || id > 2147483647) {
+        window.alert('Informe um ID numérico válido (inteiro positivo).');
+        return;
+      }
+      if (employees.some((employee) => Number(employee.id) === id)) {
+        window.alert('Já existe um funcionário cadastrado com este ID.');
+        return;
+      }
+      await saveEmployee({ id, ...data, status: 'ativo' }, { creating: true });
+      form.reset();
     }
-    employees = employeesRepo.upsert({ id, ...data, cargo: 'Funcionário', status: 'ativo' });
-    form.reset();
+    document.querySelector('#sidebar [data-nav="funcionarios"]')?.click();
+  } catch (error) {
+    window.alert(error.message); // ex.: 409 (ID repetido) ou 400 (dado inválido), vindos da API
+  } finally {
+    if (submit) submit.disabled = false;
   }
-
-  renderEmployees();
-  document.querySelector('#sidebar [data-nav="funcionarios"]')?.click();
 }
 
 /* ---------- Inicialização ---------- */
 
 export function initAdminEmployees() {
-  employees = employeesRepo.list();
-
   $('busca-input')?.addEventListener('input', renderEmployees);
 
   document.querySelectorAll('[data-filtro]').forEach((button) => {
@@ -180,4 +252,8 @@ export function initAdminEmployees() {
   });
 
   renderEmployees();
+  loadEmployees().catch((error) => {
+    const list = $('lista-funcionarios');
+    if (list) list.innerHTML = `<p class="text-center py-4 mb-0 empty-state">${escapeHtml(error.message)}</p>`;
+  });
 }

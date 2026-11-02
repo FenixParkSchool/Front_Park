@@ -9,6 +9,10 @@ export function initAdminNavigation() {
         if (item === button) item.setAttribute('aria-current', 'page');
         else item.removeAttribute('aria-current');
       });
+      // guarda a seção na URL (admin.html#visitas) sem criar histórico nem rolar a página
+      history.replaceState(null, '', `#${screenName}`);
+      // avisa os outros módulos que uma tela foi aberta
+      document.dispatchEvent(new CustomEvent('admin-tela', { detail: screenName }));
     });
   });
 
@@ -18,4 +22,6 @@ export function initAdminNavigation() {
     });
   });
 
+  const initial = decodeURIComponent(window.location.hash.slice(1));
+  if (initial) document.querySelector(`#sidebar [data-nav="${CSS.escape(initial)}"]`)?.click();
 }
