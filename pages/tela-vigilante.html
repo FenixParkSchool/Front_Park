@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>Vigilante | ParkSchool</title>
+  <title>Tela Vigilante | ParkSchool</title>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=Inter:wght@400;500;600&display=swap">
@@ -70,219 +70,156 @@
 
   <!-- CONTEÚDO PRINCIPAL -->
   <main class="container-fluid px-3 px-lg-4 py-4">
-
-    <!-- INDICADORES -->
+ 
+     <!-- INDICADORES -->
     <section class="metrics-row">
-
+ 
       <div class="metric-card">
-        <div class="metric-icon blue">
-          <i class="fa-solid fa-square-parking"></i>
-        </div>
-
+        <div class="metric-icon blue"><i class="fa-solid fa-square-parking"></i></div>
         <div>
           <small>Vagas totais</small>
-          <strong id="totalVagas">42</strong>
+          <strong id="totalVagas">—</strong>
         </div>
       </div>
-
+ 
       <div class="metric-card">
-        <div class="metric-icon green">
-          <i class="fa-solid fa-check"></i>
-        </div>
-
+        <div class="metric-icon green"><i class="fa-solid fa-check"></i></div>
         <div>
           <small>Disponíveis</small>
-          <strong id="vagasDisponiveis">36</strong>
+          <strong id="vagasDisponiveis">—</strong>
         </div>
       </div>
-
+ 
       <div class="metric-card">
-        <div class="metric-icon red">
-          <i class="fa-solid fa-car"></i>
-        </div>
-
+        <div class="metric-icon red"><i class="fa-solid fa-car"></i></div>
         <div>
           <small>Ocupadas</small>
-          <strong id="vagasOcupadas">6</strong>
+          <strong id="vagasOcupadas">—</strong>
         </div>
       </div>
-
+ 
       <div class="metric-card">
-        <div class="metric-icon amber">
-          <i class="fa-solid fa-bell"></i>
+        <div class="metric-icon amber"><i class="fa-solid fa-calendar-check"></i></div>
+        <div>
+          <small>Reservadas agora</small>
+          <strong id="vagasReservadas">—</strong>
         </div>
-
+      </div>
+ 
+      <div class="metric-card">
+        <div class="metric-icon amber"><i class="fa-solid fa-bell"></i></div>
         <div>
           <small>Visitas pendentes</small>
-          <strong id="visitasPendentes">2</strong>
+          <strong id="visitasPendentes">—</strong>
         </div>
       </div>
-
+ 
     </section>
-
+ 
     <!-- PAINEL PRINCIPAL -->
     <div class="dashboard-grid">
-
+ 
       <!-- MAPA DE VAGAS -->
       <section class="panel vacancies-panel">
-
+ 
         <div class="panel-header">
-
           <div>
             <h2>Mapa de vagas</h2>
-            <p>
-              Clique em uma vaga para ocupar ou desocupar
-            </p>
+            <p>Estado atual do estacionamento</p>
           </div>
-
+ 
           <div class="legend">
-            <span>
-              <i class="dot available"></i>
-              Disponível
-            </span>
-
-            <span>
-              <i class="dot occupied"></i>
-              Ocupada
-            </span>
-
-            <span>
-              <i class="dot reserved"></i>
-              Reservada
-            </span>
+            <span><i class="dot available"></i> Disponível</span>
+            <span><i class="dot occupied"></i> Ocupada</span>
+            <span><i class="dot reserved"></i> Reservada</span>
+            <span><i class="dot t-comum"></i> Comum</span>
+            <span><i class="dot t-senac"></i> SENAC</span>
+            <span><i class="dot t-pcd"></i> PCD</span>
+            <span><i class="dot t-carga"></i> Carga e descarga</span>
+            <span><i class="dot t-moto"></i> Moto</span>
           </div>
-
         </div>
-
+ 
         <!-- FILTROS -->
         <div class="filter-bar">
-
           <div class="search-box">
             <i class="fa-solid fa-magnifying-glass"></i>
-
             <input id="buscaVaga" type="text" placeholder="Buscar por número...">
           </div>
-
+ 
           <select id="filtroTipo">
-            <option value="todos">
-              Todos os tipos
-            </option>
-
-            <option value="Funcionários">
-              Funcionários
-            </option>
-
-            <option value="PCD">
-              PCD
-            </option>
-
-            <option value="Visitantes">
-              Visitantes
-            </option>
-
-            <option value="Diretoria">
-              Diretoria
-            </option>
+            <option value="todos">Todos os tipos</option>
+            <option value="comum">Comum</option>
+            <option value="senac">SENAC</option>
+            <option value="pcd">PCD</option>
+            <option value="carga">Carga e descarga</option>
+            <option value="moto">Motocicleta</option>
           </select>
-
+ 
+          <button id="btnAtualizar" class="btn ds-btn-outline" type="button">
+            <i class="fa-solid fa-rotate" aria-hidden="true"></i> Atualizar
+          </button>
         </div>
-
+ 
         <!-- VAGAS GERADAS PELO JAVASCRIPT -->
-        <div id="containerVagas" class="vagas-grid">
-        </div>
-
+        <div id="containerVagas" class="vagas-grid"></div>
+ 
       </section>
-
+ 
       <!-- COLUNA LATERAL -->
       <aside class="side-column">
-
-        <!-- CENTRAL DE VISITANTES -->
+ 
+        <!-- RESERVAS DE HOJE -->
         <section class="panel notification-panel">
-
+ 
           <div class="panel-header compact">
-
             <div>
-              <h2>Central de visitantes</h2>
-
-              <p>
-                Solicitações aguardando sua ação
-              </p>
+              <h2>Reservas de hoje</h2>
+              <p>Vagas reservadas para o dia</p>
             </div>
-
-            <span class="notification-count" id="badgeNotificacoes">
-              2
-            </span>
-
+ 
+            <span class="notification-count" id="badgeNotificacoes">—</span>
           </div>
-
-          <div id="listaNotificacoes" class="notification-list">
-          </div>
-
-
+ 
+          <div id="listaNotificacoes" class="notification-list"></div>
+ 
         </section>
-
+ 
         <!-- ACESSO RÁPIDO -->
         <section class="panel quick-panel">
-
+ 
           <div class="panel-header compact">
-
             <div>
               <h2>Acesso rápido</h2>
-
-              <p>
-                Rotinas mais utilizadas
-              </p>
+              <p>Rotinas mais utilizadas</p>
             </div>
-
           </div>
-
-          <button class="quick-action" id="btnLiberar">
-            <i class="fa-solid fa-unlock"></i>
-            <span>
-              <b>Liberar uma vaga</b>
-              <small>Marque uma vaga como disponível</small>
-            </span>
-            <i class="fa-solid fa-chevron-right"></i>
-          </button>
-
-          <button class="quick-action" id="btnOcupar">
-            <i class="fa-solid fa-car-side"></i>
-            <span>
-              <b>Ocupar uma vaga</b>
-              <small>Marque uma vaga como ocupada</small>
-            </span>
-            <i class="fa-solid fa-chevron-right"></i>
-          </button>
-
-          <button class="quick-action" id="btnVerReservas">
+ 
+          <button class="quick-action" id="btnVerReservas" type="button" aria-pressed="false">
             <i class="fa-solid fa-calendar-check"></i>
             <span>
-              <b>Ver vagas reservadas hoje</b>
-              <small>Acompanhe as visitas confirmadas</small>
+              <b>Ver vagas reservadas agora</b>
+              <small>Destaca no mapa só as vagas reservadas</small>
             </span>
             <i class="fa-solid fa-chevron-right"></i>
           </button>
-
+ 
         </section>
-
+ 
       </aside>
-
+ 
     </div>
-
+ 
   </main>
-
+ 
   <!-- MENSAGEM DE CONFIRMAÇÃO -->
   <div class="toast-custom" id="toast">
-
     <i class="fa-solid fa-circle-check"></i>
-
     <span></span>
-
   </div>
-
+ 
   <!-- JAVASCRIPT DA TELA -->
-
-    <script type="module" src="../js/main.js"></script>
+  <script type="module" src="../js/main.js"></script>
 </body>
-
+ 
 </html>

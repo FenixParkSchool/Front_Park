@@ -1,6 +1,10 @@
+//Arquivo:Front_Park/js/pages/vigilante/index.js
+import { api } from '../../services/auth.js';
 import { initVigilanteActions } from './actions.js';
-import { refreshNotifications } from './notifications.js';
-import { renderVacancies, updateMetrics } from './vacancies.js';
+import { renderNotifications } from './notifications.js';
+import { loadReservas } from './reservations.js';
+import { loadVagas, renderVacancies, updateMetrics } from './vacancies.js';
+import { state } from './state.js';
 
 const REFRESH_MS = 60_000;
 
@@ -14,10 +18,28 @@ export function init() {
     window.setTimeout(() => toast.classList.remove('show'), 2800);
   };
   const context = { showToast };
-  initVigilanteActions(context);
-  renderVacancies(context);
+
+  const refresh = async () => {
+    await loadVagas(); // vagas primeiro: as reservas usam o número da vaga
+    await loadReservas();
+    state.carregando = false;
+    renderVacancies();
+    renderNotifications(context);
+    updateMetrics();
+  };
+
+  // nome da conta logada
+  api('/me').then((me) => {
+    const nome = me?.user?.username ?? me?.username ?? 'Vigilante';
+    const strong = document.querySelector('.nav-user-info strong');
+    const avatar = document.querySelector('.nav-user-avatar');
+    if (strong) strong.textContent = nome;
+    if (avatar) avatar.textContent = nome.charAt(0).toUpperCase();
+  }).catch(() => {});
+
+  initVigilanteActions({ refresh });
+  renderVacancies(); // mostra "Carregando..."
   updateMetrics();
-  refreshNotifications(context);
-  // reservas novas ou que terminaram: atualiza sozinho, sem precisar de F5
-  window.setInterval(() => refreshNotifications(context), REFRESH_MS);
+  refresh();
+  window.setInterval(refresh, REFRESH_MS);
 }
