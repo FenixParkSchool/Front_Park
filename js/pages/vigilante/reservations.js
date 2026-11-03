@@ -1,77 +1,59 @@
+//Arquivo:Front_Park/js/pages/vigilante/reservations.js
 import { api } from '../../services/auth.js';
+import { state } from './state.js';
 
-const pad = (n) => String(n).padStart(2, '0');
-const todayString = () => {
-  const d = new Date();
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+// Mesmo fuso que o back usa em vaga.service.ts, para "hoje" e "agora" baterem
+// com o estado RESERVADA calculado pela API (e não com o relógio do computador).
+const FUSO = 'America/Sao_Paulo';
+
+const partesAgora = () => Object.fromEntries(
+  new Intl.DateTimeFormat('en-CA', {
+    timeZone: FUSO, year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', hour12: false,
+  }).formatToParts(new Date()).map((x) => [x.type, x.value]),
+);
+
+const hoje = () => { const p = partesAgora(); return `${p.year}-${p.month}-${p.day}`; };
+const horaAtual = () => { const p = partesAgora(); return `${p.hour === '24' ? '00' : p.hour}:${p.minute}`; };
+
+const ymd = (v) => String(v ?? '').slice(0, 10);
+// aceita "14:00:00" e também "1970-01-01T14:00:00.000Z"
+const hhmm = (v) => {
+  const s = String(v ?? '');
+  return s.includes('T') ? s.slice(11, 16) : s.slice(0, 5);
 };
-const nowString = () => {
-  const d = new Date();
-  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
-};
 
-const SOURCES = {
-  reservas: '/reserva-vagas',
-  vagas: '/vagas',
-  visitantes: '/visitantes',
-  veiculos: '/veiculoVisitantes',
-};
+export async function loadReservas() {
+  try {
+    const reservas = await api('/reserva-vagas');
+    const visitantes = await api('/visitantes').catch(() => []); // só identifica a visita
+    const dia = hoje();
+    const agora = horaAtual();
 
-// Reservas de HOJE ainda em andamento ou por vir.
-// Cada rota é lida separada: se uma for negada (403), as outras continuam e o problema é informado.
-export async function loadTodayReservations() {
-  const keys = Object.keys(SOURCES);
-  const settled = await Promise.allSettled(keys.map((key) => api(SOURCES[key])));
-
-  const data = {};
-  const problems = [];
-  settled.forEach((result, index) => {
-    const key = keys[index];
-    if (result.status === 'fulfilled') {
-      data[key] = result.value;
-    } else {
-      data[key] = [];
-      problems.push({ key, path: SOURCES[key], message: result.reason?.message ?? 'erro desconhecido' });
-    }
-  });
-
-  const reservasProblem = problems.find((p) => p.key === 'reservas');
-  if (reservasProblem) throw new Error(`${reservasProblem.path}: ${reservasProblem.message}`);
-
-  const today = todayString();
-  const now = nowString();
-
-  const items = data.reservas
-    .filter((r) => r.dataReserva === today && r.statusVisita !== 'RECUSADA' && r.horaSaida > now)
-    .sort((a, b) => a.horaEntrada.localeCompare(b.horaEntrada))
-    .map((r) => {
-      const vaga = data.vagas.find((v) => v.idVaga === r.idVaga);
-      const visitante = data.visitantes.find((v) => v.idVisitante === r.idVisitante) ?? null;
-      const veiculo = data.veiculos.find((v) => v.idVeiculoVisitante === r.idVeiculoVisitante) ?? null;
-      return {
-        id: r.idReservaVaga,
-        tipo: r.tipoReserva, // 'VISITA' | 'OUTRO'
-        status: r.statusVisita, // só existe para visitas
-        idVaga: r.idVaga,
-        numeroVaga: vaga?.numeroVaga ?? null,
-        motivo: r.motivoReserva,
-        horaEntrada: r.horaEntrada,
-        horaSaida: r.horaSaida,
-        placa: r.placaReserva ?? veiculo?.placaVeiculoVisitante ?? '',
-        visitante: visitante && {
-          nome: visitante.nomeVisitante,
-          telefone: visitante.telefoneVisitante,
-          evento: visitante.evento,
-        },
-        veiculo: veiculo && {
-          tipo: veiculo.tipoVeiculoVisitante,
-          modelo: veiculo.modeloVeiculoVisitante,
-          cor: veiculo.corVeiculoVisitante,
-          ano: veiculo.anoVeiculoVisitante,
-          placa: veiculo.placaVeiculoVisitante,
-        },
-      };
-    });
-
-  return { items, problems };
+    state.reservas = reservas
+      // só reservas de hoje que ainda não terminaram
+      .filter((r) => ymd(r.dataReserva) === dia
+        && r.statusVisita !== 'RECUSADA'
+        && hhmm(r.horaSaida) > agora)
+      .sort((a, b) => hhmm(a.horaEntrada).localeCompare(hhmm(b.horaEntrada)))
+      .map((r) => {
+        const v = visitantes.find((x) => x.idVisitante === r.idVisitante);
+        const vaga = state.vagas.find((x) => x.idVaga === r.idVaga);
+        return {
+          id: r.idReservaVaga,
+          tipo: r.tipoReserva,
+          status: r.statusVisita,
+          numeroVaga: vaga?.numeroVaga ?? r.idVaga,
+          motivo: r.motivoReserva,
+          entrada: hhmm(r.horaEntrada),
+          saida: hhmm(r.horaSaida),
+          placa: r.placaReserva ?? '',
+          visitante: v ? { nome: v.nomeVisitante, telefone: v.telefoneVisitante } : null,
+        };
+      });
+    state.erroReservas = null;
+  } catch (error) {
+    state.reservas = [];
+    state.erroReservas = error.message || 'Não foi possível carregar as reservas de hoje.';
+  }
 }

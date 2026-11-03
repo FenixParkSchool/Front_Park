@@ -1,3 +1,4 @@
+//Arquivo:Front_Park/js/pages/admin/vacancies.js
 import { api } from '../../services/auth.js';
 import { escapeHtml } from '../../shared/utils.js';
  
@@ -30,6 +31,24 @@ export function initAdminVacancies() {
     feedback.textContent = text;
     feedback.classList.toggle('text-danger', isError);
   };
+
+  // Resumo com a mesma consulta (GET /vagas) usada pela tela do vigilante.
+  // Os campos extras são opcionais: só são preenchidos se existirem no HTML do admin.
+  // Com `ok = false` (API falhou) mostra "—" em vez de números inventados.
+  const renderResumo = (ok = true) => {
+    const set = (id, valor) => { const el = $(id); if (el) el.textContent = String(valor); };
+    const contar = (estado) => vacancies.filter((v) => v.estadoAtual === estado).length;
+    set('stat-total', ok ? vacancies.length : '—');
+    set('stat-disponiveis', ok ? contar('DISPONIVEL') : '—');
+    set('stat-ocupadas', ok ? contar('OCUPADA') : '—');
+    set('stat-reservadas', ok ? contar('RESERVADA') : '—');
+  };
+
+  const falha = (error) => {
+    vacancies = [];
+    renderResumo(false);
+    groups.innerHTML = `<p class="text-center py-4 mb-0 empty-state">${escapeHtml(error?.message || 'Não foi possível carregar as vagas.')}</p>`;
+  };
  
   const closeForm = () => { form.classList.add('d-none'); form.reset(); editingId = null; };
   const openForm = (vaga = null) => {
@@ -42,7 +61,7 @@ export function initAdminVacancies() {
   };
  
   const render = () => {
-    if (total) total.textContent = String(vacancies.length);
+    renderResumo();
     const tipos = [...new Set([...SUGESTOES, ...vacancies.map((v) => v.tipoVaga).filter(Boolean)])];
     if (datalist) datalist.innerHTML = tipos.map((t) => `<option value="${escapeHtml(t)}"></option>`).join('');
  
@@ -76,6 +95,8 @@ export function initAdminVacancies() {
  
   $('btn-nova-vaga')?.addEventListener('click', () => { say(); openForm(); });
   $('btn-cancelar-vaga')?.addEventListener('click', () => { closeForm(); say(); });
+  // opcional: botão com id="btn-atualizar-vagas" no HTML do admin
+  $('btn-atualizar-vagas')?.addEventListener('click', () => { say(); load().catch(falha); });
  
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -126,5 +147,5 @@ export function initAdminVacancies() {
     }
   });
  
-  load().catch((error) => { groups.innerHTML = `<p class="text-center py-4 mb-0 empty-state">${escapeHtml(error.message)}</p>`; });
+  load().catch(falha);
 }

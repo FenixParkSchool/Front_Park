@@ -1,3 +1,20 @@
+/* Tela do vigilante — ParkSchool */
+
+/* ---------- Cores de tipo e de estado (um único lugar) ---------- */
+:root,
+.vigilante-page {
+  --t-comum: #a855f7;
+  --t-senac: #f59e0b;
+  --t-pcd:   #3b82f6;
+  --t-carga: #94a3b8;
+  --t-moto:  #a8756f;
+
+  --s-available: #10b981;
+  --s-occupied:  #ef4444;
+  --s-reserved:  #f59e0b;
+  --s-unknown:   #6b7280;
+}
+
 .vigilante-page {
   font-family: var(--font-family-base);
   background: linear-gradient(180deg, var(--color-gray-50) 0%, var(--bg-body) 100%);
@@ -5,31 +22,15 @@
   min-height: 100vh;
 }
 
-body.vigilante-page {
-  height: 100vh;
-  max-height: 100vh;
-  overflow: hidden;
-  overscroll-behavior: none;
-}
-
-.vigilante-page main.container-fluid {
-  height: calc(100vh - 76px);
-  overflow: hidden;
-}
-
-.vigilante-page .dashboard-grid,
-.vigilante-page .panel,
-.vigilante-page .side-column {
-  overflow: hidden;
-}
-
+/* A página rola normalmente: o mapa ocupa a largura toda e
+   "Reservas de hoje" / "Acesso rápido" ficam embaixo. */
 .vacancies-panel {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  min-height: 0;
-  height: 100%;
 }
+
+/* ---------- Cabeçalho de página (usado por outras telas) ---------- */
 
 .page-heading {
   display: flex;
@@ -81,9 +82,11 @@ body.vigilante-page {
   margin-right: var(--spacing-2);
 }
 
+/* ---------- Indicadores ---------- */
+
 .metrics-row {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: var(--spacing-4);
   margin-bottom: var(--spacing-5);
 }
@@ -114,25 +117,10 @@ body.vigilante-page {
   flex-shrink: 0;
 }
 
-.metric-icon.blue {
-  background: var(--color-primary-light);
-  color: var(--color-primary);
-}
-
-.metric-icon.green {
-  background: rgba(16, 185, 129, 0.15);
-  color: var(--color-success);
-}
-
-.metric-icon.red {
-  background: rgba(239, 68, 68, 0.12);
-  color: var(--color-danger);
-}
-
-.metric-icon.amber {
-  background: rgba(245, 158, 11, 0.15);
-  color: var(--color-warning);
-}
+.metric-icon.blue  { background: var(--color-primary-light); color: var(--color-primary); }
+.metric-icon.green { background: rgba(16, 185, 129, 0.15);   color: var(--color-success); }
+.metric-icon.red   { background: rgba(239, 68, 68, 0.12);    color: var(--color-danger); }
+.metric-icon.amber { background: rgba(245, 158, 11, 0.15);   color: var(--color-warning); }
 
 .metric-card small {
   color: var(--text-secondary);
@@ -149,12 +137,13 @@ body.vigilante-page {
   line-height: 1.1;
 }
 
+/* ---------- Painéis ---------- */
+
+/* Uma coluna só: mapa em cima, coluna lateral embaixo */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.75fr) minmax(340px, 0.8fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--spacing-4);
-  height: calc(100% - 130px);
-  min-height: 0;
 }
 
 .panel {
@@ -186,9 +175,14 @@ body.vigilante-page {
   margin: var(--spacing-1) 0 0;
 }
 
+/* ---------- Legenda ---------- */
+
 .legend {
   display: flex;
-  gap: var(--spacing-4);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--spacing-2) var(--spacing-4);
+  max-width: 60%;
   font-size: var(--font-size-xs);
   color: var(--text-secondary);
 }
@@ -206,17 +200,17 @@ body.vigilante-page {
   display: inline-block;
 }
 
-.dot.available {
-  background: var(--color-success);
-}
+.dot.available { background: var(--s-available, #10b981); }
+.dot.occupied  { background: var(--s-occupied, #ef4444); }
+.dot.reserved  { background: var(--s-reserved, #f59e0b); }
 
-.dot.occupied {
-  background: var(--color-danger);
-}
+.dot.t-comum { background: var(--t-comum, #a855f7); }
+.dot.t-senac { background: var(--t-senac, #f59e0b); }
+.dot.t-pcd   { background: var(--t-pcd, #3b82f6); }
+.dot.t-carga { background: var(--t-carga, #94a3b8); }
+.dot.t-moto  { background: var(--t-moto, #a8756f); }
 
-.dot.reserved {
-  background: var(--color-warning);
-}
+/* ---------- Busca e filtros ---------- */
 
 .filter-bar {
   display: flex;
@@ -262,120 +256,205 @@ body.vigilante-page {
   box-shadow: 0 0 0 0.2rem rgba(29, 57, 125, 0.12);
 }
 
+/* =====================================================================
+   MAPA DE VAGAS
+   Corredor de cima: 23 … 1  |  corredor de baixo: 40 … 57
+   Motos: 4 no canto superior (2x2) e 12 no bloco inferior (3x4)
+   ===================================================================== */
+
 body.vigilante-page .vagas-grid {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: var(--spacing-2);
-  padding: var(--spacing-2) var(--spacing-3) var(--spacing-3);
-  min-height: 0;
-  width: 100%;
-  max-width: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
-  align-content: start;
-  flex: 1;
+  display: block;
+  padding: var(--spacing-3);
+  overflow: visible;           /* sem rolagem em telas largas */
 }
 
-body.vigilante-page .vaga-card {
-  position: relative;
-  text-align: center;
-  border: 1.5px solid var(--border-color);
-  background: var(--color-gray-50);
-  border-radius: var(--radius-md);
-  padding: var(--spacing-2);
-  min-height: 78px;
-  width: 100%;
+.lot {
+  --gap: 6px;
+  --moto-w: 42px;
+  --motos-w: calc(3 * var(--moto-w) + 2 * 4px);      /* bloco de baixo: 3 colunas */
+  --motos-top-w: calc(2 * var(--moto-w) + 4px);      /* bloco de cima: 2 colunas */
+  --pull: calc(var(--motos-w) - var(--motos-top-w)); /* folga que sobra em cima */
+}
+
+/* bloco de motos | vagas de carro */
+.lot-row {
+  display: grid;
+  grid-template-columns: var(--motos-w) minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+}
+
+.lot-lane {
+  height: clamp(1.5rem, 6vh, 3rem);
+  margin: 12px 0;
+}
+
+/* 23 colunas iguais nas duas fileiras: a de baixo (18 vagas) alinha com a de cima */
+.lot-slots {
+  display: grid;
+  grid-template-columns: repeat(23, minmax(0, 1fr));
+  gap: var(--gap);
   min-width: 0;
-  color: var(--text-primary);
-  transition: transform var(--transition-fast);
-  cursor: pointer;
+  /* encosta as vagas nas motos de cima (as duas fileiras usam o mesmo
+     deslocamento, então as colunas continuam alinhadas) */
+  margin-left: calc(-1 * var(--pull));
+}
+
+/* fileira de baixo começa na 2ª coluna: a vaga 57 fica sob a vaga 5 */
+.lot-slots-base > :first-child {
+  grid-column-start: 2;
+}
+
+.lot-motos {
+  display: grid;
+  gap: 4px;
+  align-content: start;
+  justify-content: start;
+}
+.lot-motos-top {
+  grid-template-columns: repeat(2, var(--moto-w));
+}
+.lot-motos-base {
+  grid-auto-flow: column;
+  grid-template-rows: repeat(4, auto);
+  grid-auto-columns: var(--moto-w);
+  grid-template-columns: none;
+}
+
+/* ---------- Card da vaga ----------
+   Cor do fundo e da borda de cima = TIPO da vaga.
+   Faixa grossa embaixo = ESTADO (disponível / ocupada / reservada). */
+
+.lot .vaga-card {
+  --tipo: var(--t-comum, #a855f7);
+  --estado: var(--s-available, #10b981);
+
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  min-width: 0;
+  min-height: 5.6rem;
+  padding: 6px 4px;
+  overflow: hidden;
+  text-align: center;
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--tipo) 14%, #fff);
+  border: 1px solid color-mix(in srgb, var(--tipo) 45%, transparent);
+  border-top: 4px solid var(--tipo);
+  border-radius: var(--radius-md);
+  box-shadow: inset 0 -4px 0 var(--estado);
 }
 
-body.vigilante-page .vaga-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
+.lot .vaga-card.tipo-comum { --tipo: var(--t-comum, #a855f7); }
+.lot .vaga-card.tipo-senac { --tipo: var(--t-senac, #f59e0b); }
+.lot .vaga-card.tipo-pcd   { --tipo: var(--t-pcd, #3b82f6); }
+.lot .vaga-card.tipo-carga { --tipo: var(--t-carga, #94a3b8); }
+.lot .vaga-card.tipo-moto  { --tipo: var(--t-moto, #a8756f); }
 
-.vaga-card.occupied {
-  background: rgba(239, 68, 68, 0.06);
-  border-color: rgba(239, 68, 68, 0.35);
-}
+.lot .vaga-card.available { --estado: var(--s-available, #10b981); }
+.lot .vaga-card.occupied  { --estado: var(--s-occupied, #ef4444); }
+.lot .vaga-card.reserved  { --estado: var(--s-reserved, #f59e0b); }
+.lot .vaga-card.unknown   { --estado: var(--s-unknown, #6b7280); }
 
-.vaga-card.reserved {
-  background: rgba(245, 158, 11, 0.08);
-  border-color: rgba(245, 158, 11, 0.4);
-}
+.lot .vaga-card.is-dim { opacity: 0.25; }
 
-.vaga-card-top {
+.lot .vaga-card-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 2px;
   width: 100%;
   color: var(--text-secondary);
 }
+.lot .vaga-card-top i { font-size: 0.8rem; }
 
-.vaga-card-top i {
-  font-size: var(--font-size-lg);
-}
-
-.vaga-type {
-  font-size: var(--font-size-xs);
+.lot .vaga-type {
+  max-width: 3.2rem;
+  font-size: 0.62rem;
   font-weight: var(--font-weight-medium);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 78px;
 }
 
-.vaga-card strong {
+.lot .vaga-card strong {
   display: block;
-  font-size: var(--font-size-2xl);
+  font-size: 1.15rem;
   line-height: 1;
-  margin-top: var(--spacing-1);
+  margin-top: 2px;
   font-weight: var(--font-weight-bold);
 }
 
-.vaga-status {
+.lot .vaga-status {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-1);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-success);
+  gap: 2px;
   margin-top: var(--spacing-1);
+  font-size: 0.62rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--estado);
 }
 
-.occupied .vaga-status {
-  color: var(--color-danger);
-}
-
-.reserved .vaga-status {
-  color: var(--color-warning-hover);
-}
-
-.vaga-status i {
-  margin-right: 2px;
-}
-
-.vaga-card small {
-  font-size: var(--font-size-xs);
+.lot .vaga-card small {
+  margin-top: 2px;
+  font-size: 0.62rem;
   color: var(--text-secondary);
-  position: absolute;
-  bottom: var(--spacing-2);
-  right: var(--spacing-2);
 }
+
+/* ---------- Motos: chip maior, sem bolinha, faixa de status grossa ---------- */
+
+.lot .vaga-chip {
+  min-width: var(--moto-w);
+  min-height: 46px;
+  padding: 6px 2px 12px;       /* espaço extra embaixo para a faixa */
+  background: color-mix(in srgb, var(--t-moto, #a8756f) 35%, #fff);
+  border-top-width: 1px;
+  border-radius: 4px;
+  box-shadow: inset 0 -8px 0 var(--estado);   /* faixa de status (era 4px) */
+  color: #0e0d0d;
+}
+
+.lot .vaga-chip span {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+/* sem bolinha */
+.lot .vaga-chip::before,
+.lot .vaga-chip::after {
+  content: none;
+  display: none;
+}
+
+/* ---------- Vagas cadastradas depois, fora do desenho ---------- */
+
+.lot-extra { margin-top: var(--spacing-4); }
+
+.lot-extra-title {
+  margin-bottom: var(--spacing-2);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.lot-extra-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(4.9rem, 1fr));
+  gap: var(--gap);
+}
+
+/* =====================================================================
+   COLUNA LATERAL (agora embaixo do mapa, em duas colunas)
+   ===================================================================== */
 
 .side-column {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--spacing-4);
-  height: 100%;
-  min-height: 0;
+  align-items: start;
 }
 
 .notification-panel,
@@ -426,9 +505,7 @@ body.vigilante-page .vaga-card:hover {
   flex: none;
 }
 
-.notification-content {
-  flex: 1;
-}
+.notification-content { flex: 1; }
 
 .notification-content > div:first-child {
   display: flex;
@@ -456,55 +533,7 @@ body.vigilante-page .vaga-card:hover {
   color: var(--text-secondary);
 }
 
-.notification-actions {
-  display: flex;
-  gap: var(--spacing-2);
-  margin-top: var(--spacing-2);
-}
-
-.accept-btn,
-.deny-btn {
-  border-radius: var(--radius-sm);
-  padding: var(--spacing-1) var(--spacing-2);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  border: 1px solid var(--border-color);
-  background: var(--bg-surface);
-}
-
-.accept-btn {
-  background: rgba(16, 185, 129, 0.12);
-  color: var(--color-success);
-  border-color: rgba(16, 185, 129, 0.3);
-}
-
-.deny-btn {
-  color: var(--text-secondary);
-}
-
-.outline-btn,
-.primary-btn {
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  padding: var(--spacing-3) var(--spacing-3);
-}
-
-.outline-btn {
-  border: 1px solid var(--border-color);
-  background: var(--bg-surface);
-  color: var(--color-primary);
-  margin: var(--spacing-1) var(--spacing-5) var(--spacing-5);
-  width: calc(100% - 2 * var(--spacing-5)) !important;
-}
-
-.outline-btn i {
-  margin-right: var(--spacing-2);
-}
-
-.quick-panel {
-  padding-bottom: var(--spacing-2);
-}
+.quick-panel { padding-bottom: var(--spacing-2); }
 
 .quick-action {
   border: 0;
@@ -519,9 +548,9 @@ body.vigilante-page .vaga-card:hover {
   transition: background-color var(--transition-fast);
 }
 
-.quick-action:hover {
-  background-color: var(--color-gray-50);
-}
+.quick-action:hover { background-color: var(--color-gray-50); }
+
+.quick-action[aria-pressed="true"] { background-color: var(--color-primary-light); }
 
 .quick-action > i:first-child {
   color: var(--color-primary);
@@ -533,14 +562,10 @@ body.vigilante-page .vaga-card:hover {
   text-align: center;
 }
 
-.quick-action span {
-  flex: 1;
-}
+.quick-action span { flex: 1; }
 
 .quick-action b,
-.quick-action small {
-  display: block;
-}
+.quick-action small { display: block; }
 
 .quick-action b {
   font-size: var(--font-size-base);
@@ -558,96 +583,7 @@ body.vigilante-page .vaga-card:hover {
   color: var(--color-gray-400);
 }
 
-.modal-backdrop-custom {
-  position: fixed;
-  inset: 0;
-  background: rgba(18, 39, 64, 0.48);
-  display: none;
-  place-items: center;
-  z-index: var(--z-index-modal-backdrop);
-}
-
-.modal-backdrop-custom.open {
-  display: grid;
-}
-
-.visitor-modal {
-  background: var(--bg-surface);
-  border-radius: var(--radius-lg);
-  width: min(520px, calc(100% - 30px));
-  padding: var(--spacing-6);
-  position: relative;
-  box-shadow: var(--shadow-xl);
-}
-
-.close-modal {
-  position: absolute;
-  right: var(--spacing-4);
-  top: var(--spacing-4);
-  border: 0;
-  background: transparent;
-  color: var(--text-secondary);
-  font-size: var(--font-size-lg);
-}
-
-.modal-icon {
-  display: grid;
-  place-items: center;
-  width: 52px;
-  height: 52px;
-  border-radius: var(--radius-md);
-  background: var(--color-primary-light);
-  color: var(--color-primary);
-  font-size: var(--font-size-xl);
-}
-
-.visitor-modal h2 {
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-xl);
-  margin: var(--spacing-3) 0 var(--spacing-1);
-  color: var(--color-primary);
-}
-
-.visitor-modal > p {
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-  margin-bottom: var(--spacing-5);
-}
-
-.visitor-modal label {
-  display: block;
-  color: var(--text-secondary);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  margin-bottom: var(--spacing-3);
-}
-
-.visitor-modal input,
-.visitor-modal select {
-  display: block;
-  width: 100%;
-  height: 42px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  padding: 0 var(--spacing-3);
-  margin-top: var(--spacing-1);
-  font-size: var(--font-size-sm);
-  outline: none;
-}
-
-.form-two {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-3);
-}
-
-.primary-btn {
-  border: 0;
-  background: var(--color-primary);
-  color: var(--color-white);
-  height: 46px;
-  margin-top: var(--spacing-2);
-}
+/* ---------- Mensagens ---------- */
 
 .empty-state {
   text-align: center;
@@ -662,9 +598,7 @@ body.vigilante-page .vaga-card:hover {
   margin-bottom: var(--spacing-2);
 }
 
-.empty-state p {
-  margin: 0;
-}
+.empty-state p { margin: 0; }
 
 .toast-custom {
   position: fixed;
@@ -695,73 +629,15 @@ body.vigilante-page .vaga-card:hover {
   font-size: var(--font-size-lg);
 }
 
-@media (max-width: 1050px) {
-  body.vigilante-page .vagas-grid {
-    grid-template-columns: repeat(5, 1fr);
-  }
+/* =====================================================================
+   NAVBAR: usuário e botão Sair
+   ===================================================================== */
 
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .side-column {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .metrics-row {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 650px) {
-  .metrics-row,
-  .side-column {
-    grid-template-columns: 1fr;
-  }
-
-  .page-heading {
-    align-items: start;
-    gap: var(--spacing-3);
-    flex-direction: column;
-  }
-
-  .live-status {
-    align-self: flex-start;
-  }
-
-  body.vigilante-page .vagas-grid {
-    grid-template-columns: repeat(3, 1fr);
-    padding: var(--spacing-2) var(--spacing-3) var(--spacing-4);
-  }
-
-  .panel-header {
-    padding-left: var(--spacing-4);
-    padding-right: var(--spacing-4);
-  }
-
-  .legend {
-    display: none;
-  }
-
-  .filter-bar {
-    padding-left: var(--spacing-4);
-    padding-right: var(--spacing-4);
-  }
-
-  .filter-bar select {
-    max-width: 120px;
-  }
-
-  .operator-chip {
-    display: none;
-  }
-}
 .vigilante-page .nav-user {
   display: flex;
   align-items: center;
   gap: var(--spacing-3);
-  margin-left: var(--spacing-5); /* espaço depois do "Entrar" */
+  margin-left: var(--spacing-5);
 }
 
 .vigilante-page .nav-user-avatar {
@@ -791,7 +667,7 @@ body.vigilante-page .vaga-card:hover {
 .vigilante-page .nav-user #btn-sair {
   display: flex;
   align-items: center;
-  justify-content: center; /* centraliza o texto */
+  justify-content: center;
   height: 40px;
   padding: 0 var(--spacing-4);
   color: #fff;
@@ -806,4 +682,50 @@ body.vigilante-page .vaga-card:hover {
   color: var(--color-primary);
 }
 
+/* =====================================================================
+   RESPONSIVO
+   ===================================================================== */
 
+/* Telas médias: o mapa volta a rolar na horizontal */
+@media (max-width: 1200px) {
+  body.vigilante-page .vagas-grid { overflow-x: auto; }
+  .lot { min-width: 1100px; }
+}
+
+@media (max-width: 1050px) {
+  .metrics-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 991px) {
+  .side-column { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 650px) {
+  .metrics-row {
+    grid-template-columns: 1fr;
+  }
+
+  .page-heading {
+    align-items: start;
+    gap: var(--spacing-3);
+    flex-direction: column;
+  }
+
+  .live-status { align-self: flex-start; }
+
+  .panel-header {
+    padding-left: var(--spacing-4);
+    padding-right: var(--spacing-4);
+  }
+
+  .legend { display: none; }
+
+  .filter-bar {
+    padding-left: var(--spacing-4);
+    padding-right: var(--spacing-4);
+  }
+
+  .filter-bar select { max-width: 120px; }
+}
