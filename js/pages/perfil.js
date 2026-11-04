@@ -2,6 +2,7 @@ import { api } from '../services/auth.js';
 
 let initialized = false;
 let currentEmail = '';
+let currentVehicles = [];
 
 const byId = (id) => document.getElementById(id);
 
@@ -37,39 +38,314 @@ function fillForm(funcionario = {}) {
   byId('form-funcionario').dataset.idFuncionario = funcionario.idFuncionario || '';
 }
 
+
+const VEHICLE_FIELDS = [
+  { key: 'tipoVeiculo', label: 'Tipo' },
+  { key: 'modeloVeiculo', label: 'Modelo' },
+  { key: 'corVeiculo', label: 'Cor' },
+  { key: 'anoVeiculo', label: 'Ano' },
+  { key: 'placaVeiculo', label: 'Placa' }
+];
+
+function createVehicleElement(tag, className, text = '') {
+  const element = document.createElement(tag);
+  element.className = className;
+  element.textContent = text;
+  return element;
+}
+
 function renderVehicles(vehicles) {
   const list = byId('lista-meus-veiculos');
   const empty = byId('veiculos-vazio');
+
   if (!list || !empty) return;
+
   list.replaceChildren();
+
   if (!vehicles.length) {
     empty.hidden = false;
     return;
   }
+
   empty.hidden = true;
+
   vehicles.forEach((vehicle) => {
-    const card = document.createElement('article');
-    card.className = 'perfil-vehicle-card';
-    const title = document.createElement('h3');
-    title.className = 'h6 mb-2';
-    title.textContent = `${vehicle.modeloVeiculo} · ${vehicle.placaVeiculo}`;
-    const details = document.createElement('p');
-    details.className = 'mb-0 ds-text-secondary small';
-    details.textContent = [vehicle.tipoVeiculo, vehicle.corVeiculo, vehicle.anoVeiculo]
-      .filter(Boolean)
-      .join(' · ');
-    card.append(title, details);
+    const card = createVehicleElement(
+      'article',
+      'perfil-vehicle-card col-12 col-md-6'
+    );
+
+    card.dataset.idVeiculo = vehicle.idVeiculo;
+
+    const content = createVehicleElement('div', 'p-3');
+
+    const title = createVehicleElement(
+      'h3',
+      'h6 mb-2',
+      `${vehicle.modeloVeiculo || 'Veículo'} · ${vehicle.placaVeiculo || 'Sem placa'}`
+    );
+
+    const details = createVehicleElement(
+      'p',
+      'mb-3 ds-text-secondary small',
+      [
+        vehicle.tipoVeiculo,
+        vehicle.corVeiculo,
+        vehicle.anoVeiculo
+      ].filter(Boolean).join(' · ')
+    );
+
+    const actions = createVehicleElement(
+      'div',
+      'd-flex flex-wrap gap-2'
+    );
+
+    const editButton = createVehicleElement(
+      'button',
+      'btn ds-btn-outline',
+      'Editar'
+    );
+
+    editButton.type = 'button';
+    editButton.addEventListener('click', () => {
+      renderVehicleEditor(card, vehicle);
+    });
+
+    const deleteButton = createVehicleElement(
+      'button',
+      'btn btn-outline-danger',
+      'Remover'
+    );
+
+    deleteButton.type = 'button';
+    deleteButton.addEventListener('click', () => {
+      removeVehicle(vehicle.idVeiculo, deleteButton);
+    });
+
+    actions.append(editButton, deleteButton);
+    content.append(title, details, actions);
+    card.append(content);
+
     list.append(card);
   });
 }
 
+function renderVehicleEditor(card, vehicle) {
+  if (!vehicle.idVeiculo) {
+    setFeedback('Não foi possível identificar o veículo.', 'error');
+    return;
+  }
+
+  if (card.querySelector('.vehicle-editor')) return;
+
+  const editor = createVehicleElement(
+    'form',
+    'vehicle-editor mt-3'
+  );
+
+  const fieldsContainer = createVehicleElement(
+    'div',
+    'row g-3 mb-3'
+  );
+
+  VEHICLE_FIELDS.forEach(({ key, label }) => {
+    const column = createVehicleElement('div', 'col-12 col-md-6');
+
+    const inputId = `veiculo-${vehicle.idVeiculo}-${key}`;
+
+    const fieldLabel = createVehicleElement(
+      'label',
+      'form-label',
+      label
+    );
+
+    fieldLabel.htmlFor = inputId;
+
+    const input = document.createElement('input');
+    input.className = 'form-control';
+    input.id = inputId;
+    input.name = key;
+    input.type = 'text';
+    input.value = vehicle[key] ?? '';
+    input.maxLength = 100;
+    input.required = true;
+
+    column.append(fieldLabel, input);
+    fieldsContainer.append(column);
+  });
+
+  const buttons = createVehicleElement(
+    'div',
+    'd-flex flex-wrap gap-2'
+  );
+
+  const saveButton = createVehicleElement(
+    'button',
+    'btn ds-btn-primary',
+    'Salvar alterações'
+  );
+
+  saveButton.type = 'submit';
+
+  const cancelButton = createVehicleElement(
+    'button',
+    'btn ds-btn-outline',
+    'Cancelar'
+  );
+
+  cancelButton.type = 'button';
+
+  cancelButton.addEventListener('click', () => {
+    editor.remove();
+  });
+
+  buttons.append(saveButton, cancelButton);
+  editor.append(fieldsContainer, buttons);
+  card.append(editor);
+
+  editor.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    if (!editor.reportValidity()) return;
+
+    const plateInput = editor.elements.namedItem('placaVeiculo');
+
+const normalizedPlate = plateInput.value
+  .replace(/[^a-zA-Z0-9]/g, '')
+  .toUpperCase();
+
+const duplicatePlate = currentVehicles.some((item) => {
+  if (String(item.idVeiculo) === String(vehicle.idVeiculo)) {
+    return false;
+  }
+
+  const existingPlate = String(item.placaVeiculo || '')
+    .replace(/[^a-zA-Z0-9]/g, '')
+    .toUpperCase();
+
+  return existingPlate === normalizedPlate;
+});
+
+if (duplicatePlate) {
+  window.alert(
+    'Esta placa já está cadastrada em outro veículo. Informe uma placa diferente.'
+  );
+
+  plateInput.focus();
+  return;
+}
+
+    const changes = {};
+
+    VEHICLE_FIELDS.forEach(({ key }) => {
+      const input = editor.elements.namedItem(key);
+      const newValue = input.value.trim();
+      const oldValue = String(vehicle[key] ?? '');
+
+      if (newValue !== oldValue) {
+        changes[key] = newValue;
+      }
+    });
+
+    if (Object.keys(changes).length === 0) {
+      setFeedback('Nenhuma alteração foi realizada.', 'info');
+      return;
+    }
+
+    saveButton.disabled = true;
+    cancelButton.disabled = true;
+
+try {
+  await api(`/veiculos/${encodeURIComponent(vehicle.idVeiculo)}`, {
+    method: 'PUT',
+    body: JSON.stringify(changes)
+  });
+
+  setFeedback('Veículo atualizado com sucesso.', 'success');
+
+  await loadVehicles();
+
+} catch (error) {
+  if (error.status === 409) {
+    window.alert(
+      'Esta placa já está cadastrada em outro veículo. Informe uma placa diferente.'
+    );
+  } else {
+    setFeedback(
+      `Não foi possível atualizar o veículo: ${error.message}`,
+      'error'
+    );
+  }
+
+  saveButton.disabled = false;
+  cancelButton.disabled = false;
+}
+  });
+}
+
+async function removeVehicle(idVeiculo, button) {
+  if (!idVeiculo) {
+    setFeedback('Não foi possível identificar o veículo.', 'error');
+    return;
+  }
+
+  const confirmed = window.confirm(
+    'Tem certeza de que deseja remover este veículo? Esta ação não poderá ser desfeita.'
+  );
+
+  if (!confirmed) return;
+
+  button.disabled = true;
+
+  try {
+    await api(`/veiculos/${encodeURIComponent(idVeiculo)}`, {
+      method: 'DELETE'
+    });
+
+    setFeedback('Veículo removido com sucesso.', 'success');
+    await loadVehicles();
+  } catch (error) {
+    button.disabled = false;
+
+    if (error.status === 409) {
+      setFeedback(
+        'Não foi possível remover este veículo porque existem registros associados a ele.',
+        'error'
+      );
+      return;
+    }
+
+    if (error.status === 403) {
+      setFeedback(
+        'Você não tem autorização para remover este veículo.',
+        'error'
+      );
+      return;
+    }
+
+    setFeedback(
+      `Não foi possível remover o veículo: ${error.message}`,
+      'error'
+    );
+  }
+}
+
+
 async function loadVehicles() {
   try {
     const vehicles = await api('/veiculos');
-    renderVehicles(Array.isArray(vehicles) ? vehicles : []);
+
+    currentVehicles = Array.isArray(vehicles) ? vehicles : [];
+
+    renderVehicles(currentVehicles);
   } catch (error) {
+    currentVehicles = [];
     renderVehicles([]);
-    setFeedback(`Não foi possível carregar seus veículos: ${error.message}`, 'error');
+
+    setFeedback(
+      `Não foi possível carregar seus veículos: ${error.message}`,
+      'error'
+    );
   }
 }
 
