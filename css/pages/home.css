@@ -13,7 +13,7 @@
 /* ---- Hero ---- */
 .hero-home {
     min-height: 90vh;
-    isolation: isolate; 
+    isolation: isolate;
 }
 
 /* Carrossel de fundo */
@@ -24,67 +24,146 @@
 }
 
 .hero-carousel img {
-    filter: brightness(0.8);
+    filter: brightness(0.84);
     object-fit: cover;
 }
 
 .hero-overlay {
     z-index: 1;
-    background: linear-gradient(135deg, rgba(29, 57, 125, 0.50), rgba(28, 73, 102, 0.50));
+    background: linear-gradient(
+        110deg,
+        rgba(29, 57, 125, 0.58) 0%,
+        rgba(29, 57, 125, 0.46) 48%,
+        rgba(28, 73, 102, 0.32) 100%
+    );
+    background: linear-gradient(
+        110deg,
+        color-mix(in srgb, var(--color-primary) 58%, transparent) 0%,
+        color-mix(in srgb, var(--color-primary) 46%, transparent) 48%,
+        color-mix(in srgb, var(--color-secondary) 32%, transparent) 100%
+    );
 }
 
 .hero-fade {
     z-index: 1;
-    height: 80px; /* Reduzido de 160px para 80px */
+    height: 80px;
     background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, var(--bg-surface) 100%);
     pointer-events: none;
 }
 
+.hero-home > .container {
+    z-index: 2;
+}
+
+.hero-title {
+    max-width: 15ch;
+    margin-bottom: var(--spacing-4);
+    font-size: clamp(var(--font-size-3xl), 4vw, var(--font-size-4xl));
+    line-height: 1.15;
+    letter-spacing: -0.025em;
+}
+
 .hero-lead {
+    max-width: 48ch;
     color: var(--color-gray-200);
     font-size: var(--font-size-lg);
-    max-width: 520px;
+    line-height: 1.65;
     position: relative;
     z-index: 2;
 }
 
-.btn.btn-secundario.btn-hero-outline {
-    background-color: var(--color-white);
-    color: var(--color-primary);
-    border: var(--border-width-thin) solid var(--color-white);
+.hero-actions .btn {
+    min-height: 3rem;
+    padding: var(--spacing-3) var(--spacing-5);
+    border-radius: var(--radius-lg);
+    font-weight: var(--font-weight-semibold);
+    transition:
+        transform var(--transition-fast),
+        background-color var(--transition-fast),
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
 }
 
-.btn.btn-secundario.btn-hero-outline:hover {
+.hero-home .hero-actions .ds-btn-primary {
     background-color: var(--color-primary-light);
-    color: var(--color-primary);
     border-color: var(--color-primary-light);
+    color: var(--color-primary);
+    box-shadow: var(--shadow-sm);
 }
 
-.hero-titledisplay-5 {
-    font-size: 32px;
-    max-width: 520px;
+.hero-home .hero-actions .ds-btn-primary:hover:not(:disabled) {
+    background-color: var(--color-white);
+    border-color: var(--color-white);
+    color: var(--color-primary);
+    transform: translateY(-1px);
+}
+
+.hero-home .hero-actions .ds-btn-primary:active:not(:disabled) {
+    background-color: var(--color-primary-light);
+    border-color: var(--color-primary-light);
+    color: var(--color-primary);
+    transform: translateY(0);
+}
+
+.hero-home .hero-actions .btn.btn-hero-outline {
+    background-color: rgba(29, 57, 125, 0.38);
+    background-color: color-mix(in srgb, var(--color-primary) 38%, transparent);
+    border: var(--border-width-thin) solid rgba(255, 255, 255, 0.62);
+    border-color: color-mix(in srgb, var(--color-white) 62%, transparent);
+    color: var(--color-white);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.hero-home .hero-actions .btn.btn-hero-outline:hover {
+    background-color: color-mix(in srgb, var(--color-white) 14%, transparent);
+    border-color: color-mix(in srgb, var(--color-white) 82%, transparent);
+    color: var(--color-white);
+    transform: translateY(-1px);
+}
+
+.hero-home .hero-actions .btn:focus-visible {
+    outline: var(--border-width-thick) solid var(--color-white);
+    outline-offset: 3px;
 }
 
 /* ---- Cards de recursos (dentro do hero) ---- */
 .feature-card {
-    color: var(--color-accent-purple);
-    background-color: rgba(167, 139, 250, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.18);
+    min-height: 100%;
+    color: var(--color-white);
+    background-color: rgba(29, 57, 125, 0.64);
+    background-color: color-mix(in srgb, var(--color-primary) 64%, transparent);
+    border: var(--border-width-thin) solid rgba(255, 255, 255, 0.3);
+    border-color: color-mix(in srgb, var(--color-white) 30%, transparent);
     border-radius: var(--radius-lg);
-    padding: var(--spacing-4);
-    backdrop-filter: blur(2px);
-    transition: transform var(--transition-fast), background-color var(--transition-fast);
-    text-decoration: none;
+    padding: var(--spacing-5);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    transition:
+        transform var(--transition-fast),
+        background-color var(--transition-fast),
+        border-color var(--transition-fast);
     display: block;
 }
 
-.feature-card:hover {
-    transform: translateY(-3px);
-    background-color: rgba(255, 255, 255, 0.14);
+.feature-card:hover,
+.hero-home a:focus-visible .feature-card {
+    transform: translateY(-2px);
+    background-color: color-mix(in srgb, var(--color-primary) 54%, transparent);
+    border-color: color-mix(in srgb, var(--color-white) 58%, transparent);
+}
+
+.hero-home a:focus-visible {
+    outline: none;
+}
+
+.hero-home a:focus-visible .feature-card {
+    outline: var(--border-width-thick) solid var(--color-white);
+    outline-offset: 3px;
 }
 
 .feature-card .icon-circle {
-    background-color: rgba(255, 255, 255, 0.16);
+    background-color: color-mix(in srgb, var(--color-white) 16%, transparent);
     color: var(--color-white);
 }
 
@@ -93,60 +172,61 @@
     font-family: var(--font-family-heading);
     font-weight: var(--font-weight-semibold);
     font-size: var(--font-size-base);
+    line-height: 1.4;
     margin-bottom: var(--spacing-1);
 }
 
 .feature-text {
     color: var(--color-gray-200);
     font-size: var(--font-size-sm);
+    line-height: 1.55;
     margin-bottom: 0;
 }
 
 /* ---- Cores individuais dos ícones dos cards ---- */
 .feature-card .icon-admin {
     color: var(--color-warning);
-    background-color: rgba(245, 158, 11, 0.15); /* Cor warning com 15% de opacidade */
+    background-color: rgba(245, 158, 11, 0.15);
 }
 
 .feature-card .icon-vigil {
     color: var(--color-success);
-    background-color: rgba(16, 185, 129, 0.15); /* Cor success com 15% de opacidade */
+    background-color: rgba(16, 185, 129, 0.15);
 }
 
 .feature-card .icon-func {
     color: var(--color-accent-blue);
-    background-color: rgba(56, 189, 248, 0.15); /* Cor accent-blue com 15% de opacidade */
+    background-color: rgba(56, 189, 248, 0.15);
 }
 
 .feature-card .icon-reserva {
     color: var(--color-accent-purple);
-    background-color: rgba(167, 139, 250, 0.15); /* Cor accent-purple com 15% de opacidade */
+    background-color: rgba(167, 139, 250, 0.15);
 }
 
 /* ---- Seção Sobre ---- */
 .sobre-home {
-    background-color: var(--bg-surface); 
-    border-top: 1px solid var(--border-color);
+    background-color: var(--bg-surface);
+    border-top: var(--border-width-thin) solid var(--border-color);
     scroll-margin-top: var(--spacing-16);
     position: relative;
     z-index: 1;
 }
 
-/* Transição da seção Sobre para o Footer */
-.sobre-home::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0; 
-    height: 60px; 
-    pointer-events: none;
-    z-index: -1; 
+.sobre-home h2 {
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.sobre-home .col-lg-7 > p {
+    max-width: 62ch;
+    color: var(--text-secondary);
+    line-height: 1.7;
 }
 
 .sobre-card {
     background-color: var(--bg-body);
-    border: 1px solid var(--border-color);
+    border: var(--border-width-thin) solid var(--border-color);
     border-radius: var(--radius-lg);
     padding: var(--spacing-6);
 }
@@ -161,9 +241,13 @@
 
 /* ---- Footer ---- */
 .footer-home {
-    background-color: var(--bg-surface); /* Define o fundo como branco */
-    border-top: 1px solid var(--border-color); /* Linha sutil separando a seção Sobre do Footer */
-    padding: 60px 0 !important; /* Ajuste o padding conforme necessário */
+    background-color: var(--bg-surface);
+    border-top: var(--border-width-thin) solid var(--border-color);
+    padding: var(--spacing-8) 0 !important;
+}
+
+.footer-home .fw-semibold {
+    color: var(--color-primary);
 }
 
 .footer-links {
@@ -174,7 +258,7 @@
 }
 
 .footer-links a {
-    color: var(--text-secondary); 
+    color: var(--text-secondary);
     text-decoration: none;
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
@@ -182,10 +266,50 @@
 }
 
 .footer-links a:hover {
-    color: var(--color-primary); 
+    color: var(--color-primary);
+}
+
+.footer-links a:focus-visible {
+    color: var(--color-primary);
+    outline: var(--border-width-thick) solid var(--color-primary);
+    outline-offset: 3px;
+    border-radius: var(--radius-sm);
 }
 
 .footer-copy {
     color: var(--text-secondary);
     font-size: var(--font-size-xs);
+}
+
+@media (max-width: 991.98px) {
+    .hero-home {
+        min-height: auto;
+        padding-block: var(--spacing-12);
+    }
+}
+
+@media (max-width: 575.98px) {
+    .hero-title {
+        font-size: var(--font-size-3xl);
+    }
+
+    .feature-card {
+        padding: var(--spacing-4);
+    }
+
+    .footer-home .row > div {
+        justify-content: center;
+        text-align: center;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .feature-card {
+        transition: none;
+    }
+
+    .feature-card:hover,
+    .hero-home a:focus-visible .feature-card {
+        transform: none;
+    }
 }
