@@ -9,7 +9,7 @@
 /* ---- Hero da página ---- */
 .sobre-hero {
     isolation: isolate;
-    min-height: 82vh;
+    min-height: clamp(30rem, 58vh, 42rem);
     display: flex;
     align-items: center;
 }
@@ -22,25 +22,34 @@
     object-fit: cover;
     object-position: center bottom;
     z-index: 0;
-    filter: brightness(0.75);
+    filter: brightness(0.86) saturate(0.92);
 }
 
 .sobre-hero-overlay {
     z-index: 1;
-    background: linear-gradient(135deg, rgba(29, 57, 125, 0.55), rgba(28, 73, 102, 0.55));
+    background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--color-primary) 48%, transparent),
+        color-mix(in srgb, var(--color-secondary) 40%, transparent)
+    );
 }
 
 .sobre-hero-fade {
     z-index: 1;
-    height: 150px;
+    height: clamp(var(--spacing-12), 10vh, var(--spacing-16));
     background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, var(--bg-body) 100%);
     pointer-events: none;
+}
+
+.sobre-hero-content {
+    z-index: 2;
 }
 
 .sobre-hero-lead {
     color: var(--color-gray-200);
     font-size: var(--font-size-lg);
-    max-width: 640px;
+    max-width: 42rem;
+    line-height: 1.6;
 }
 
 /* ---- Cabeçalhos de seção ---- */
@@ -277,6 +286,162 @@
     color: var(--text-secondary);
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
+}
+
+.sobre-page .problema-solucao-card,
+.sobre-page .perfil-card,
+.sobre-page .tipo-vaga-card,
+.sobre-page .sobre-accordion .accordion-item {
+    border-color: color-mix(in srgb, var(--color-primary) 16%, var(--border-color));
+}
+
+.sobre-page .problema-solucao-card {
+    border-top: var(--border-width-thick) solid var(--color-primary-light);
+    background-color: color-mix(in srgb, var(--color-primary-light) 22%, var(--bg-surface));
+}
+
+.sobre-page .problema-solucao-card.is-problema {
+    border-left-color: var(--color-warning);
+}
+
+.sobre-page .problema-solucao-card.is-solucao {
+    border-left-color: var(--color-success);
+}
+
+.sobre-page .problema-solucao-card .section-title,
+.sobre-page .perfil-card .feature-title {
+    color: var(--color-primary);
+}
+
+.sobre-page .perfil-card {
+    border-top: var(--border-width-thick) solid var(--color-primary-light);
+    background-color: color-mix(in srgb, var(--color-primary-light) 22%, var(--bg-surface));
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--transition-fast), border-color var(--transition-fast),
+        box-shadow var(--transition-fast), background-color var(--transition-fast);
+}
+
+.sobre-page .perfil-card .icon-circle {
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+}
+
+.sobre-page .perfil-card:hover {
+    border-color: var(--color-primary-hover);
+    border-top-color: var(--color-primary);
+}
+
+.sobre-page .tipo-vaga-card {
+    border-top: var(--border-width-thick) solid var(--color-primary-light);
+    border-radius: var(--radius-lg);
+    background-color: color-mix(in srgb, var(--color-primary-light) 22%, var(--bg-surface));
+    box-shadow: var(--shadow-sm);
+    transition: border-color var(--transition-fast), transform var(--transition-fast),
+        background-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.sobre-page .tipo-vaga-card:hover {
+    background-color: var(--color-primary-light);
+    box-shadow: var(--shadow-md);
+}
+
+.sobre-page .sobre-accordion .accordion-item {
+    border-radius: var(--radius-lg) !important;
+}
+
+@media (max-width: 767.98px) {
+    .sobre-hero {
+        min-height: clamp(26rem, 58vh, 32rem);
+    }
+
+    .sobre-page .navbar-toggler-icon {
+        filter: brightness(0) invert(1);
+    }
+}
+
+@media (max-width: 575.98px) {
+    .sobre-hero {
+        min-height: clamp(25rem, 56vh, 30rem);
+    }
+
+    .sobre-hero h1 {
+        font-size: var(--font-size-2xl);
+    }
+
+    .sobre-hero-lead {
+        font-size: var(--font-size-base);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .perfil-card,
+    .avatar-membro,
+    .tipo-vaga-card {
+        transition: none;
+    }
+
+    .perfil-card:hover,
+    .avatar-membro:hover,
+    .tipo-vaga-card:hover {
+        transform: none;
+    }
+}
+
+/* CTA uses a filled primary action and a quieter outline action. */
+.cta-sobre-watermark {
+    width: 16rem;
+    right: -2rem;
+    bottom: -3rem;
+    z-index: 0;
+    opacity: 0.05;
+    transform: rotate(-10deg);
+    pointer-events: none;
+}
+
+.cta-sobre-content {
+    z-index: 1;
+}
+
+.cta-sobre .btn {
+    min-height: var(--spacing-12);
+    border-radius: var(--radius-md);
+    font-weight: var(--font-weight-semibold);
+    transition: transform var(--transition-fast), background-color var(--transition-fast);
+}
+
+.cta-sobre .btn:hover {
+    transform: translateY(-1px);
+}
+
+.cta-sobre .btn-light {
+    color: var(--color-primary);
+    border-color: var(--color-white);
+}
+
+.cta-sobre .btn-outline-light:hover {
+    color: var(--color-primary);
+}
+
+.sobre-page .cta-sobre .btn-light:hover,
+.sobre-page .cta-sobre .btn-outline-light:hover {
+    background-color: var(--color-primary-light);
+    border-color: var(--color-primary-light);
+    color: var(--color-primary);
+}
+
+.cta-sobre .btn:focus-visible {
+    outline: var(--border-width-thick) solid var(--color-white);
+    outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cta-sobre .btn {
+        transition: none;
+    }
+
+    .cta-sobre .btn:hover {
+        transform: none;
+    }
 }
 
 /* ---- CTA final ---- */
