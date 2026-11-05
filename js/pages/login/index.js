@@ -21,13 +21,20 @@ export function init() {
     if (submitLabel) submitLabel.textContent = 'Entrando...';
 
     try {
-      const { user } = await api('/login', {
+      const data = await api('/login', {
         method: 'POST',
         body: JSON.stringify({
           email: emailInput.value.trim(),
           password: passwordInput.value,
         }),
       });
+
+      // Guarda o token no localStorage com a chave exigida pelo painel administrativo
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+      }
+
+      const user = data.user || data;
       const destination = loginDestinationForProfile(user?.perfil ?? user?.role);
       if (!destination) {
         throw new Error('Conta sem perfil autorizado. Contate a administração.');
