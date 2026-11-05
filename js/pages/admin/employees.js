@@ -1,9 +1,8 @@
+//Arquivo:Front_Park/js/pages/admin/employees.js
 import { api } from '../../services/auth.js';
 import { escapeHtml } from '../../shared/utils.js';
 
-/* ===== Contrato com a API de /funcionarios =====
-   Da API eu só conheço idFuncionario e nomeFuncionario. Os demais nomes e formatos são SUPOSIÇÃO:
-   se o servidor responder "Unrecognized key" ou 400, ajuste apenas este bloco. */
+/* ===== Contrato com a API de /funcionarios =====*/
 const FIELD = {
   id: 'idFuncionario',
   nome: 'nomeFuncionario',

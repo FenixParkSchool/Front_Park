@@ -1,8 +1,10 @@
-
+//Arquivo: Front_Park/js/pages/reserva/index.js
 import { api } from '../../services/auth.js';
 import { escapeHtml } from '../../shared/utils.js';
 
 const STATUS = { PENDENTE: 'Pendente', CONFIRMADA: 'Confirmada', RECUSADA: 'Recusada' };
+const pad = (n) => String(n).padStart(2, '0');
+const hhmm = (value) => String(value ?? '').slice(0, 5);
 const formatDate = (iso) => {
   const [year, month, day] = String(iso).slice(0, 10).split('-');
   return `${day}/${month}/${year}`;
@@ -25,13 +27,21 @@ export function init() {
   const list = $('lista-reservas');
   if (!form || !visitFields || !visitorSelect || !vehicleSelect || !vagaSelect || !plate || !reason || !date || !start || !end) return;
 
+  const title = $('titulo-reserva');
+  const submitBtn = form.querySelector('[type="submit"]');
+  const resetBtn = $('btnLimpar_reserva');
+  const submitDefault = submitBtn ? submitBtn.innerHTML : '';
+  const resetDefault = resetBtn ? resetBtn.textContent : 'Limpar';
+  const radios = [...document.querySelectorAll('input[name="reserva-tipo"]')];
+
   let vagas = [];
   let visitantes = [];
   let veiculos = [];
   let reservas = [];
+  let editingId = null; // id da reserva em edição
 
   const today = new Date();
-  const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  const todayString = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
   date.min = todayString;
 
   const say = (text = '', isError = false) => {
@@ -51,6 +61,15 @@ export function init() {
     reasonLabel.textContent = isVisit ? 'Motivo da visita' : 'Motivo / ocasião';
     reason.placeholder = isVisit ? 'Ex.: Reunião' : 'Ex.: Manutenção, evento, reforma...';
     say();
+  };
+
+  // só dá para editar reservas que ainda não terminaram
+  const canEdit = (r) => {
+    const day = String(r.dataReserva).slice(0, 10);
+    if (day > todayString) return true;
+    if (day < todayString) return false;
+    const now = new Date();
+    return hhmm(r.horaSaida) > `${pad(now.getHours())}:${pad(now.getMinutes())}`;
   };
 
   const renderOptions = () => {
@@ -89,11 +108,14 @@ export function init() {
       const badge = isVisit
         ? `Visita · ${escapeHtml(STATUS[r.statusVisita] ?? r.statusVisita)}`
         : 'Outra ocasião';
+      const editar = canEdit(r)
+        ? `<div><button type="button" class="btn ds-btn-outline btn-sm" data-action="editar-reserva" data-id="${r.idReservaVaga}"><i class="bi bi-pencil-square" aria-hidden="true"></i> Editar</button></div>`
+        : '';
       return `<article class="visita-item"><div>
-        <p>Vaga ${escapeHtml(vaga?.numeroVaga ?? r.idVaga)} · ${escapeHtml(formatDate(r.dataReserva))} · ${escapeHtml(r.horaEntrada)} – ${escapeHtml(r.horaSaida)}</p>
+        <p>Vaga ${escapeHtml(vaga?.numeroVaga ?? r.idVaga)} · ${escapeHtml(formatDate(r.dataReserva))} · ${escapeHtml(hhmm(r.horaEntrada))} – ${escapeHtml(hhmm(r.horaSaida))}</p>
         <p>${quem}</p>
         <span class="badge text-bg-light border text-secondary">${badge}</span>
-      </div></article>`;
+      </div>${editar}</article>`;
     }).join('');
   };
 
@@ -105,9 +127,46 @@ export function init() {
     renderList();
   };
 
-    document.addEventListener('admin-tela', (event) => {
-    if (event.detail === 'reserva') load().catch((error) => say(error.message, true));
-  });
+  /* ---------- Modo edição ---------- */
+
+  const setEditUi = (on) => {
+    if (title) title.textContent = on ? 'Editar reserva' : 'Reservar vaga';
+    if (submitBtn) submitBtn.innerHTML = on ? '<i class="bi bi-check2" aria-hidden="true"></i> Salvar alterações' : submitDefault;
+    if (resetBtn) resetBtn.textContent = on ? 'Cancelar edição' : resetDefault;
+    radios.forEach((radio) => { radio.disabled = on; }); // o tipo da reserva não muda na edição
+  };
+
+  const exitEdit = () => {
+    editingId = null;
+    setEditUi(false);
+  };
+
+  const startEdit = (id) => {
+    const r = reservas.find((item) => String(item.idReservaVaga) === String(id));
+    if (!r) return;
+    const isVisit = r.tipoReserva === 'VISITA';
+    editingId = r.idReservaVaga;
+    setEditUi(true);
+
+    const radio = $(isVisit ? 'tipo-visita' : 'tipo-outro');
+    if (radio) radio.checked = true;
+    applyMode();
+    if (isVisit) {
+      visitorSelect.value = String(r.idVisitante);
+      fillVehicles();
+      vehicleSelect.value = String(r.idVeiculoVisitante);
+      plate.value = r.placaReserva ?? '';
+    }
+    vagaSelect.value = String(r.idVaga);
+    reason.value = r.motivoReserva ?? '';
+    date.value = String(r.dataReserva).slice(0, 10);
+    start.value = hhmm(r.horaEntrada);
+    end.value = hhmm(r.horaSaida);
+
+    const vaga = vagas.find((v) => v.idVaga === r.idVaga);
+    say(`Editando a reserva da vaga ${vaga?.numeroVaga ?? r.idVaga}.`);
+    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   document.querySelectorAll('input[name="reserva-tipo"]').forEach((radio) => radio.addEventListener('change', applyMode));
   visitorSelect.addEventListener('change', () => {
@@ -120,7 +179,17 @@ export function init() {
     const veiculo = veiculos.find((v) => String(v.idVeiculoVisitante) === vehicleSelect.value);
     plate.value = veiculo?.placaVeiculoVisitante ?? '';
   });
-  form.addEventListener('reset', () => setTimeout(() => { fillVehicles(); applyMode(); }, 0));
+  // "Limpar" / "Cancelar edição"
+  form.addEventListener('reset', () => setTimeout(() => { exitEdit(); fillVehicles(); applyMode(); }, 0));
+  list?.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-action="editar-reserva"]');
+    if (button) startEdit(button.dataset.id);
+  });
+
+  // dados podem ter mudado em outra seção do painel (ex.: novo visitante); não recarrega no meio de uma edição
+  document.addEventListener('admin-tela', (event) => {
+    if (event.detail === 'reserva' && editingId === null) load().catch((error) => say(error.message, true));
+  });
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -143,19 +212,22 @@ export function init() {
     const payload = { idVaga, motivoReserva, dataReserva: date.value, horaEntrada: start.value, horaSaida: end.value };
     if (isVisit) Object.assign(payload, { idVisitante, idVeiculoVisitante, placaReserva: plate.value });
 
-    const submit = form.querySelector('[type="submit"]');
-    if (submit) submit.disabled = true;
+    const wasEditing = editingId !== null;
+    const url = wasEditing ? `/reserva-vagas/${editingId}` : '/reserva-vagas';
+    if (submitBtn) submitBtn.disabled = true;
     try {
-      const created = await api('/reserva-vagas', { method: 'POST', body: JSON.stringify(payload) });
-      const vaga = vagas.find((v) => v.idVaga === created.idVaga);
+      await api(url, { method: wasEditing ? 'PUT' : 'POST', body: JSON.stringify(payload) });
+      const vaga = vagas.find((v) => v.idVaga === idVaga);
       form.reset();
+      exitEdit();
       date.min = todayString;
       await load(); // atualiza a lista com o que ficou salvo no banco
-      setTimeout(() => window.alert(`${isVisit ? 'Reserva de visita' : 'Reserva'} cadastrada com sucesso!\n\nVaga: ${vaga?.numeroVaga ?? created.idVaga}\nData: ${formatDate(created.dataReserva)}\nHorário: ${created.horaEntrada} às ${created.horaSaida}`), 0);
+      const titulo = wasEditing ? 'Reserva atualizada com sucesso!' : (isVisit ? 'Reserva de visita cadastrada com sucesso!' : 'Reserva cadastrada com sucesso!');
+      setTimeout(() => window.alert(`${titulo}\n\nVaga: ${vaga?.numeroVaga ?? idVaga}\nData: ${formatDate(payload.dataReserva)}\nHorário: ${payload.horaEntrada} às ${payload.horaSaida}`), 0);
     } catch (error) {
       say(error.message, true); // 409 = conflito de horário, 400 = dado inválido
     } finally {
-      if (submit) submit.disabled = false;
+      if (submitBtn) submitBtn.disabled = false;
     }
   });
 
