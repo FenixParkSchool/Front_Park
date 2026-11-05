@@ -1,3 +1,4 @@
+//Arquivo: Front_Park/js/pages/admin/index.js
 import { api } from '../../services/auth.js';
 import { initAdminNavigation } from './navigation.js';
 import { getAdminVacancies, initAdminVacancies } from './vacancies.js';
@@ -24,33 +25,41 @@ export function init() {
   initAdminReservation();
 }
 
+// texto sem acento e em minúsculas, para a busca
+const normalize = (text) => String(text ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+function messageRow(text) {
+  const row = document.createElement('tr');
+  const cell = document.createElement('td');
+  cell.colSpan = 2;
+  cell.className = 'empty-state';
+  cell.textContent = text;
+  row.append(cell);
+  return row;
+}
+
 async function initRoles() {
   const list = document.getElementById('lista-perfis');
   const feedback = document.getElementById('perfis-feedback');
+  const search = document.getElementById('busca-perfis');
   if (!list) return;
 
   try {
-    const [employees, users] = await Promise.all([
-      api('/funcionarios'),
-      api('/admin/users'),
-    ]);
+    const users = await api('/admin/users');
 
     list.replaceChildren();
     if (feedback) feedback.textContent = '';
 
     if (users.length === 0) {
-      const row = document.createElement('tr');
-      const message = document.createElement('td');
-      message.colSpan = 3;
-      message.className = 'empty-state';
-      message.textContent = 'Nenhuma conta cadastrada.';
-      row.append(message);
-      list.append(row);
+      list.append(messageRow('Nenhuma conta cadastrada.'));
       return;
     }
 
+    const rows = [];
+
     for (const user of users) {
       const row = document.createElement('tr');
+      row.dataset.search = normalize(`${user.username} ${user.email}`);
 
       const userCell = document.createElement('td');
       userCell.dataset.label = 'Usuário';
@@ -94,49 +103,27 @@ async function initRoles() {
       roleControls.append(roleSelect, saveRole);
       roleCell.append(roleControls);
 
-      // "Funcionário da conta": cadastro do funcionário associado a esta conta de login
-      const employeeCell = document.createElement('td');
-      employeeCell.dataset.label = 'Funcionário da conta';
-      const employeeControls = document.createElement('div');
-      employeeControls.className = 'admin-profile-control';
-      const employeeSelect = document.createElement('select');
-      employeeSelect.className = 'form-select form-select-sm';
-      employeeSelect.setAttribute('aria-label', `Funcionário associado à conta ${user.username}`);
-      employeeSelect.add(new Option('Nenhum funcionário associado', '', false, !user.idFuncionario));
-      for (const employee of employees) {
-        employeeSelect.add(new Option(
-          employee.nomeFuncionario,
-          employee.idFuncionario,
-          false,
-          employee.idFuncionario === user.idFuncionario,
-        ));
-      }
-      const saveEmployeeLink = document.createElement('button');
-      saveEmployeeLink.type = 'button';
-      saveEmployeeLink.className = 'btn ds-btn-outline btn-sm';
-      saveEmployeeLink.textContent = 'Salvar associação';
-      saveEmployeeLink.addEventListener('click', async () => {
-        saveEmployeeLink.disabled = true;
-        try {
-          await api(`/admin/users/${user.idUsuario}/funcionario`, {
-            method: 'PATCH',
-            body: JSON.stringify({
-              idFuncionario: employeeSelect.value ? Number(employeeSelect.value) : null,
-            }),
-          });
-          window.alert('Funcionário associado à conta.');
-        } catch (error) {
-          window.alert(error.message);
-        } finally {
-          saveEmployeeLink.disabled = false;
-        }
-      });
-      employeeControls.append(employeeSelect, saveEmployeeLink);
-      employeeCell.append(employeeControls);
-
-      row.append(userCell, roleCell, employeeCell);
+      row.append(userCell, roleCell);
       list.append(row);
+      rows.push(row);
     }
+
+    // linha exibida quando a busca não encontra ninguém
+    const emptyRow = messageRow('Nenhum usuário encontrado para essa busca.');
+    emptyRow.style.display = 'none';
+    list.append(emptyRow);
+
+    // a busca só esconde as linhas: o que foi alterado e ainda não salvo continua nos campos
+    search?.addEventListener('input', () => {
+      const term = normalize(search.value.trim());
+      let visible = 0;
+      for (const row of rows) {
+        const show = !term || row.dataset.search.includes(term);
+        row.style.display = show ? '' : 'none';
+        if (show) visible += 1;
+      }
+      emptyRow.style.display = visible === 0 ? '' : 'none';
+    });
   } catch (error) {
     if (feedback) {
       feedback.classList.add('is-error');

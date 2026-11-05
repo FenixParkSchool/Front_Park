@@ -1,6 +1,6 @@
-import { escapeHtml, isValidPlate, normalizePlate } from '../../shared/utils.js';
+//Arquivo: Front_Park/js/pages/admin/visits.js
+import { escapeHtml, isValidPlate } from '../../shared/utils.js';
 
-// Troque esta linha pela constante/serviço de URL da API que o projeto já usa.
 const API_URL = (window.API_URL ?? 'http://localhost:3000').replace(/\/$/, '');
 
 function errorMessage(data, status) {
@@ -36,6 +36,30 @@ const onlyDigits = (value) => String(value ?? '').replace(/\D/g, '');
 // Popup de confirmação (adiado para o navegador atualizar a lista antes de abrir)
 const popup = (text) => setTimeout(() => window.alert(text), 0);
 
+/* ---------- Telefone: máscara e validação ---------- */
+
+// Só números, no máximo 11: (12) 3456-7890 (fixo) ou (12) 91234-5678 (celular).
+function maskPhone(value) {
+  const d = onlyDigits(value).slice(0, 11);
+  if (d.length === 0) return '';
+  if (d.length <= 2) return `(${d}`;
+  if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
+  if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+  return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+}
+
+function phoneError(digits) {
+  if (!/^\d{10,11}$/.test(digits)) return 'Informe o telefone com DDD: celular (11 dígitos) ou fixo (10 dígitos).';
+  if (Number(digits.slice(0, 2)) < 11) return 'DDD inválido.';
+  if (digits.length === 11 && digits[2] !== '9') return 'Celular deve começar com 9 depois do DDD.';
+  if (digits.length === 10 && !/[2-5]/.test(digits[2])) return 'Telefone fixo deve começar com 2 a 5 depois do DDD.';
+  return '';
+}
+
+/* ---------- Placa: só letras e números, no máximo 7 caracteres ---------- */
+
+const cleanPlate = (value) => String(value ?? '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 7);
+
 function setField(id, value) {
   const el = $(id);
   if (!el) return;
@@ -53,15 +77,42 @@ function setLocked(ids, locked) {
 export function initAdminVisits() {
   const form = $('formNovaVisitaAdmin');
   if (!form) return;
+  form.noValidate = true; // as mensagens de validação vêm do código abaixo
+
   const list = $('lista-visitas-admin');
   const visitorSelect = $('visita-visitante-select');
   const vehicleSelect = $('visita-veiculo-select');
   const status = $('visita-status');
+  const title = $('titulo-visitas');
+  const phoneInput = $('visita-telefone');
+  const plateInput = $('visita-placa');
+  const submit = form.querySelector('[type="submit"]');
+  const submitDefault = submit ? submit.innerHTML : '';
+
+  if (phoneInput) {
+    phoneInput.maxLength = 15; // "(12) 91234-5678"
+    phoneInput.inputMode = 'tel';
+    phoneInput.addEventListener('input', () => { phoneInput.value = maskPhone(phoneInput.value); });
+  }
+  if (plateInput) {
+    plateInput.maxLength = 7;
+    plateInput.addEventListener('input', () => { plateInput.value = cleanPlate(plateInput.value); });
+  }
+
+  // botão "Cancelar edição" (criado aqui, só aparece ao editar)
+  const cancelBtn = document.createElement('button');
+  cancelBtn.type = 'button';
+  cancelBtn.id = 'btn-cancelar-visita';
+  cancelBtn.className = 'btn ds-btn-outline ms-2';
+  cancelBtn.textContent = 'Cancelar edição';
+  cancelBtn.hidden = true;
+  form.querySelector('.form-actions')?.append(cancelBtn);
 
   let visitantes = [];
   let veiculos = [];
   let visitorLocked = false;
   let vehicleLocked = false;
+  let editing = null; // { visitorId } quando estiver editando uma visita
 
   const say = (text = '', isError = false) => {
     if (!status) return;
@@ -82,7 +133,7 @@ export function initAdminVisits() {
       setField('visita-cor', veiculo.corVeiculoVisitante);
       setField('visita-ano', veiculo.anoVeiculoVisitante);
       setField('visita-placa', veiculo.placaVeiculoVisitante);
-      setLocked(VEHICLE_FIELDS, true);
+      setLocked(VEHICLE_FIELDS, !editing); // ao editar, os campos ficam liberados
       vehicleLocked = true;
     } else {
       // só limpa se os campos estavam preenchidos por um veículo existente (preserva o que o usuário digitou)
@@ -96,9 +147,9 @@ export function initAdminVisits() {
     const visitante = visitantes.find((v) => String(v.idVisitante) === visitorSelect.value);
     if (visitante) {
       setField('visita-nome', visitante.nomeVisitante);
-      setField('visita-telefone', visitante.telefoneVisitante);
+      setField('visita-telefone', maskPhone(visitante.telefoneVisitante));
       setField('visita-evento', visitante.evento);
-      setLocked(VISITOR_FIELDS, true);
+      setLocked(VISITOR_FIELDS, !editing);
       visitorLocked = true;
     } else {
       if (visitorLocked) VISITOR_FIELDS.forEach((id) => setField(id, ''));
@@ -115,7 +166,7 @@ export function initAdminVisits() {
 
   const renderSelectors = (selectedVisitorId = '', selectedVehicleId = '') => {
     visitorSelect.innerHTML = '<option value="">Novo visitante</option>' + visitantes.map((v) =>
-      `<option value="${v.idVisitante}">${escapeHtml(v.nomeVisitante)} · ${escapeHtml(v.telefoneVisitante)}</option>`).join('');
+      `<option value="${v.idVisitante}">${escapeHtml(v.nomeVisitante)} · ${escapeHtml(maskPhone(v.telefoneVisitante))}</option>`).join('');
     visitorSelect.value = String(selectedVisitorId || '');
     applyVisitor(selectedVehicleId);
   };
@@ -134,9 +185,11 @@ export function initAdminVisits() {
         : '<span class="badge text-bg-light border text-secondary">Sem veículo</span>';
       return `<article class="visita-item"><div>
         <p>${escapeHtml(visitante.nomeVisitante)}</p>
-        <p>${escapeHtml(visitante.evento)} · ${escapeHtml(visitante.telefoneVisitante)}</p>
+        <p>${escapeHtml(visitante.evento)} · ${escapeHtml(maskPhone(visitante.telefoneVisitante))}</p>
         ${veiculosHtml}
-      </div></article>`;
+      </div>
+      <div><button type="button" class="btn ds-btn-outline btn-sm" data-action="editar-visita" data-id="${visitante.idVisitante}"><i class="bi bi-pencil-square" aria-hidden="true"></i> Editar</button></div>
+      </article>`;
     }).join('');
   };
 
@@ -146,14 +199,126 @@ export function initAdminVisits() {
     renderList();
   };
 
+  // ---- modo edição ---------------------------------------------------------
+  const setEditUi = (on) => {
+    if (title) title.textContent = on ? 'Editar visita' : 'Registrar visita';
+    if (submit) submit.innerHTML = on ? '<i class="bi bi-check2" aria-hidden="true"></i> Salvar alterações' : submitDefault;
+    cancelBtn.hidden = !on;
+    visitorSelect.disabled = on; // na edição o visitante é o escolhido na lista
+  };
+
+  const exitEdit = () => {
+    if (!editing) return;
+    editing = null;
+    setEditUi(false);
+    form.reset();
+    setLocked(VISITOR_FIELDS, false);
+    setLocked(VEHICLE_FIELDS, false);
+    visitorLocked = false;
+    vehicleLocked = false;
+    renderSelectors('', '');
+    say();
+  };
+
+  const startEdit = (id) => {
+    const visitante = visitantes.find((v) => String(v.idVisitante) === String(id));
+    if (!visitante) return;
+    editing = { visitorId: visitante.idVisitante };
+    form.reset();
+    setLocked(VISITOR_FIELDS, false);
+    setLocked(VEHICLE_FIELDS, false);
+    setEditUi(true);
+
+    visitorSelect.value = String(visitante.idVisitante);
+    setField('visita-nome', visitante.nomeVisitante);
+    setField('visita-telefone', maskPhone(visitante.telefoneVisitante));
+    setField('visita-evento', visitante.evento);
+    visitorLocked = false;
+
+    const doVisitante = veiculos.filter((v) => v.idVisitante === visitante.idVisitante);
+    vehicleSelect.innerHTML = '<option value="">Novo veículo</option>' + doVisitante.map((v) =>
+      `<option value="${v.idVeiculoVisitante}">${escapeHtml(v.modeloVeiculoVisitante)} · ${escapeHtml(v.placaVeiculoVisitante)}</option>`).join('');
+    vehicleSelect.value = doVisitante[0] ? String(doVisitante[0].idVeiculoVisitante) : '';
+    vehicleLocked = false;
+    applyVehicle();
+
+    say(`Editando a visita de ${visitante.nomeVisitante}. Para trocar o veículo, escolha outro na lista ou "Novo veículo".`);
+    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const get = (id) => $(id)?.value.trim() || '';
+
+  const saveEdit = async () => {
+    const nome = get('visita-nome');
+    const evento = get('visita-evento');
+    const telefone = onlyDigits(get('visita-telefone'));
+    if (nome.length < 2 || evento.length < 2) return say('Preencha o nome e o evento / motivo do visitante.', true);
+    const erroTelefone = phoneError(telefone);
+    if (erroTelefone) return say(erroTelefone, true);
+
+    // veículo: se houver um selecionado ou algum campo preenchido, todos precisam estar válidos
+    const vehicleId = Number(vehicleSelect.value) || null;
+    let vehicleBody = null;
+    if (vehicleId || VEHICLE_FIELDS.some((id) => get(id))) {
+      if (!VEHICLE_FIELDS.every((id) => get(id))) return say('Preencha todos os dados do veículo ou deixe todos em branco.', true);
+      if (!/^(19|20)\d{2}$/.test(get('visita-ano'))) return say('Informe o ano do veículo com 4 dígitos.', true);
+      const placa = cleanPlate(get('visita-placa'));
+      if (!isValidPlate(placa)) return say('Informe uma placa válida.', true);
+      vehicleBody = {
+        tipoVeiculoVisitante: get('visita-tipo'),
+        modeloVeiculoVisitante: get('visita-modelo'),
+        corVeiculoVisitante: get('visita-cor'),
+        anoVeiculoVisitante: get('visita-ano'),
+        placaVeiculoVisitante: placa,
+      };
+    }
+
+    if (submit) submit.disabled = true;
+    try {
+      await api(`/visitantes/${editing.visitorId}`, {
+        method: 'PUT',
+        body: { nomeVisitante: nome, telefoneVisitante: telefone, evento },
+      });
+
+      if (vehicleBody) {
+        try {
+          if (vehicleId) await api(`/veiculoVisitantes/${vehicleId}`, { method: 'PUT', body: vehicleBody });
+          else await api('/veiculoVisitantes', { method: 'POST', body: { idVisitante: editing.visitorId, ...vehicleBody } });
+        } catch (error) {
+          await loadData().catch(() => {});
+          renderList();
+          say(`Visitante atualizado, mas o veículo não foi salvo: ${error.message}`, true);
+          return;
+        }
+      }
+
+      exitEdit();
+      await refresh('', '');
+      say('Visita atualizada com sucesso.');
+      popup('Visita atualizada com sucesso!');
+    } catch (error) {
+      say(error.message, true); // ex.: 409 (telefone ou placa já cadastrados)
+    } finally {
+      if (submit) submit.disabled = false;
+    }
+  };
+
   // ---- eventos -------------------------------------------------------------
   visitorSelect.addEventListener('change', () => { say(); applyVisitor(); });
   vehicleSelect.addEventListener('change', () => { say(); applyVehicle(); });
+  cancelBtn.addEventListener('click', exitEdit);
+  list?.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-action="editar-visita"]');
+    if (button) startEdit(button.dataset.id);
+  });
+  // ao sair desta tela, abandona a edição
+  document.addEventListener('admin-tela', (event) => { if (event.detail !== 'visitas') exitEdit(); });
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     say();
-    const get = (id) => $(id)?.value.trim() || '';
+    if (editing) return saveEdit();
+
     let visitorId = Number(visitorSelect.value) || null;
     const existingVehicleId = Number(vehicleSelect.value) || null;
 
@@ -165,17 +330,17 @@ export function initAdminVisits() {
     }
 
     const telefone = onlyDigits(get('visita-telefone'));
-    const placa = normalizePlate(get('visita-placa'));
+    const placa = cleanPlate(get('visita-placa'));
 
     if (!visitorId) {
       if (!get('visita-nome') || !get('visita-evento') || !telefone) return say('Preencha os dados do visitante.', true);
-      if (!/^\d{10,11}$/.test(telefone)) return say('Informe o telefone com DDD (10 ou 11 dígitos).', true);
+      const erroTelefone = phoneError(telefone);
+      if (erroTelefone) return say(erroTelefone, true);
     }
     if (!VEHICLE_FIELDS.every((id) => get(id))) return say('Preencha todos os dados do veículo.', true);
     if (!/^(19|20)\d{2}$/.test(get('visita-ano'))) return say('Informe o ano do veículo com 4 dígitos.', true);
     if (!isValidPlate(placa)) return say('Informe uma placa válida.', true);
 
-    const submit = form.querySelector('[type="submit"]');
     if (submit) submit.disabled = true;
     let createdVisitorNow = false;
     try {
