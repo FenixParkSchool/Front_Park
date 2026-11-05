@@ -13,17 +13,17 @@
     <link rel="stylesheet" href="../css/pages/registrar.css">
 </head>
 
-<body data-page="registrar">
+<body class="registration-page" data-page="registrar">
 
     <div class="container-fluid p-0">
-        <div class="row vh-100 g-0">
+        <div class="registration-layout row vh-100 g-0">
 
             <!-- Lado Esquerdo: Hero & Apresentação -->
-            <div class="col-lg-6 d-none d-lg-block p-0 position-relative h-100 overflow-hidden">
+            <div class="registration-visual-panel col-12 col-lg-6 p-0 position-relative overflow-hidden">
                 <div class="hero-bg h-100 w-100"></div>
-                <div class="text-layer position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center align-items-center p-5 text-white text-center pe-none">
-                    <div class="hero-copy">
-                        <h1 class="display-5 fw-bold mb-3">Junte-se à Plataforma</h1>
+                <div class="registration-text-layer text-layer position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center align-items-start text-white text-start pe-none">
+                    <div class="registration-copy">
+                        <h1 class="registration-visual-title fw-bold mb-3">Junte-se à Plataforma</h1>
                         <p class="hero-description fs-5 mb-5">
                             Cadastre-se como funcionário ou vigilante para manter a administração e segurança do estacionamento com máxima eficiência.
                         </p>
@@ -32,12 +32,18 @@
             </div>
 
             <!-- Lado Direito: Formulário de Registro -->
-            <div class="form-container col-12 col-lg-6 d-flex align-items-center justify-content-center p-4 p-md-5 h-100 overflow-y-auto">
+            <div class="registration-form-panel form-container col-12 col-lg-6 d-flex align-items-center justify-content-center p-4 p-md-5">
                 <div class="w-100 registro-wrapper">
 
-                    <div class="mb-4">
-                        <h2 class="fw-bold mb-2">Criar nova conta</h2>
-                        <p class="ds-text-secondary">Preencha os campos abaixo para registrar um novo usuário.</p>
+                    <div class="registration-brand d-flex align-items-center gap-2 mb-3">
+                        <img src="../assets/logo_pkg/05_monocromatica_azul/05_monocromatica_azul_icone_200.webp"
+                            alt="" class="registration-brand-mark">
+                        <span class="registration-brand-name">ParkSchool</span>
+                    </div>
+
+                    <div class="registration-heading mb-3">
+                        <h2 class="registration-form-title fw-bold mb-1">Criar nova conta</h2>
+                        <p class="ds-text-secondary mb-0">Preencha os campos abaixo para registrar um novo usuário.</p>
                     </div>
 
                     <!-- ATENÇÃO AO ID DO FORMULÁRIO E DOS CAMPOS -->
