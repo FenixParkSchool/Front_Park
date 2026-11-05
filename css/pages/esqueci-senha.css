@@ -1,81 +1,210 @@
 /* =========================================
-   ESQUECI MINHA SENHA STYLES
+   RECUPERAÇÃO DE SENHA
    ========================================= */
 
-.logo-esqueci {
-    border: 2px solid var(--color-warning);
-    border-radius: var(--radius-lg);
-    padding: var(--spacing-1);
+.forgot-password-page {
+    min-height: 100vh;
+    min-height: 100dvh;
+    background: linear-gradient(
+        160deg,
+        var(--bg-surface) 0%,
+        var(--color-gray-100) 55%,
+        var(--color-gray-50) 100%
+    );
+    color: var(--text-primary);
 }
 
-.main-bg {
-    background: linear-gradient(160deg, var(--bg-surface) 0%, var(--color-gray-100) 55%, var(--color-gray-50) 100%);
+.forgot-password-page .esqueci-senha-main {
+    position: relative;
+    isolation: isolate;
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: clamp(var(--spacing-4), 4vh, var(--spacing-8));
 }
 
-.senac-header {
-    background-color: var(--color-primary);
-}
-
-/* ---- Imagem de fundo com opacidade baixa ---- */
-.esqueci-senha-main::before {
+.forgot-password-page .esqueci-senha-main::before {
     content: '';
     position: absolute;
+    z-index: -1;
     inset: 0;
-    background: url('../../assets/img/pexels-adempercem-35531329.jpg') center/cover no-repeat;
-    opacity: 0.15;
-    z-index: 0; 
+    pointer-events: none;
+    background-image: url('../../assets/img/pexels-adempercem-35531329.jpg');
+    background-position: center;
+    background-size: cover;
+    opacity: 0.08;
 }
 
-.esqueci-senha-wrapper {
+.forgot-password-page .esqueci-senha-wrapper {
     position: relative;
     z-index: 1;
+    width: min(100%, 28rem);
+    margin-inline: auto;
+    padding: var(--spacing-8);
+    border: var(--border-width-thin) solid var(--border-color);
+    border-top: var(--border-width-thick) solid var(--color-primary);
+    border-radius: var(--radius-xl);
     background-color: var(--bg-surface);
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-lg);
-    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
 }
 
-.esqueci-senha-wrapper {
-    background-color: var(--bg-surface);
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-lg);
-    border-radius: var(--radius-lg);
-}
-
-.text-primary-custom {
-    color: var(--color-primary) !important;
-}
-
-.ds-text-secondary {
-    color: var(--text-secondary);
-}
-
-.ds-text-primary {
+.forgot-password-page .recovery-icon {
+    width: var(--spacing-12);
+    height: var(--spacing-12);
+    flex-shrink: 0;
+    background-color: var(--color-primary-light);
     color: var(--color-primary);
+    font-size: var(--font-size-lg);
 }
 
-.hover-primary:hover {
-    color: var(--color-primary) !important;
+.forgot-password-page .recovery-title {
+    color: var(--color-primary);
+    font-family: var(--font-family-heading);
+    font-size: var(--font-size-2xl);
+    line-height: 1.25;
 }
 
-.tab-btn {
-    transition: background-color var(--transition-fast), box-shadow var(--transition-fast);
-    border: none;
+.forgot-password-page .recovery-description {
+    max-width: 38ch;
+    margin-inline: auto;
+    color: var(--text-secondary);
     font-size: var(--font-size-sm);
+    line-height: 1.6;
 }
 
-.tab-btn.active {
-    color: var(--color-primary) !important;
-    background-color: var(--bg-surface);
+.forgot-password-page .esqueci-senha-wrapper .form-label {
+    margin-bottom: var(--spacing-2);
+    color: var(--text-primary);
+}
+
+.forgot-password-page .esqueci-senha-wrapper .ds-input-group .input-group-text {
+    min-height: var(--spacing-12);
+    background-color: var(--color-gray-50);
+}
+
+.forgot-password-page .esqueci-senha-wrapper .ds-input-group .form-control {
+    min-height: var(--spacing-12);
+    font-size: var(--font-size-base);
+}
+
+.forgot-password-page .recovery-submit {
+    min-height: var(--spacing-12);
+    border-radius: var(--radius-md);
     box-shadow: var(--shadow-sm);
 }
 
-.code-input {
-    letter-spacing: 0.4em;
-    font-family: monospace;
+.forgot-password-page .recovery-submit:hover:not(:disabled) {
+    transform: translateY(-1px);
 }
 
-.code-input::placeholder {
-    letter-spacing: normal;
+.forgot-password-page .esqueci-senha-wrapper .recovery-submit:disabled {
+    opacity: 1;
+    background-color: var(--color-primary-light);
+    border-color: var(--color-primary-light);
+    color: var(--color-primary);
+    cursor: not-allowed;
+}
+
+.forgot-password-page .recovery-submit:focus-visible,
+.forgot-password-page .recovery-back-link:focus-visible {
+    outline: var(--border-width-thick) solid var(--color-primary);
+    outline-offset: 3px;
+}
+
+.forgot-password-page .recovery-back-link {
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+.forgot-password-page .recovery-back-link:hover {
+    color: var(--color-primary);
+    text-decoration: underline;
+}
+
+/* Mantém os estilos dos possíveis estados de código/etapa já previstos nesta página. */
+.forgot-password-page .tab-btn {
+    border: 0;
+    font-size: var(--font-size-sm);
+    transition: background-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.forgot-password-page .tab-btn.active {
+    background-color: var(--bg-surface);
+    box-shadow: var(--shadow-sm);
+    color: var(--color-primary) !important;
+}
+
+.forgot-password-page .code-input {
+    font-family: monospace;
+    letter-spacing: 0.4em;
+}
+
+.forgot-password-page .code-input::placeholder {
     font-family: var(--font-family-base);
+    letter-spacing: normal;
+}
+
+@media (max-width: 991.98px) {
+    .forgot-password-page .navbar-toggler-icon {
+        filter: brightness(0) invert(1);
+    }
+
+    .forgot-password-page .esqueci-senha-main {
+        padding: var(--spacing-5);
+    }
+}
+
+@media (max-width: 575.98px) {
+    .forgot-password-page .esqueci-senha-main {
+        padding: var(--spacing-3);
+    }
+
+    .forgot-password-page .esqueci-senha-wrapper {
+        padding: var(--spacing-5);
+        border-radius: var(--radius-lg);
+    }
+
+    .forgot-password-page .recovery-title {
+        font-size: var(--font-size-xl);
+    }
+
+    .forgot-password-page .esqueci-senha-wrapper .ds-input-group .input-group-text,
+    .forgot-password-page .esqueci-senha-wrapper .ds-input-group .form-control,
+    .forgot-password-page .recovery-submit {
+        min-height: var(--spacing-10);
+    }
+}
+
+@media (max-width: 575.98px) and (max-height: 640px) {
+    .forgot-password-page .esqueci-senha-main {
+        padding-block: var(--spacing-2);
+    }
+
+    .forgot-password-page .esqueci-senha-wrapper {
+        padding: var(--spacing-4);
+    }
+
+    .forgot-password-page .recovery-icon {
+        margin-bottom: var(--spacing-3) !important;
+    }
+
+    .forgot-password-page .recovery-description {
+        margin-bottom: var(--spacing-3) !important;
+    }
+
+    .forgot-password-page .esqueci-senha-wrapper #field-email {
+        margin-bottom: var(--spacing-3) !important;
+    }
+
+    .forgot-password-page .esqueci-senha-wrapper .recovery-back-link {
+        margin-top: var(--spacing-3) !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .forgot-password-page .recovery-submit,
+    .forgot-password-page .recovery-back-link {
+        transition: none;
+    }
 }
