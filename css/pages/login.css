@@ -194,6 +194,21 @@
     text-decoration: underline;
 }
 
+.login-password-heading {
+    margin-bottom: var(--spacing-1);
+}
+
+.login-password-heading .form-label {
+    margin-bottom: 0;
+}
+
+.login-forgot-link {
+    flex: 0 0 auto;
+    font-size: var(--font-size-xs);
+    line-height: 1.4;
+    white-space: nowrap;
+}
+
 .ds-text-secondary {
     color: var(--text-secondary);
 }
