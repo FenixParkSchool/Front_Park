@@ -936,3 +936,32 @@
     white-space: nowrap;
   }
 }
+
+.admin-profile-table .admin-profile-control {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  max-width: 340px;
+  margin-left: .5px;
+}
+ 
+.admin-profile-table .admin-profile-control .form-select
+{ flex: 0 1 190px;
+  min-width: 0;
+margin-left: .5px;
+}
+ 
+.admin-profile-table .admin-profile-control .btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+margin-left: .5px;
+}
+ 
+  .admin-profile-panel{
+    max-width: 850px;
+  }
+ 
+  .admin-profile-table{
+    max-width: 800px;
+ 
+  }

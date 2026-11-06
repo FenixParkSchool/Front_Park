@@ -25,23 +25,11 @@ export function init() {
   initAdminReservation();
 }
 
-// texto sem acento e em minúsculas, para a busca
-const normalize = (text) => String(text ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-
-function messageRow(text) {
-  const row = document.createElement('tr');
-  const cell = document.createElement('td');
-  cell.colSpan = 2;
-  cell.className = 'empty-state';
-  cell.textContent = text;
-  row.append(cell);
-  return row;
-}
-
+// Perfis de acesso: usuário, perfil e botão de salvar, com busca por nome ou e-mail.
 async function initRoles() {
   const list = document.getElementById('lista-perfis');
   const feedback = document.getElementById('perfis-feedback');
-  const search = document.getElementById('busca-perfis');
+  const searchInput = document.getElementById('busca-perfis');
   if (!list) return;
 
   try {
@@ -51,15 +39,19 @@ async function initRoles() {
     if (feedback) feedback.textContent = '';
 
     if (users.length === 0) {
-      list.append(messageRow('Nenhuma conta cadastrada.'));
+      const row = document.createElement('tr');
+      const message = document.createElement('td');
+      message.colSpan = 2;
+      message.className = 'empty-state';
+      message.textContent = 'Nenhuma conta cadastrada.';
+      row.append(message);
+      list.append(row);
       return;
     }
 
-    const rows = [];
-
     for (const user of users) {
       const row = document.createElement('tr');
-      row.dataset.search = normalize(`${user.username} ${user.email}`);
+      row.dataset.busca = `${user.username ?? ''} ${user.email ?? ''}`.toLocaleLowerCase('pt-BR');
 
       const userCell = document.createElement('td');
       userCell.dataset.label = 'Usuário';
@@ -105,25 +97,29 @@ async function initRoles() {
 
       row.append(userCell, roleCell);
       list.append(row);
-      rows.push(row);
     }
 
-    // linha exibida quando a busca não encontra ninguém
-    const emptyRow = messageRow('Nenhum usuário encontrado para essa busca.');
-    emptyRow.style.display = 'none';
-    list.append(emptyRow);
+    // linha exibida quando a busca não encontra nenhuma conta
+    const noResult = document.createElement('tr');
+    noResult.hidden = true;
+    const noResultCell = document.createElement('td');
+    noResultCell.colSpan = 2;
+    noResultCell.className = 'empty-state';
+    noResultCell.textContent = 'Nenhuma conta encontrada para essa busca.';
+    noResult.append(noResultCell);
+    list.append(noResult);
 
-    // a busca só esconde as linhas: o que foi alterado e ainda não salvo continua nos campos
-    search?.addEventListener('input', () => {
-      const term = normalize(search.value.trim());
+    const applyFilter = () => {
+      const term = (searchInput?.value ?? '').trim().toLocaleLowerCase('pt-BR');
       let visible = 0;
-      for (const row of rows) {
-        const show = !term || row.dataset.search.includes(term);
-        row.style.display = show ? '' : 'none';
-        if (show) visible += 1;
+      for (const row of list.querySelectorAll('tr[data-busca]')) {
+        const match = !term || row.dataset.busca.includes(term);
+        row.hidden = !match;
+        if (match) visible += 1;
       }
-      emptyRow.style.display = visible === 0 ? '' : 'none';
-    });
+      noResult.hidden = visible > 0;
+    };
+    searchInput?.addEventListener('input', applyFilter);
   } catch (error) {
     if (feedback) {
       feedback.classList.add('is-error');
