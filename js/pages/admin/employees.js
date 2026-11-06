@@ -6,38 +6,38 @@ import { escapeHtml } from '../../shared/utils.js';
    se o servidor responder "Unrecognized key" ou 400, ajuste apenas este bloco. */
 const FIELD = {
   id: 'idFuncionario',
+  idUsuario: 'idUsuario',
+  identificacao: 'identificaOFuncionario',
   nome: 'nomeFuncionario',
   telefone: 'telefoneFuncionario',
   email: 'emailFuncionario',
   pcd: 'pcdFuncionario',
-  status: 'statusFuncionario',
 };
-const PCD_BOOLEANO = true;     // true: a API guarda PCD como true/false; false: como 'sim'/'nao'
-const STATUS_BOOLEANO = false; // true: a API guarda ativo como true/false; false: como 'ativo'/'inativo'
 
 const fromApi = (row) => ({
   id: row[FIELD.id],
+  idUsuario: row[FIELD.idUsuario] ?? null,
+  identificacao: row[FIELD.identificacao] ?? '',
   nome: row[FIELD.nome] ?? '',
   telefone: row[FIELD.telefone] ?? '',
   email: row[FIELD.email] ?? '',
-  pcd: [true, 'sim', 'SIM', 1].includes(row[FIELD.pcd]) ? 'sim' : 'nao',
-  status: row[FIELD.status] === undefined || [true, 'ativo', 'ATIVO'].includes(row[FIELD.status]) ? 'ativo' : 'inativo',
+  pcd: row[FIELD.pcd] === true ? 'sim' : 'nao',
 });
 
 // Só envia o que foi informado (serve para criar e para editar parcialmente).
 function toApi(data) {
   const body = {};
-  if (data.id !== undefined) body[FIELD.id] = data.id;
+  if (data.idUsuario !== undefined) body[FIELD.idUsuario] = data.idUsuario;
+  if (data.identificacao !== undefined) body[FIELD.identificacao] = data.identificacao;
   if (data.nome !== undefined) body[FIELD.nome] = data.nome;
   if (data.telefone !== undefined) body[FIELD.telefone] = data.telefone;
   if (data.email !== undefined) body[FIELD.email] = data.email;
-  if (data.pcd !== undefined) body[FIELD.pcd] = PCD_BOOLEANO ? data.pcd === 'sim' : data.pcd;
-  if (data.status !== undefined) body[FIELD.status] = STATUS_BOOLEANO ? data.status === 'ativo' : data.status;
+  if (data.pcd !== undefined) body[FIELD.pcd] = data.pcd === 'sim';
   return body;
 }
 
 let employees = [];
-let currentFilter = 'todos';
+let accounts = []; // contas FUNCIONARIO sem ficha
 let editingId = null;
 
 const $ = (id) => document.getElementById(id);
@@ -48,9 +48,34 @@ async function loadEmployees() {
   const rows = await api('/funcionarios');
   employees = rows.map(fromApi);
   renderEmployees();
-  // avisa outros módulos (ex.: lista de funcionários no cadastro de veículos)
+  loadAccounts().catch(() => {});
   document.dispatchEvent(new CustomEvent('funcionarios-atualizados'));
   return employees;
+}
+
+async function loadAccounts() {
+  const users = await api('/admin/users');
+  accounts = users.filter((user) => user.role === 'FUNCIONARIO' && !user.idFuncionario);
+  renderAccountSelect();
+}
+
+function renderAccountSelect() {
+  const select = $('novo-func-conta');
+  if (!select) return;
+  select.replaceChildren(new Option(
+    accounts.length ? 'Selecione a conta' : 'Nenhuma conta sem ficha disponível', '',
+  ));
+  for (const account of accounts) {
+    select.add(new Option(`${account.username} (${account.email})`, account.idUsuario));
+  }
+}
+
+function setFeedback(id, message, type = 'sucesso') {
+  const element = $(id);
+  if (!element) { if (message) window.alert(message); return; }
+  element.textContent = message;
+  element.classList.toggle('text-danger', type === 'erro');
+  element.classList.toggle('text-success', type === 'sucesso');
 }
 
 // Mantém a assinatura antiga (usada em requests.js): devolve a lista que já está em memória
@@ -88,15 +113,8 @@ function renderEmployees() {
   const list = $('lista-funcionarios');
   if (!list) return;
   const search = $('busca-input')?.value.trim().toLocaleLowerCase('pt-BR') || '';
-  const activeCount = employees.filter((employee) => employee.status === 'ativo').length;
-  const setText = (id, value) => { const element = $(id); if (element) element.textContent = String(value); };
-  setText('cont-todos', employees.length);
-  setText('cont-ativos', activeCount);
-  setText('cont-inativos', employees.length - activeCount);
-  const filtered = employees.filter((employee) => {
-    const matchesSearch = (employee.nome || '').toLocaleLowerCase('pt-BR').includes(search);
-    return matchesSearch && (currentFilter === 'todos' || employee.status === currentFilter);
-  });
+  const filtered = employees.filter((employee) =>
+    (employee.nome || '').toLocaleLowerCase('pt-BR').includes(search));
 
   if (!filtered.length) {
     list.innerHTML = '<p class="text-center py-4 mb-0 empty-state">Nenhum funcionário encontrado para essa busca.</p>';
@@ -108,33 +126,16 @@ function renderEmployees() {
     const name = escapeHtml(employee.nome || '');
     const email = escapeHtml(employee.email || '');
     const phone = escapeHtml(employee.telefone || '');
-    const isActive = employee.status === 'ativo';
+    const ident = escapeHtml(employee.identificacao || '');
+    const linked = employee.idUsuario !== null;
     return `<article class="func-item">
       <div><p>${name} ${employee.pcd === 'sim' ? '<span class="badge text-bg-info ms-1">PCD</span>' : ''}</p>
-      <p><i class="bi bi-envelope me-1" aria-hidden="true"></i>${email} · <i class="bi bi-telephone me-1" aria-hidden="true"></i>${phone}</p></div>
-      <div class="d-flex align-items-center gap-3"><span class="badge ${isActive ? 'text-bg-success' : 'text-bg-danger'}">${isActive ? 'Ativo' : 'Inativo'}</span>
-      <button class="btn ds-btn-outline btn-sm" type="button" data-action="editar-funcionario" data-id="${id}"><i class="bi bi-pencil-square" aria-hidden="true"></i> Editar</button>
-      <button class="btn ds-btn-outline btn-sm" type="button" data-action="alternar-funcionario" data-id="${id}"><i class="bi ${isActive ? 'bi-person-dash' : 'bi-person-check'}" aria-hidden="true"></i> ${isActive ? 'Desativar' : 'Ativar'}</button></div>
+      <p><i class="bi bi-envelope me-1" aria-hidden="true"></i>${email} · <i class="bi bi-telephone me-1" aria-hidden="true"></i>${phone}</p>
+      <p><small>ID: ${ident}</small></p></div>
+      <div class="d-flex align-items-center gap-3"><span class="badge ${linked ? 'text-bg-success' : 'text-bg-secondary'}">${linked ? 'Conta vinculada' : 'Sem conta'}</span>
+      <button class="btn ds-btn-outline btn-sm" type="button" data-action="editar-funcionario" data-id="${id}"><i class="bi bi-pencil-square" aria-hidden="true"></i> Editar</button></div>
     </article>`;
   }).join('');
-}
-
-async function changeEmployeeStatus(id) {
-  const employee = employees.find((item) => String(item.id) === String(id));
-  if (!employee) return;
-  try {
-    await saveEmployee({ id: employee.id, status: employee.status === 'ativo' ? 'inativo' : 'ativo' }, { creating: false });
-  } catch (error) {
-    window.alert(error.message);
-  }
-}
-
-function setFilter(filter) {
-  currentFilter = filter;
-  document.querySelectorAll('[data-filtro]').forEach((button) => {
-    button.classList.toggle('active', button.dataset.filtro === filter);
-  });
-  renderEmployees();
 }
 
 /* ---------- Modo edição ---------- */
@@ -144,7 +145,10 @@ function setEditMode(on) {
   const desc = $('desc-novo-funcionario');
   const saveText = $('btn-salvar-func-texto');
   const cancelBtn = $('btn-cancelar-edicao');
-  const idInput = $('novo-func-id');
+    const accountGroup = $('novo-func-conta-grupo');
+  if (accountGroup) accountGroup.hidden = on;
+  const accountSelect = $('novo-func-conta');
+  if (accountSelect) accountSelect.required = !on;
 
   if (title) title.textContent = on ? 'Editar funcionário' : 'Cadastrar funcionário';
   if (desc) {
@@ -154,7 +158,6 @@ function setEditMode(on) {
   }
   if (saveText) saveText.textContent = on ? 'Salvar alterações' : 'Salvar funcionário';
   if (cancelBtn) cancelBtn.hidden = !on;
-  if (idInput) idInput.readOnly = on;
 }
 
 function exitEditMode() {
@@ -172,7 +175,7 @@ function startEdit(id) {
   document.querySelector('#sidebar [data-nav="novo-funcionario"]')?.click();
 
   editingId = employee.id;
-  $('novo-func-id').value = employee.id;
+  $('novo-func-id').value = employee.identificacao || '';
   $('novo-func-nome').value = employee.nome || '';
   $('novo-func-telefone').value = employee.telefone || '';
   $('novo-func-email').value = employee.email || '';
@@ -187,34 +190,41 @@ async function handleCreateEmployee(event) {
   event.preventDefault();
   const form = event.currentTarget;
   const data = {
+    identificacao: $('novo-func-id')?.value.trim() || '',
     nome: $('novo-func-nome')?.value.trim() || '',
     telefone: $('novo-func-telefone')?.value.trim() || '',
     email: $('novo-func-email')?.value.trim() || '',
     pcd: document.querySelector('input[name="novo-func-pcd"]:checked')?.value || 'nao',
   };
+  const fail = (message) => setFeedback('novo-func-feedback', message, 'erro');
+  setFeedback('novo-func-feedback', '');
+
+  if (!data.identificacao) return fail('Informe o ID do funcionário.');
+  if (data.telefone.length > 15) return fail('O telefone deve ter no máximo 15 caracteres.');
+
+  let idUsuario;
+  if (editingId === null) {
+    idUsuario = Number($('novo-func-conta')?.value);
+    if (!Number.isInteger(idUsuario) || idUsuario < 1) return fail('Selecione a conta que será vinculada à ficha.');
+  }
 
   const submit = form.querySelector('[type="submit"]');
   if (submit) submit.disabled = true;
   try {
+    let message;
     if (editingId !== null) {
       await saveEmployee({ id: editingId, ...data }, { creating: false });
       exitEditMode();
+      message = 'Ficha atualizada com sucesso.';
     } else {
-      const id = Number($('novo-func-id')?.value.trim());
-      if (!Number.isInteger(id) || id < 1 || id > 2147483647) {
-        window.alert('Informe um ID numérico válido (inteiro positivo).');
-        return;
-      }
-      if (employees.some((employee) => Number(employee.id) === id)) {
-        window.alert('Já existe um funcionário cadastrado com este ID.');
-        return;
-      }
-      await saveEmployee({ id, ...data, status: 'ativo' }, { creating: true });
+      await saveEmployee({ ...data, idUsuario }, { creating: true });
       form.reset();
+      message = 'Ficha criada e vinculada à conta com sucesso.';
     }
     document.querySelector('#sidebar [data-nav="funcionarios"]')?.click();
+    setFeedback('funcionarios-feedback', message);
   } catch (error) {
-    window.alert(error.message); // ex.: 409 (ID repetido) ou 400 (dado inválido), vindos da API
+    fail(error.message); // ex.: 409 (conta já vinculada) ou 400, vindos da API
   } finally {
     if (submit) submit.disabled = false;
   }
@@ -225,10 +235,6 @@ async function handleCreateEmployee(event) {
 export function initAdminEmployees() {
   $('busca-input')?.addEventListener('input', renderEmployees);
 
-  document.querySelectorAll('[data-filtro]').forEach((button) => {
-    button.addEventListener('click', () => setFilter(button.dataset.filtro));
-  });
-
   $('formNovoFuncionarioAdmin')?.addEventListener('submit', handleCreateEmployee);
 
   $('lista-funcionarios')?.addEventListener('click', (event) => {
@@ -237,8 +243,6 @@ export function initAdminEmployees() {
       startEdit(editBtn.dataset.id);
       return;
     }
-    const toggleBtn = event.target.closest('[data-action="alternar-funcionario"]');
-    if (toggleBtn) changeEmployeeStatus(toggleBtn.dataset.id);
   });
 
   // Qualquer clique na navegação lateral (ou no botão "Novo funcionário") sai do modo edição
