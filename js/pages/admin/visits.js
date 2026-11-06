@@ -1,5 +1,5 @@
-//Arquivo: Front_Park/js/pages/admin/visits.js
-import { escapeHtml, isValidPlate } from '../../shared/utils.js';
+// Arquivo: Front_Park/js/pages/admin/visits.js
+import { escapeHtml, isValidPlate, normalizePlate } from '../../shared/utils.js';
 
 const API_URL = (window.API_URL ?? 'http://localhost:3000').replace(/\/$/, '');
 
@@ -32,33 +32,36 @@ const $ = (id) => document.getElementById(id);
 const VISITOR_FIELDS = ['visita-nome', 'visita-telefone', 'visita-evento'];
 const VEHICLE_FIELDS = ['visita-tipo', 'visita-modelo', 'visita-cor', 'visita-ano', 'visita-placa'];
 const onlyDigits = (value) => String(value ?? '').replace(/\D/g, '');
+const byNewest = (a, b) => b.idVisitante - a.idVisitante;
+const normalize = (text) => String(text ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 
-// Popup de confirmação (adiado para o navegador atualizar a lista antes de abrir)
 const popup = (text) => setTimeout(() => window.alert(text), 0);
 
-/* ---------- Telefone: máscara e validação ---------- */
+/* ---------- máscaras e validação ---------- */
 
-// Só números, no máximo 11: (12) 3456-7890 (fixo) ou (12) 91234-5678 (celular).
-function maskPhone(value) {
+function formatPhone(value) {
   const d = onlyDigits(value).slice(0, 11);
-  if (d.length === 0) return '';
+  if (!d) return '';
   if (d.length <= 2) return `(${d}`;
   if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
   if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
   return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
 }
 
-function phoneError(digits) {
-  if (!/^\d{10,11}$/.test(digits)) return 'Informe o telefone com DDD: celular (11 dígitos) ou fixo (10 dígitos).';
-  if (Number(digits.slice(0, 2)) < 11) return 'DDD inválido.';
-  if (digits.length === 11 && digits[2] !== '9') return 'Celular deve começar com 9 depois do DDD.';
-  if (digits.length === 10 && !/[2-5]/.test(digits[2])) return 'Telefone fixo deve começar com 2 a 5 depois do DDD.';
-  return '';
+const isValidPhone = (digits) => /^[1-9][1-9](?:9\d{8}|[2-5]\d{7})$/.test(digits);
+const PHONE_MESSAGE = 'Telefone inválido. Use (DD) 9XXXX-XXXX (celular) ou (DD) XXXX-XXXX (fixo).';
+
+function maskPlate(value) {
+  const raw = String(value ?? '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  let out = '';
+  for (const ch of raw) {
+    const i = out.length;
+    if (i >= 7) break;
+    const ok = i < 3 ? /[A-Z]/.test(ch) : i === 4 ? /[A-Z0-9]/.test(ch) : /[0-9]/.test(ch);
+    if (ok) out += ch;
+  }
+  return out;
 }
-
-/* ---------- Placa: só letras e números, no máximo 7 caracteres ---------- */
-
-const cleanPlate = (value) => String(value ?? '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 7);
 
 function setField(id, value) {
   const el = $(id);
@@ -73,46 +76,140 @@ function setLocked(ids, locked) {
   ids.forEach((id) => { const el = $(id); if (el) el.disabled = locked; });
 }
 
-// getVacancies não é mais usado: a vaga é reservada depois do cadastro. Mantido para não quebrar o main.js.
+const show = (elements, visible) => elements.forEach((el) => el?.classList.toggle('d-none', !visible));
+
+/* ---------- Inicialização ---------- */
+
 export function initAdminVisits() {
   const form = $('formNovaVisitaAdmin');
   if (!form) return;
-  form.noValidate = true; // as mensagens de validação vêm do código abaixo
+  form.noValidate = true;
 
   const list = $('lista-visitas-admin');
   const visitorSelect = $('visita-visitante-select');
   const vehicleSelect = $('visita-veiculo-select');
   const status = $('visita-status');
-  const title = $('titulo-visitas');
   const phoneInput = $('visita-telefone');
   const plateInput = $('visita-placa');
-  const submit = form.querySelector('[type="submit"]');
-  const submitDefault = submit ? submit.innerHTML : '';
+  const submitBtn = form.querySelector('[type="submit"]');
+  const actions = form.querySelector('.form-actions');
+  const submitDefault = submitBtn ? submitBtn.innerHTML : '';
 
   if (phoneInput) {
-    phoneInput.maxLength = 15; // "(12) 91234-5678"
-    phoneInput.inputMode = 'tel';
-    phoneInput.addEventListener('input', () => { phoneInput.value = maskPhone(phoneInput.value); });
-  }
-  if (plateInput) {
-    plateInput.maxLength = 7;
-    plateInput.addEventListener('input', () => { plateInput.value = cleanPlate(plateInput.value); });
+    phoneInput.maxLength = 15;
+    phoneInput.addEventListener('input', () => { phoneInput.value = formatPhone(phoneInput.value); });
   }
 
-  // botão "Cancelar edição" (criado aqui, só aparece ao editar)
+  if (plateInput) {
+    plateInput.maxLength = 7;
+    plateInput.addEventListener('input', () => { plateInput.value = maskPlate(plateInput.value); });
+  }
+
+  const visitorRow = $('visita-nome')?.closest('.row');
+  const vehicleRow = $('visita-tipo')?.closest('.row');
+  const visitorTitle = visitorRow?.previousElementSibling;
+  const vehicleTitle = vehicleRow?.previousElementSibling;
+  const visitorPicker = visitorSelect?.closest('.col-12');
+  const vehiclePicker = vehicleSelect?.closest('.col-12');
+
   const cancelBtn = document.createElement('button');
   cancelBtn.type = 'button';
-  cancelBtn.id = 'btn-cancelar-visita';
-  cancelBtn.className = 'btn ds-btn-outline ms-2';
+  cancelBtn.className = 'btn ds-btn-outline d-none';
   cancelBtn.textContent = 'Cancelar edição';
-  cancelBtn.hidden = true;
-  form.querySelector('.form-actions')?.append(cancelBtn);
+  actions?.append(cancelBtn);
 
   let visitantes = [];
   let veiculos = [];
   let visitorLocked = false;
   let vehicleLocked = false;
-  let editing = null; // { visitorId } quando estiver editando uma visita
+  let edit = null;
+
+  /* ---------- Lista escondida + pesquisa ---------- */
+
+  let panel = null;
+  let toggleBtn = null;
+  let searchInput = null;
+  let countText = null;
+  let listOpen = false;
+
+  if (list) {
+    panel = document.createElement('div');
+    panel.id = 'painel-visitas-admin';
+    panel.className = 'd-none';
+
+    const filters = document.createElement('div');
+    filters.className = 'mb-3';
+    filters.style.maxWidth = '58rem';
+
+    filters.innerHTML = `
+      <div class="row g-2 align-items-end">
+        <div class="col-12 col-lg-9">
+          <label class="visually-hidden" for="busca-visitas-admin">Pesquisar visitas</label>
+          <div class="input-group ds-input-group">
+            <span class="input-group-text border-end-0">
+              <i class="bi bi-search" aria-hidden="true"></i>
+            </span>
+            <input
+              id="busca-visitas-admin"
+              type="search"
+              class="form-control border-start-0 ps-0"
+              placeholder="Pesquisar por visitante, telefone, evento, veículo ou placa..."
+            >
+          </div>
+        </div>
+        <div class="col-12 col-lg-3">
+          <button
+            type="button"
+            id="limpar-filtros-visitas"
+            class="btn ds-btn-outline w-100"
+          >Limpar filtros</button>
+        </div>
+      </div>
+      <p id="contagem-visitas-admin" class="form-text mt-2 mb-0" aria-live="polite"></p>
+    `;
+
+    list.before(panel);
+    panel.append(filters, list);
+
+    searchInput = filters.querySelector('#busca-visitas-admin');
+    countText = filters.querySelector('#contagem-visitas-admin');
+
+    toggleBtn = document.createElement('button');
+    toggleBtn.type = 'button';
+    toggleBtn.className = 'btn ds-btn-outline d-inline-flex align-items-center gap-2';
+    toggleBtn.setAttribute('aria-controls', 'painel-visitas-admin');
+
+    const heading = panel.previousElementSibling;
+
+    if (heading?.classList.contains('section-heading')) {
+      heading.append(toggleBtn);
+    } else {
+      panel.before(toggleBtn);
+    }
+
+    toggleBtn.addEventListener('click', () => {
+      listOpen = !listOpen;
+      updateToggle();
+    });
+
+    searchInput.addEventListener('input', () => renderList());
+
+    filters.querySelector('#limpar-filtros-visitas').addEventListener('click', () => {
+      searchInput.value = '';
+      renderList();
+    });
+  }
+
+  function updateToggle() {
+    if (!toggleBtn || !panel) return;
+
+    panel.classList.toggle('d-none', !listOpen);
+    toggleBtn.setAttribute('aria-expanded', String(listOpen));
+
+    toggleBtn.innerHTML = listOpen
+      ? '<i class="bi bi-eye-slash" aria-hidden="true"></i> Ocultar visitas'
+      : `<i class="bi bi-list-ul" aria-hidden="true"></i> Ver visitas (${visitantes.length})`;
+  }
 
   const say = (text = '', isError = false) => {
     if (!status) return;
@@ -121,22 +218,26 @@ export function initAdminVisits() {
   };
 
   const loadData = async () => {
-    [visitantes, veiculos] = await Promise.all([api('/visitantes'), api('/veiculoVisitantes')]);
+    [visitantes, veiculos] = await Promise.all([
+      api('/visitantes'),
+      api('/veiculoVisitantes'),
+    ]);
   };
 
-  // ---- seletores -----------------------------------------------------------
+  /* ---------- Seletores ---------- */
+
   const applyVehicle = () => {
     const veiculo = veiculos.find((v) => String(v.idVeiculoVisitante) === vehicleSelect.value);
+
     if (veiculo) {
       setField('visita-tipo', veiculo.tipoVeiculoVisitante);
       setField('visita-modelo', veiculo.modeloVeiculoVisitante);
       setField('visita-cor', veiculo.corVeiculoVisitante);
       setField('visita-ano', veiculo.anoVeiculoVisitante);
-      setField('visita-placa', veiculo.placaVeiculoVisitante);
-      setLocked(VEHICLE_FIELDS, !editing); // ao editar, os campos ficam liberados
+      setField('visita-placa', maskPlate(veiculo.placaVeiculoVisitante));
+      setLocked(VEHICLE_FIELDS, true);
       vehicleLocked = true;
     } else {
-      // só limpa se os campos estavam preenchidos por um veículo existente (preserva o que o usuário digitou)
       if (vehicleLocked) VEHICLE_FIELDS.forEach((id) => setField(id, ''));
       setLocked(VEHICLE_FIELDS, false);
       vehicleLocked = false;
@@ -145,53 +246,153 @@ export function initAdminVisits() {
 
   const applyVisitor = (selectedVehicleId = '') => {
     const visitante = visitantes.find((v) => String(v.idVisitante) === visitorSelect.value);
+
     if (visitante) {
       setField('visita-nome', visitante.nomeVisitante);
-      setField('visita-telefone', maskPhone(visitante.telefoneVisitante));
+      setField('visita-telefone', formatPhone(visitante.telefoneVisitante));
       setField('visita-evento', visitante.evento);
-      setLocked(VISITOR_FIELDS, !editing);
+      setLocked(VISITOR_FIELDS, true);
       visitorLocked = true;
     } else {
       if (visitorLocked) VISITOR_FIELDS.forEach((id) => setField(id, ''));
       setLocked(VISITOR_FIELDS, false);
       visitorLocked = false;
     }
-    // veículos filtrados pelo visitante selecionado
-    const doVisitante = visitante ? veiculos.filter((v) => v.idVisitante === visitante.idVisitante) : [];
+
+    const doVisitante = visitante
+      ? veiculos.filter((v) => v.idVisitante === visitante.idVisitante)
+      : [];
+
     vehicleSelect.innerHTML = '<option value="">Novo veículo</option>' + doVisitante.map((v) =>
-      `<option value="${v.idVeiculoVisitante}">${escapeHtml(v.modeloVeiculoVisitante)} · ${escapeHtml(v.placaVeiculoVisitante)}</option>`).join('');
+      `<option value="${v.idVeiculoVisitante}">${escapeHtml(v.modeloVeiculoVisitante)} · ${escapeHtml(v.placaVeiculoVisitante)}</option>`
+    ).join('');
+
     vehicleSelect.value = String(selectedVehicleId || '');
     applyVehicle();
   };
 
   const renderSelectors = (selectedVisitorId = '', selectedVehicleId = '') => {
-    visitorSelect.innerHTML = '<option value="">Novo visitante</option>' + visitantes.map((v) =>
-      `<option value="${v.idVisitante}">${escapeHtml(v.nomeVisitante)} · ${escapeHtml(maskPhone(v.telefoneVisitante))}</option>`).join('');
+    visitorSelect.innerHTML = '<option value="">Novo visitante</option>' + visitantes.slice().sort(byNewest).map((v) =>
+      `<option value="${v.idVisitante}">${escapeHtml(v.nomeVisitante)} · ${escapeHtml(formatPhone(v.telefoneVisitante))}</option>`
+    ).join('');
+
     visitorSelect.value = String(selectedVisitorId || '');
     applyVisitor(selectedVehicleId);
   };
 
-  // ---- lista ---------------------------------------------------------------
-  const renderList = () => {
+  /* ---------- Pesquisa e listagem ---------- */
+
+  const matchesSearch = (visitante) => {
+    const term = normalize(searchInput?.value.trim());
+
+    if (!term) return true;
+
+    const doVisitante = veiculos.filter(
+      (v) => v.idVisitante === visitante.idVisitante
+    );
+
+    const haystack = normalize([
+      visitante.nomeVisitante,
+      visitante.telefoneVisitante,
+      formatPhone(visitante.telefoneVisitante),
+      visitante.evento,
+      ...doVisitante.flatMap((v) => [
+        v.tipoVeiculoVisitante,
+        v.modeloVeiculoVisitante,
+        v.corVeiculoVisitante,
+        v.anoVeiculoVisitante,
+        v.placaVeiculoVisitante,
+      ]),
+    ].join(' '));
+
+    return haystack.includes(term);
+  };
+
+  function renderList() {
+    updateToggle();
+
     if (!list) return;
+
     if (!visitantes.length) {
-      list.innerHTML = '<p class="text-center py-4 mb-0 empty-state">Nenhuma visita cadastrada.</p>';
+      if (countText) countText.textContent = '';
+
+      list.innerHTML = `
+        <p class="text-center py-4 mb-0 empty-state">
+          Nenhuma visita cadastrada.
+        </p>
+      `;
       return;
     }
-    list.innerHTML = visitantes.map((visitante) => {
-      const doVisitante = veiculos.filter((v) => v.idVisitante === visitante.idVisitante);
+
+    const shown = visitantes
+      .slice()
+      .sort(byNewest)
+      .filter(matchesSearch);
+
+    if (countText) {
+      countText.textContent = `${shown.length} de ${visitantes.length} visitante(s)`;
+    }
+
+    if (!shown.length) {
+      list.innerHTML = `
+        <p class="text-center py-4 mb-0 empty-state">
+          Nenhuma visita encontrada com essa pesquisa.
+        </p>
+      `;
+      return;
+    }
+
+    list.innerHTML = shown.map((visitante) => {
+      const doVisitante = veiculos
+        .filter((v) => v.idVisitante === visitante.idVisitante)
+        .sort((a, b) => b.idVeiculoVisitante - a.idVeiculoVisitante);
+
       const veiculosHtml = doVisitante.length
-        ? doVisitante.map((v) => `<span class="badge text-bg-light border text-secondary">${escapeHtml(v.tipoVeiculoVisitante)} ${escapeHtml(v.modeloVeiculoVisitante)} · ${escapeHtml(v.corVeiculoVisitante)} · ${escapeHtml(v.anoVeiculoVisitante)} · ${escapeHtml(v.placaVeiculoVisitante)}</span>`).join(' ')
+        ? doVisitante.map((v) => `
+            <span class="badge text-bg-light border text-secondary">
+              ${escapeHtml(v.tipoVeiculoVisitante)}
+              ${escapeHtml(v.modeloVeiculoVisitante)}
+              · ${escapeHtml(v.corVeiculoVisitante)}
+              · ${escapeHtml(v.anoVeiculoVisitante)}
+              · ${escapeHtml(v.placaVeiculoVisitante)}
+              <button
+                type="button"
+                class="btn btn-link btn-sm p-0 ms-1 align-baseline"
+                data-action="editar-veiculo"
+                data-id="${v.idVeiculoVisitante}"
+                aria-label="Editar veículo ${escapeHtml(v.placaVeiculoVisitante)}"
+              >
+                <i class="bi bi-pencil-square" aria-hidden="true"></i>
+              </button>
+            </span>
+          `).join(' ')
         : '<span class="badge text-bg-light border text-secondary">Sem veículo</span>';
-      return `<article class="visita-item"><div>
-        <p>${escapeHtml(visitante.nomeVisitante)}</p>
-        <p>${escapeHtml(visitante.evento)} · ${escapeHtml(maskPhone(visitante.telefoneVisitante))}</p>
-        ${veiculosHtml}
-      </div>
-      <div><button type="button" class="btn ds-btn-outline btn-sm" data-action="editar-visita" data-id="${visitante.idVisitante}"><i class="bi bi-pencil-square" aria-hidden="true"></i> Editar</button></div>
-      </article>`;
+
+      return `
+        <article class="visita-item">
+          <div>
+            <p>${escapeHtml(visitante.nomeVisitante)}</p>
+            <p>
+              ${escapeHtml(visitante.evento)}
+              · ${escapeHtml(formatPhone(visitante.telefoneVisitante))}
+            </p>
+            ${veiculosHtml}
+          </div>
+          <div>
+            <button
+              type="button"
+              class="btn ds-btn-outline btn-sm"
+              data-action="editar-visitante"
+              data-id="${visitante.idVisitante}"
+            >
+              <i class="bi bi-pencil-square" aria-hidden="true"></i>
+              Editar
+            </button>
+          </div>
+        </article>
+      `;
     }).join('');
-  };
+  }
 
   const refresh = async (selectedVisitorId = '', selectedVehicleId = '') => {
     await loadData();
@@ -199,211 +400,341 @@ export function initAdminVisits() {
     renderList();
   };
 
-  // ---- modo edição ---------------------------------------------------------
+  /* ---------- Edição ---------- */
+
   const setEditUi = (on) => {
-    if (title) title.textContent = on ? 'Editar visita' : 'Registrar visita';
-    if (submit) submit.innerHTML = on ? '<i class="bi bi-check2" aria-hidden="true"></i> Salvar alterações' : submitDefault;
-    cancelBtn.hidden = !on;
-    visitorSelect.disabled = on; // na edição o visitante é o escolhido na lista
+    if (submitBtn) {
+      submitBtn.innerHTML = on
+        ? '<i class="bi bi-check2" aria-hidden="true"></i> Salvar alterações'
+        : submitDefault;
+    }
+
+    cancelBtn.classList.toggle('d-none', !on);
   };
 
   const exitEdit = () => {
-    if (!editing) return;
-    editing = null;
-    setEditUi(false);
-    form.reset();
+    edit = null;
+
+    show([
+      visitorTitle,
+      visitorRow,
+      vehicleTitle,
+      vehicleRow,
+      visitorPicker,
+      vehiclePicker,
+    ], true);
+
     setLocked(VISITOR_FIELDS, false);
     setLocked(VEHICLE_FIELDS, false);
+
     visitorLocked = false;
     vehicleLocked = false;
+
+    form.reset();
+    setEditUi(false);
     renderSelectors('', '');
-    say();
   };
 
-  const startEdit = (id) => {
-    const visitante = visitantes.find((v) => String(v.idVisitante) === String(id));
+  const startEditVisitor = (id) => {
+    const visitante = visitantes.find((v) => v.idVisitante === id);
     if (!visitante) return;
-    editing = { visitorId: visitante.idVisitante };
-    form.reset();
-    setLocked(VISITOR_FIELDS, false);
-    setLocked(VEHICLE_FIELDS, false);
+
+    exitEdit();
+    edit = { type: 'visitante', id };
+
+    show([vehicleTitle, vehicleRow, visitorPicker], false);
+
+    setField('visita-nome', visitante.nomeVisitante);
+    setField('visita-telefone', formatPhone(visitante.telefoneVisitante));
+    setField('visita-evento', visitante.evento);
+
+    setEditUi(true);
+    say(`Editando o visitante ${visitante.nomeVisitante}.`);
+
+    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const startEditVehicle = (id) => {
+    const veiculo = veiculos.find((v) => v.idVeiculoVisitante === id);
+    if (!veiculo) return;
+
+    const visitante = visitantes.find((v) => v.idVisitante === veiculo.idVisitante);
+
+    exitEdit();
+    edit = { type: 'veiculo', id };
+
+    show([visitorTitle, visitorRow, vehiclePicker], false);
+
+    setField('visita-tipo', veiculo.tipoVeiculoVisitante);
+    setField('visita-modelo', veiculo.modeloVeiculoVisitante);
+    setField('visita-cor', veiculo.corVeiculoVisitante);
+    setField('visita-ano', veiculo.anoVeiculoVisitante);
+    setField('visita-placa', maskPlate(veiculo.placaVeiculoVisitante));
+
     setEditUi(true);
 
-    visitorSelect.value = String(visitante.idVisitante);
-    setField('visita-nome', visitante.nomeVisitante);
-    setField('visita-telefone', maskPhone(visitante.telefoneVisitante));
-    setField('visita-evento', visitante.evento);
-    visitorLocked = false;
+    say(`Editando o veículo ${veiculo.placaVeiculoVisitante}${visitante ? ` de ${visitante.nomeVisitante}` : ''}.`);
 
-    const doVisitante = veiculos.filter((v) => v.idVisitante === visitante.idVisitante);
-    vehicleSelect.innerHTML = '<option value="">Novo veículo</option>' + doVisitante.map((v) =>
-      `<option value="${v.idVeiculoVisitante}">${escapeHtml(v.modeloVeiculoVisitante)} · ${escapeHtml(v.placaVeiculoVisitante)}</option>`).join('');
-    vehicleSelect.value = doVisitante[0] ? String(doVisitante[0].idVeiculoVisitante) : '';
-    vehicleLocked = false;
-    applyVehicle();
-
-    say(`Editando a visita de ${visitante.nomeVisitante}. Para trocar o veículo, escolha outro na lista ou "Novo veículo".`);
     form.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   const get = (id) => $(id)?.value.trim() || '';
 
-  const saveEdit = async () => {
-    const nome = get('visita-nome');
-    const evento = get('visita-evento');
-    const telefone = onlyDigits(get('visita-telefone'));
-    if (nome.length < 2 || evento.length < 2) return say('Preencha o nome e o evento / motivo do visitante.', true);
-    const erroTelefone = phoneError(telefone);
-    if (erroTelefone) return say(erroTelefone, true);
-
-    // veículo: se houver um selecionado ou algum campo preenchido, todos precisam estar válidos
-    const vehicleId = Number(vehicleSelect.value) || null;
-    let vehicleBody = null;
-    if (vehicleId || VEHICLE_FIELDS.some((id) => get(id))) {
-      if (!VEHICLE_FIELDS.every((id) => get(id))) return say('Preencha todos os dados do veículo ou deixe todos em branco.', true);
-      if (!/^(19|20)\d{2}$/.test(get('visita-ano'))) return say('Informe o ano do veículo com 4 dígitos.', true);
-      const placa = cleanPlate(get('visita-placa'));
-      if (!isValidPlate(placa)) return say('Informe uma placa válida.', true);
-      vehicleBody = {
-        tipoVeiculoVisitante: get('visita-tipo'),
-        modeloVeiculoVisitante: get('visita-modelo'),
-        corVeiculoVisitante: get('visita-cor'),
-        anoVeiculoVisitante: get('visita-ano'),
-        placaVeiculoVisitante: placa,
-      };
+  const validateVehicle = () => {
+    if (!VEHICLE_FIELDS.every((id) => get(id))) {
+      return 'Preencha todos os dados do veículo.';
     }
 
-    if (submit) submit.disabled = true;
-    try {
-      await api(`/visitantes/${editing.visitorId}`, {
-        method: 'PUT',
-        body: { nomeVisitante: nome, telefoneVisitante: telefone, evento },
-      });
+    if (!/^(19|20)\d{2}$/.test(get('visita-ano'))) {
+      return 'Informe o ano do veículo com 4 dígitos.';
+    }
 
-      if (vehicleBody) {
-        try {
-          if (vehicleId) await api(`/veiculoVisitantes/${vehicleId}`, { method: 'PUT', body: vehicleBody });
-          else await api('/veiculoVisitantes', { method: 'POST', body: { idVisitante: editing.visitorId, ...vehicleBody } });
-        } catch (error) {
-          await loadData().catch(() => {});
-          renderList();
-          say(`Visitante atualizado, mas o veículo não foi salvo: ${error.message}`, true);
-          return;
-        }
+    if (!isValidPlate(normalizePlate(get('visita-placa')))) {
+      return 'Informe uma placa válida.';
+    }
+
+    return null;
+  };
+
+  const vehicleBody = () => ({
+    tipoVeiculoVisitante: get('visita-tipo'),
+    modeloVeiculoVisitante: get('visita-modelo'),
+    corVeiculoVisitante: get('visita-cor'),
+    anoVeiculoVisitante: get('visita-ano'),
+    placaVeiculoVisitante: normalizePlate(get('visita-placa')),
+  });
+
+  async function saveEdit() {
+    let path;
+    let body;
+    let success;
+    let duplicate;
+
+    if (edit.type === 'visitante') {
+      const telefone = onlyDigits(get('visita-telefone'));
+
+      if (get('visita-nome').length < 2 || get('visita-evento').length < 2) {
+        return say('Preencha o nome e o evento (mínimo de 2 caracteres).', true);
       }
+
+      if (!isValidPhone(telefone)) return say(PHONE_MESSAGE, true);
+
+      path = `/visitantes/${edit.id}`;
+      body = {
+        nomeVisitante: get('visita-nome'),
+        telefoneVisitante: telefone,
+        evento: get('visita-evento'),
+      };
+
+      success = 'Visitante atualizado com sucesso.';
+      duplicate = 'Já existe outro visitante com este telefone.';
+    } else {
+      const problem = validateVehicle();
+      if (problem) return say(problem, true);
+
+      path = `/veiculoVisitantes/${edit.id}`;
+      body = vehicleBody();
+
+      success = 'Veículo atualizado com sucesso.';
+      duplicate = 'Já existe outro veículo com esta placa.';
+    }
+
+    if (submitBtn) submitBtn.disabled = true;
+
+    try {
+      await api(path, { method: 'PUT', body });
 
       exitEdit();
       await refresh('', '');
-      say('Visita atualizada com sucesso.');
-      popup('Visita atualizada com sucesso!');
-    } catch (error) {
-      say(error.message, true); // ex.: 409 (telefone ou placa já cadastrados)
-    } finally {
-      if (submit) submit.disabled = false;
-    }
-  };
 
-  // ---- eventos -------------------------------------------------------------
-  visitorSelect.addEventListener('change', () => { say(); applyVisitor(); });
-  vehicleSelect.addEventListener('change', () => { say(); applyVehicle(); });
-  cancelBtn.addEventListener('click', exitEdit);
-  list?.addEventListener('click', (event) => {
-    const button = event.target.closest('[data-action="editar-visita"]');
-    if (button) startEdit(button.dataset.id);
+      say(success);
+      popup(success);
+    } catch (error) {
+      say(error.status === 409 ? duplicate : error.message, true);
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
+    }
+  }
+
+  /* ---------- Eventos ---------- */
+
+  visitorSelect.addEventListener('change', () => {
+    say();
+    applyVisitor();
   });
-  // ao sair desta tela, abandona a edição
-  document.addEventListener('admin-tela', (event) => { if (event.detail !== 'visitas') exitEdit(); });
+
+  vehicleSelect.addEventListener('change', () => {
+    say();
+    applyVehicle();
+  });
+
+  cancelBtn.addEventListener('click', () => {
+    exitEdit();
+    say();
+  });
+
+  list?.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-action]');
+    if (!button) return;
+
+    const id = Number(button.dataset.id);
+
+    if (button.dataset.action === 'editar-visitante') {
+      startEditVisitor(id);
+    }
+
+    if (button.dataset.action === 'editar-veiculo') {
+      startEditVehicle(id);
+    }
+  });
+
+  /* ---------- Cadastro ---------- */
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     say();
-    if (editing) return saveEdit();
+
+    if (edit) {
+      await saveEdit();
+      return;
+    }
 
     let visitorId = Number(visitorSelect.value) || null;
     const existingVehicleId = Number(vehicleSelect.value) || null;
 
-    // visitante e veículo já cadastrados: nada a criar, só fica selecionado para a reserva
     if (visitorId && existingVehicleId) {
-      document.dispatchEvent(new CustomEvent('visita-selecionada', { detail: { idVisitante: visitorId, idVeiculoVisitante: existingVehicleId } }));
+      document.dispatchEvent(new CustomEvent('visita-selecionada', {
+        detail: {
+          idVisitante: visitorId,
+          idVeiculoVisitante: existingVehicleId,
+        },
+      }));
+
       say('Visitante e veículo já cadastrados. Registro selecionado.');
       return;
     }
 
     const telefone = onlyDigits(get('visita-telefone'));
-    const placa = cleanPlate(get('visita-placa'));
+    const placa = normalizePlate(get('visita-placa'));
 
     if (!visitorId) {
-      if (!get('visita-nome') || !get('visita-evento') || !telefone) return say('Preencha os dados do visitante.', true);
-      const erroTelefone = phoneError(telefone);
-      if (erroTelefone) return say(erroTelefone, true);
-    }
-    if (!VEHICLE_FIELDS.every((id) => get(id))) return say('Preencha todos os dados do veículo.', true);
-    if (!/^(19|20)\d{2}$/.test(get('visita-ano'))) return say('Informe o ano do veículo com 4 dígitos.', true);
-    if (!isValidPlate(placa)) return say('Informe uma placa válida.', true);
+      if (!get('visita-nome') || !get('visita-evento') || !telefone) {
+        return say('Preencha os dados do visitante.', true);
+      }
 
-    if (submit) submit.disabled = true;
+      if (!isValidPhone(telefone)) return say(PHONE_MESSAGE, true);
+    }
+
+    const vehicleProblem = validateVehicle();
+    if (vehicleProblem) return say(vehicleProblem, true);
+
+    if (submitBtn) submitBtn.disabled = true;
+
     let createdVisitorNow = false;
+
     try {
-      // 1) visitante (só se for novo)
+      // 1. Visitante
       if (!visitorId) {
         try {
           const visitante = await api('/visitantes', {
             method: 'POST',
-            body: { nomeVisitante: get('visita-nome'), telefoneVisitante: telefone, evento: get('visita-evento') },
+            body: {
+              nomeVisitante: get('visita-nome'),
+              telefoneVisitante: telefone,
+              evento: get('visita-evento'),
+            },
           });
+
           visitorId = Number(visitante.idVisitante);
           createdVisitorNow = true;
-          // mantém o visitante selecionado: se o veículo falhar, o reenvio usa este mesmo visitante
+
           await refresh(visitorId, '');
         } catch (error) {
           if (error.status !== 409) throw error;
+
           await loadData();
-          const existing = visitantes.find((v) => onlyDigits(v.telefoneVisitante) === telefone);
+
+          const existing = visitantes.find(
+            (v) => onlyDigits(v.telefoneVisitante) === telefone
+          );
+
           renderSelectors(existing?.idVisitante ?? '', '');
           renderList();
-          say(existing ? `${error.message} Visitante existente selecionado: informe o veículo e salve novamente.` : error.message, true);
+
+          say(
+            existing
+              ? `${error.message} Visitante existente selecionado: informe o veículo e salve novamente.`
+              : error.message,
+            true
+          );
+
           return;
         }
       }
 
-      // 2) veículo
+      // 2. Veículo
       try {
         await api('/veiculoVisitantes', {
           method: 'POST',
           body: {
             idVisitante: visitorId,
-            tipoVeiculoVisitante: get('visita-tipo'),
-            modeloVeiculoVisitante: get('visita-modelo'),
-            corVeiculoVisitante: get('visita-cor'),
-            anoVeiculoVisitante: get('visita-ano'),
-            placaVeiculoVisitante: placa,
+            ...vehicleBody(),
           },
         });
       } catch (error) {
         if (error.status === 409) {
           await loadData();
-          const existing = veiculos.find((v) => v.placaVeiculoVisitante === placa);
-          renderSelectors(existing?.idVisitante ?? visitorId, existing?.idVeiculoVisitante ?? '');
+
+          const existing = veiculos.find(
+            (v) => v.placaVeiculoVisitante === placa
+          );
+
+          renderSelectors(
+            existing?.idVisitante ?? visitorId,
+            existing?.idVeiculoVisitante ?? ''
+          );
+
           renderList();
-          say(existing ? `${error.message} Registro existente selecionado.` : error.message, true);
+
+          say(
+            existing
+              ? `${error.message} Registro existente selecionado.`
+              : error.message,
+            true
+          );
         } else {
-          say(`${createdVisitorNow ? `Visitante cadastrado (ID ${visitorId}), mas o` : 'O'} veículo não foi salvo: ${error.message} Corrija os dados do veículo e salve novamente: só o veículo será reenviado.`, true);
+          say(
+            `${createdVisitorNow ? `Visitante cadastrado (ID ${visitorId}), mas o` : 'O'} veículo não foi salvo: ${error.message} Corrija os dados do veículo e salve novamente: só o veículo será reenviado.`,
+            true
+          );
         }
+
         return;
       }
 
       form.reset();
       await refresh('', '');
+
       say('Cadastro de visitante e veículo concluído.');
       popup('Cadastro de visitante e veículo concluído.');
     } catch (error) {
       say(error.message, true);
     } finally {
-      if (submit) submit.disabled = false;
+      if (submitBtn) submitBtn.disabled = false;
     }
   });
 
+  /* ---------- Inicialização da lista ---------- */
+
+  updateToggle();
+
   refresh().catch((error) => {
-    if (list) list.innerHTML = `<p class="text-center py-4 mb-0 empty-state">${escapeHtml(error.message)}</p>`;
+    if (list) {
+      list.innerHTML = `
+        <p class="text-center py-4 mb-0 empty-state">
+          ${escapeHtml(error.message)}
+        </p>
+      `;
+    }
   });
 }
