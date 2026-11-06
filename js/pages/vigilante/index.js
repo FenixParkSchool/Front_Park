@@ -37,9 +37,10 @@ export function init() {
     if (avatar) avatar.textContent = nome.charAt(0).toUpperCase();
   }).catch(() => {});
 
-  initVigilanteActions({ refresh });
+  initVigilanteActions({ refresh, showToast }); // <-- agora com showToast
   renderVacancies(); // mostra "Carregando..."
   updateMetrics();
   refresh();
   window.setInterval(refresh, REFRESH_MS);
 }
+// (nada depois do fechamento do init)

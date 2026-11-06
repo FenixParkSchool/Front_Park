@@ -1,4 +1,4 @@
-/* Tela do vigilante — ParkSchool */
+/* Tela do vigilante CSS — ParkSchool */
 
 /* ---------- Cores de tipo e de estado (um único lugar) ---------- */
 :root,
@@ -11,7 +11,7 @@
 
   --s-available: #10b981;
   --s-occupied:  #ef4444;
-  --s-reserved:  #f59e0b;
+  --s-reserved:  #ff6600;
   --s-unknown:   #6b7280;
 }
 
@@ -728,4 +728,12 @@ body.vigilante-page .vagas-grid {
   }
 
   .filter-bar select { max-width: 120px; }
+}
+
+.vaga-card[data-id-vaga] { cursor: pointer; }
+.vaga-card.unavailable {
+  background: #e5e7eb;
+  border-color: #9ca3af;
+  color: #6b7280;
+  opacity: .75;
 }
