@@ -65,7 +65,18 @@ export function initAdminRequests({ upsertEmployee, refreshEmployees } = {}) {
 
       if (response.ok) {
         window.alert(`Solicitação ${acao === 'aprovar' ? 'aprovada' : 'recusada'} com sucesso!`);
-        carregarSolicitacoesDaAPI();
+        
+        // Remove o card da tela imediatamente ao aprovar ou recusar
+        const solicitacaoItem = button.closest('.solicitacao-item');
+        if (solicitacaoItem) {
+          solicitacaoItem.remove();
+        }
+
+        // Se não restar nenhum card, mostra o estado vazio
+        if (!list.querySelector('.solicitacao-item')) {
+          list.innerHTML = '<p class="text-center py-4 mb-0 empty-state">Nenhuma solicitação pendente.</p>';
+        }
+
         if (typeof refreshEmployees === 'function') refreshEmployees();
       } else {
         const errData = await response.json();

@@ -1,4 +1,4 @@
-//Arquivo:Front_Park/js/pages/admin/employees.js
+// Arquivo: Front_Park/js/pages/admin/employees.js
 import { api } from '../../services/auth.js';
 import { escapeHtml } from '../../shared/utils.js';
 
@@ -52,10 +52,13 @@ async function loadEmployees() {
   return employees;
 }
 
-// Mantém a assinatura antiga (usada em requests.js): devolve a lista que já está em memória
-// e atualiza em segundo plano.
-export function refreshEmployees() {
-  loadEmployees().catch(() => {});
+// Atualizado para async/await para garantir que a interface recarrega na hora
+export async function refreshEmployees() {
+  try {
+    await loadEmployees();
+  } catch (error) {
+    console.error('Erro ao atualizar funcionários:', error);
+  }
   return employees;
 }
 
@@ -69,7 +72,7 @@ async function saveEmployee(data, { creating }) {
   await loadEmployees();
 }
 
-// Mantém a assinatura antiga (usada em requests.js). Nunca rejeita: mostra o erro num alerta.
+// Nunca rejeita: mostra o erro num alerta.
 export async function upsertEmployee(employee) {
   try {
     const exists = employees.some((item) => String(item.id) === String(employee.id));
@@ -167,7 +170,6 @@ function startEdit(id) {
   const employee = employees.find((item) => String(item.id) === String(id));
   if (!employee) return;
 
-  // Navega primeiro (o clique na navegação reseta o modo edição) e só depois preenche
   document.querySelector('#sidebar [data-nav="novo-funcionario"]')?.click();
 
   editingId = employee.id;
@@ -213,7 +215,7 @@ async function handleCreateEmployee(event) {
     }
     document.querySelector('#sidebar [data-nav="funcionarios"]')?.click();
   } catch (error) {
-    window.alert(error.message); // ex.: 409 (ID repetido) ou 400 (dado inválido), vindos da API
+    window.alert(error.message);
   } finally {
     if (submit) submit.disabled = false;
   }
@@ -240,7 +242,6 @@ export function initAdminEmployees() {
     if (toggleBtn) changeEmployeeStatus(toggleBtn.dataset.id);
   });
 
-  // Qualquer clique na navegação lateral (ou no botão "Novo funcionário") sai do modo edição
   document.querySelectorAll('#sidebar [data-nav], [data-action="ir-para-tela"]').forEach((btn) => {
     btn.addEventListener('click', exitEditMode);
   });
