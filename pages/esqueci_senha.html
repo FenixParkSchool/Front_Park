@@ -15,10 +15,10 @@
     <link rel="stylesheet" href="../css/styles.css">
 </head>
 
-<body class="d-flex flex-column vh-100 main-bg" data-page="esqueciSenha">
+<body class="forgot-password-page d-flex flex-column" data-page="esqueciSenha">
 
     <!-- NAVBAR -->
-    <nav class="navbar navbar-expand-lg navbar-home px-3 px-lg-4 py-3">
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-home px-3 px-lg-4 py-3">
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center gap-2 text-white fw-bold" href="../index.html">
                 <img class="logo-home" src="../assets/logo_pkg/08_branca/08_branca_icone_200.webp" alt="">
@@ -40,7 +40,7 @@
                     </li>
                     <li class="nav-item ms-lg-2">
                         <a class="btn ds-btn-primary btn-nav-login px-4" href="login.html">
-                            <i class="fa-solid fa-right-to-bracket me-2"></i>Entrar
+                <i class="fa-solid fa-right-to-bracket me-2" aria-hidden="true"></i>Entrar
                         </a>
                     </li>
                 </ul>
@@ -50,30 +50,31 @@
 
     <main
         class="esqueci-senha-main flex-grow-1 d-flex align-items-center justify-content-center p-3 position-relative overflow-hidden">
-        <div class="esqueci-senha-wrapper bg-surface shadow rounded p-4 p-md-5 w-100 mx-auto" style="max-width: 420px;">
+        <div class="esqueci-senha-wrapper">
 
             <div id="step-request">
-                <div class="icon-circle mb-3 mx-auto text-primary d-flex align-items-center justify-content-center rounded-circle"
-                    style="width: 56px; height: 56px; background-color: #EAF0FB; flex-shrink: 0;">
-                    <i class="fa-solid fa-key fs-4"></i>
+                <div class="recovery-icon mb-4 mx-auto d-flex align-items-center justify-content-center rounded-circle"
+                    aria-hidden="true">
+                    <i class="fa-solid fa-key"></i>
                 </div>
-                <h2 class="fw-bold mb-2 text-center text-primary-custom fs-4">Esqueci minha senha</h2>
-                <p class="ds-text-secondary text-center mb-4" style="font-size: 14px;">Informe seu e-mail cadastrado
+                <h2 class="recovery-title fw-bold mb-2 text-center">Esqueci minha senha</h2>
+                <p class="recovery-description ds-text-secondary text-center mb-4">Informe seu e-mail cadastrado
                     para solicitar a recuperação de conta.</p>
 
                 <form id="request-form">
                     <div class="mb-4 form-field" id="field-email">
-                        <label for="email" class="form-label fw-medium" style="font-size: 13px;">E-mail
+                        <label for="email" class="form-label fw-medium">E-mail
                             cadastrado</label>
                         <div class="input-group ds-input-group">
-                            <span class="input-group-text border-end-0"><i class="fa-regular fa-envelope"></i></span>
+                            <span class="input-group-text border-end-0"><i class="fa-regular fa-envelope"
+                                    aria-hidden="true"></i></span>
                             <input type="email" class="form-control border-start-0 ps-0" id="email"
                                 placeholder="nome@senac.br" required>
                         </div>
                     </div>
 
                     <button
-                        class="btn ds-btn-primary w-100 py-2 fw-semibold d-flex justify-content-center align-items-center gap-2"
+                        class="recovery-submit btn ds-btn-primary w-100 fw-semibold d-flex justify-content-center align-items-center gap-2"
                         id="submit-btn" type="submit">
                         <span id="submit-label">Solicitar recuperação</span>
                         <span class="spinner-border spinner-border-sm d-none" id="submit-spinner" role="status"
@@ -82,9 +83,8 @@
                 </form>
 
                 <a href="login.html"
-                    class="text-decoration-none ds-text-secondary d-flex justify-content-center align-items-center gap-2 mt-4 fw-medium hover-primary"
-                    style="font-size: 13px;">
-                    <i class="fa-solid fa-arrow-left"></i> Voltar para o login
+                    class="recovery-back-link d-flex justify-content-center align-items-center gap-2 mt-4 fw-medium">
+                    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Voltar para o login
                 </a>
             </div>
 

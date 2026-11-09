@@ -123,36 +123,40 @@
         </section>
  
         <section id="tela-perfis" data-tela="perfis" class="admin-screen" aria-labelledby="titulo-perfis">
-          <header class="page-heading">
-            <span class="page-eyebrow">ADMINISTRAÇÃO</span>
-            <h1 id="titulo-perfis">Perfis de acesso</h1>
-            <p>Gerencie as permissões das contas e associe cada conta ao funcionário correspondente.</p>
-            
-          </header>
-          <div class="admin-profile-panel">
-            <div class="admin-profile-panel-heading">
-              <div>
-                <h2>Contas do sistema</h2>
-                <p>Atualize o perfil ou o funcionário associado de cada usuário. Cada alteração é salva separadamente.</p>
-              </div>
-            </div>
-            <div id="perfis-feedback" class="admin-profile-feedback" role="status" aria-live="polite">Carregando
-              contas...</div>
-            <div class="table-responsive admin-profile-table-wrap">
-              <table class="table admin-profile-table">
-                <caption class="visually-hidden">Gerencie as permissões das contas e associe cada conta ao funcionário correspondente.</caption>
-                <thead>
-                  <tr>
-                    <th scope="col">Usuário</th>
-                    <th scope="col">Perfil de acesso</th>
-                    <th scope="col">Funcionário da conta</th>
-                  </tr>
-                </thead>
-                <tbody id="lista-perfis"></tbody>
-              </table>
-            </div>
-          </div>
-        </section>
+<header class="page-heading">
+  <span class="page-eyebrow">ADMINISTRAÇÃO</span>
+  <h1 id="titulo-perfis">Perfis de acesso</h1>
+  <p>Gerencie o perfil de acesso de cada usuário do sistema.</p>
+</header>
+<div class="admin-profile-panel">
+  <div class="admin-profile-panel-heading">
+    <div>
+      <h2>Contas do sistema</h2>
+      <p>Atualize o perfil de cada usuário. Cada alteração é salva separadamente.</p>
+    </div>
+  </div>
+  <div class="admin-search mb-3">
+    <label class="visually-hidden" for="busca-perfis">Buscar usuário</label>
+    <div class="input-group ds-input-group">
+      <span class="input-group-text border-end-0"><i class="bi bi-search" aria-hidden="true"></i></span>
+      <input id="busca-perfis" type="search" class="form-control border-start-0 ps-0" placeholder="Buscar por nome ou e-mail...">
+    </div>
+  </div>
+  <div id="perfis-feedback" class="admin-profile-feedback" role="status" aria-live="polite">Carregando contas...</div>
+  <div class="table-responsive admin-profile-table-wrap">
+    <table class="table admin-profile-table">
+      <caption class="visually-hidden">Gerenciar o perfil de acesso dos usuários</caption>
+      <thead>
+        <tr>
+          <th scope="col">Usuário</th>
+          <th scope="col">Perfil de acesso</th>
+        </tr>
+      </thead>
+      <tbody id="lista-perfis"></tbody>
+    </table>
+  </div>
+</div>
+</section>
  
         <section id="tela-novo-funcionario" data-tela="novo-funcionario" class="admin-screen"
           aria-labelledby="titulo-novo-funcionario">

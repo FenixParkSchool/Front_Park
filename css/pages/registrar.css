@@ -1,78 +1,186 @@
 /* =========================================
-   REGISTRO STYLES
+   REGISTRATION STYLES
    ========================================= */
 
-.form-container {
-    background-color: var(--bg-surface);
-}
-
-.registro-wrapper {
-    max-width: 480px;
+.registration-page {
     width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    background-color: var(--bg-body);
 }
 
-.hero-bg {
-    background: linear-gradient(145deg, rgba(15, 23, 42, 0.08), rgba(15, 23, 42, 0.22)),
-                url('../../assets/img/pexels-anna-klymenko-2154232859-38264204.jpg') center/cover no-repeat;
-    filter: brightness(1.25) saturate(.88);
-    transform: scale(1.02);
+.registration-layout {
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
 }
 
-.text-layer {
-    z-index: var(--z-index-dropdown);
+.registration-visual-panel,
+.registration-form-panel {
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
 }
 
-.hero-copy {
-    width: min(100%, 42rem);
-    padding: var(--spacing-6);
-    border: 1px solid rgba(255, 255, 255, .2);
-    border-radius: var(--radius-xl);
-    background: color-mix(in srgb, var(--text-primary) 78%, transparent);
-    box-shadow: var(--shadow-lg);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+.registration-visual-panel {
+    overflow: hidden;
+    background-color: var(--color-gray-900);
 }
 
-.text-layer h1 {
-    max-width: 38rem;
-    line-height: 1.12;
-    text-wrap: balance;
+.registration-visual-panel::after {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+        120deg,
+        rgba(15, 23, 42, 0.68) 0%,
+        rgba(15, 23, 42, 0.48) 58%,
+        rgba(15, 23, 42, 0.28) 100%
+    );
+    background: linear-gradient(
+        120deg,
+        color-mix(in srgb, var(--color-gray-900) 68%, transparent) 0%,
+        color-mix(in srgb, var(--color-gray-900) 48%, transparent) 58%,
+        color-mix(in srgb, var(--color-gray-900) 28%, transparent) 100%
+    );
 }
 
-.text-layer .hero-description {
-    max-width: 38rem;
-    text-wrap: balance;
+.registration-page .hero-bg {
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+    background-image: url('../../assets/img/pexels-anna-klymenko-2154232859-38264204.jpg');
+    background-position: center;
+    background-size: cover;
+    filter: brightness(0.9) saturate(0.9);
+}
+
+.registration-page .text-layer {
+    z-index: 2;
+    align-items: flex-start;
+    padding: clamp(var(--spacing-8), 5vw, var(--spacing-16));
+}
+
+.registration-copy {
+    width: min(100%, 38rem);
+}
+
+.registration-visual-title {
+    max-width: 13ch;
+    font-family: var(--font-family-heading);
+    font-size: clamp(var(--font-size-3xl), 4vw, var(--font-size-4xl));
+    line-height: 1.15;
+    letter-spacing: -0.025em;
+}
+
+.registration-page .hero-description {
+    max-width: 40ch;
     margin-bottom: 0 !important;
+    color: var(--color-gray-100);
+    font-size: var(--font-size-lg);
+    line-height: 1.6;
 }
 
-.badge-tag {
-    color: var(--color-gray-200);
-    letter-spacing: 2px;
-    background-color: rgba(255, 255, 255, 0.1);
-    padding: var(--spacing-2) var(--spacing-4);
-    border-radius: var(--radius-pill);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    font-size: var(--font-size-xs);
-}
-
-.hero-description, .hero-features {
-    color: var(--color-gray-200);
-}
-
-.hero-features {
-    font-size: var(--font-size-sm);
-}
-
-.feature-icon {
-    width: 24px;
-    height: 24px;
-    background-color: rgba(255, 255, 255, 0.2);
-    border-radius: var(--radius-circle);
+.registration-form-panel {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 11px;
-    color: var(--color-white);
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: var(--spacing-8);
+    background-color: var(--bg-body);
+}
+
+.registro-wrapper {
+    width: 100%;
+    max-width: 540px;
+    flex: 0 0 auto;
+    padding: var(--spacing-6);
+    border: var(--border-width-thin) solid var(--border-color);
+    border-top: var(--border-width-thick) solid var(--color-primary);
+    border-radius: var(--radius-xl);
+    background-color: var(--bg-surface);
+    box-shadow: var(--shadow-md);
+}
+
+.registration-brand {
+    min-height: var(--spacing-8);
+}
+
+.registration-brand-mark {
+    width: var(--spacing-8);
+    height: var(--spacing-8);
+    object-fit: contain;
+}
+
+.registration-brand-name {
+    color: var(--color-primary);
+    font-family: var(--font-family-heading);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+}
+
+.registration-form-title {
+    color: var(--text-primary);
+    font-family: var(--font-family-heading);
+    font-size: var(--font-size-2xl);
+    line-height: 1.25;
+}
+
+.registro-wrapper .ds-text-secondary {
+    color: var(--text-secondary);
+    line-height: 1.45;
+}
+
+.registro-wrapper .form-label {
+    color: var(--text-primary);
+}
+
+.registro-wrapper .ds-input-group .input-group-text {
+    min-height: var(--spacing-12);
+    background-color: var(--color-gray-50);
+}
+
+.registro-wrapper .ds-input-group .form-control,
+.registro-wrapper .ds-input-group .form-select,
+.registro-wrapper .ds-input-group .btn-toggle-password {
+    min-height: var(--spacing-12);
+}
+
+.registro-wrapper .btn.ds-btn-primary {
+    min-height: var(--spacing-12);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.registro-wrapper .btn.ds-btn-primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+}
+
+.registro-wrapper .btn.ds-btn-primary:focus-visible,
+.registro-wrapper a:focus-visible,
+.registro-wrapper .form-check-input:focus-visible {
+    outline: var(--border-width-thick) solid var(--color-primary);
+    outline-offset: 3px;
+}
+
+.registration-page .btn-toggle-password {
+    border-left: 0 !important;
+}
+
+.registration-page .btn-toggle-password:focus {
+    box-shadow: none;
+}
+
+.registration-page .ds-input-group.is-invalid .form-control,
+.registration-page .ds-input-group.is-invalid .input-group-text,
+.registration-page .ds-input-group.is-invalid .btn-toggle-password {
+    border-color: var(--color-danger) !important;
 }
 
 .ds-text-secondary {
@@ -88,16 +196,265 @@
     color: var(--color-primary-hover);
 }
 
-.btn-toggle-password {
-    border-left: none !important;
+@media (max-width: 991.98px) {
+    .registration-layout.row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: clamp(9.5rem, 22vh, 12rem) minmax(0, 1fr);
+        align-content: stretch;
+    }
+
+    .registration-layout.row > .registration-visual-panel,
+    .registration-layout.row > .registration-form-panel {
+        grid-column: 1;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .registration-layout.row > .registration-visual-panel {
+        grid-row: 1;
+        height: clamp(9.5rem, 22vh, 12rem);
+    }
+
+    .registration-page .text-layer {
+        padding: var(--spacing-4);
+    }
+
+    .registration-visual-title {
+        max-width: none;
+        margin-bottom: var(--spacing-2) !important;
+        font-size: var(--font-size-2xl);
+    }
+
+    .registration-page .hero-description {
+        display: -webkit-box;
+        max-width: 62ch;
+        overflow: hidden;
+        font-size: var(--font-size-sm);
+        line-height: 1.4;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
+
+    .registration-layout.row > .registration-form-panel {
+        grid-row: 2;
+        height: auto;
+        min-height: 0;
+        align-items: center;
+        padding: var(--spacing-4);
+    }
+
+    .registro-wrapper {
+        max-width: 36rem;
+        padding: var(--spacing-5);
+        border-radius: var(--radius-lg);
+    }
+
+    .registration-brand {
+        margin-bottom: var(--spacing-3) !important;
+    }
 }
 
-.btn-toggle-password:focus {
-    box-shadow: none;
+@media (max-width: 575.98px) {
+    .registration-layout.row {
+        grid-template-rows: clamp(9.5rem, 18vh, 10rem) minmax(0, 1fr);
+    }
+
+    .registration-layout.row > .registration-visual-panel {
+        height: clamp(9.5rem, 18vh, 10rem);
+    }
+
+    .registration-page .text-layer {
+        padding: var(--spacing-4);
+    }
+
+    .registration-visual-title {
+        margin-bottom: 0 !important;
+        font-size: var(--font-size-xl);
+    }
+
+    .registration-page .hero-description {
+        display: none;
+    }
+
+    .registration-layout.row > .registration-form-panel {
+        padding: var(--spacing-3);
+    }
+
+    .registro-wrapper {
+        padding: var(--spacing-4);
+    }
+
+    .registration-brand-mark {
+        width: var(--spacing-6);
+        height: var(--spacing-6);
+    }
+
+    .registration-brand-name {
+        font-size: var(--font-size-base);
+    }
+
+    .registration-form-title {
+        font-size: var(--font-size-xl);
+    }
+
+    .registration-heading {
+        margin-bottom: var(--spacing-3) !important;
+    }
+
+    .registration-heading .ds-text-secondary {
+        font-size: var(--font-size-xs);
+    }
+
+    .registro-wrapper form > .mb-3 {
+        margin-bottom: var(--spacing-2) !important;
+    }
+
+    .registro-wrapper form > .mb-4,
+    .registro-wrapper .form-check.mb-4 {
+        margin-bottom: var(--spacing-3) !important;
+    }
+
+    .registro-wrapper .ds-input-group .input-group-text,
+    .registro-wrapper .ds-input-group .form-control,
+    .registro-wrapper .ds-input-group .form-select,
+    .registro-wrapper .ds-input-group .btn-toggle-password,
+    .registro-wrapper .btn.ds-btn-primary {
+        min-height: var(--spacing-10);
+    }
 }
 
-.ds-input-group.is-invalid .form-control,
-.ds-input-group.is-invalid .input-group-text,
-.ds-input-group.is-invalid .btn-toggle-password {
-    border-color: var(--color-danger) !important;
+@media (max-width: 991.98px) and (max-height: 720px) {
+    .registration-layout.row {
+        grid-template-rows: clamp(6.5rem, 16vh, 8rem) minmax(0, 1fr);
+    }
+
+    .registration-layout.row > .registration-visual-panel {
+        height: clamp(6.5rem, 16vh, 8rem);
+    }
+
+    .registration-layout.row > .registration-form-panel {
+        align-items: flex-start;
+        padding: var(--spacing-2);
+    }
+
+    .registro-wrapper {
+        padding: var(--spacing-3);
+    }
+
+    .registration-brand {
+        display: none !important;
+    }
+
+    .registration-heading {
+        margin-bottom: var(--spacing-2) !important;
+    }
+
+    .registration-form-title {
+        margin-bottom: var(--spacing-1) !important;
+        font-size: var(--font-size-lg);
+    }
+
+    .registration-heading .ds-text-secondary {
+        display: none;
+    }
+
+    .registro-wrapper .form-label {
+        margin-bottom: var(--spacing-1);
+        font-size: var(--font-size-xs);
+    }
+
+    .registro-wrapper form > .mb-3,
+    .registro-wrapper form > .mb-4,
+    .registro-wrapper .form-check.mb-4 {
+        margin-bottom: var(--spacing-1) !important;
+    }
+
+    .registro-wrapper .ds-input-group .input-group-text,
+    .registro-wrapper .ds-input-group .form-control,
+    .registro-wrapper .ds-input-group .form-select,
+    .registro-wrapper .ds-input-group .btn-toggle-password {
+        min-height: var(--spacing-8);
+    }
+
+    .registro-wrapper .form-check-label,
+    .registro-wrapper > form > p {
+        font-size: var(--font-size-xs);
+        line-height: 1.25;
+    }
+}
+
+@media (max-width: 991.98px) and (max-height: 640px) {
+    .registration-layout.row {
+        grid-template-rows: 6.5rem minmax(0, 1fr);
+    }
+
+    .registration-layout.row > .registration-visual-panel {
+        height: 6.5rem;
+    }
+
+    .registration-page .text-layer {
+        padding: var(--spacing-3);
+    }
+
+    .registration-visual-title {
+        font-size: var(--font-size-lg);
+    }
+
+    .registration-form-panel {
+        padding: var(--spacing-2);
+    }
+
+    .registro-wrapper {
+        padding: var(--spacing-3);
+    }
+
+    .registration-brand {
+        display: none !important;
+    }
+
+    .registration-heading {
+        margin-bottom: var(--spacing-2) !important;
+    }
+
+    .registration-form-title {
+        margin-bottom: var(--spacing-1) !important;
+        font-size: var(--font-size-lg);
+    }
+
+    .registration-heading .ds-text-secondary {
+        display: none;
+    }
+
+    .registro-wrapper .form-label {
+        margin-bottom: var(--spacing-1);
+        font-size: var(--font-size-xs);
+    }
+
+    .registro-wrapper form > .mb-3,
+    .registro-wrapper form > .mb-4,
+    .registro-wrapper .form-check.mb-4 {
+        margin-bottom: var(--spacing-2) !important;
+    }
+
+    .registro-wrapper .ds-input-group .input-group-text,
+    .registro-wrapper .ds-input-group .form-control,
+    .registro-wrapper .ds-input-group .form-select,
+    .registro-wrapper .ds-input-group .btn-toggle-password,
+    .registro-wrapper .btn.ds-btn-primary {
+        min-height: var(--spacing-8);
+    }
+
+    .registro-wrapper .form-check-label,
+    .registro-wrapper > form > p {
+        font-size: var(--font-size-xs);
+        line-height: 1.25;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .registro-wrapper .btn.ds-btn-primary,
+    .registration-page .ds-text-primary {
+        transition: none;
+    }
 }

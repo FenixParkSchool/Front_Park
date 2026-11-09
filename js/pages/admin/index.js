@@ -1,3 +1,4 @@
+//Arquivo: Front_Park/js/pages/admin/index.js
 import { api } from '../../services/auth.js';
 import { initAdminNavigation } from './navigation.js';
 import { getAdminVacancies, initAdminVacancies } from './vacancies.js';
@@ -24,16 +25,15 @@ export function init() {
   initAdminReservation();
 }
 
+// Perfis de acesso: usuário, perfil e botão de salvar, com busca por nome ou e-mail.
 async function initRoles() {
   const list = document.getElementById('lista-perfis');
   const feedback = document.getElementById('perfis-feedback');
+  const searchInput = document.getElementById('busca-perfis');
   if (!list) return;
 
   try {
-    const [employees, users] = await Promise.all([
-      api('/funcionarios'),
-      api('/admin/users'),
-    ]);
+    const users = await api('/admin/users');
 
     list.replaceChildren();
     if (feedback) feedback.textContent = '';
@@ -41,7 +41,7 @@ async function initRoles() {
     if (users.length === 0) {
       const row = document.createElement('tr');
       const message = document.createElement('td');
-      message.colSpan = 3;
+      message.colSpan = 2;
       message.className = 'empty-state';
       message.textContent = 'Nenhuma conta cadastrada.';
       row.append(message);
@@ -51,6 +51,7 @@ async function initRoles() {
 
     for (const user of users) {
       const row = document.createElement('tr');
+      row.dataset.busca = `${user.username ?? ''} ${user.email ?? ''}`.toLocaleLowerCase('pt-BR');
 
       const userCell = document.createElement('td');
       userCell.dataset.label = 'Usuário';
@@ -94,49 +95,31 @@ async function initRoles() {
       roleControls.append(roleSelect, saveRole);
       roleCell.append(roleControls);
 
-      // "Funcionário da conta": cadastro do funcionário associado a esta conta de login
-      const employeeCell = document.createElement('td');
-      employeeCell.dataset.label = 'Funcionário da conta';
-      const employeeControls = document.createElement('div');
-      employeeControls.className = 'admin-profile-control';
-      const employeeSelect = document.createElement('select');
-      employeeSelect.className = 'form-select form-select-sm';
-      employeeSelect.setAttribute('aria-label', `Funcionário associado à conta ${user.username}`);
-      employeeSelect.add(new Option('Nenhum funcionário associado', '', false, !user.idFuncionario));
-      for (const employee of employees) {
-        employeeSelect.add(new Option(
-          employee.nomeFuncionario,
-          employee.idFuncionario,
-          false,
-          employee.idFuncionario === user.idFuncionario,
-        ));
-      }
-      const saveEmployeeLink = document.createElement('button');
-      saveEmployeeLink.type = 'button';
-      saveEmployeeLink.className = 'btn ds-btn-outline btn-sm';
-      saveEmployeeLink.textContent = 'Salvar associação';
-      saveEmployeeLink.addEventListener('click', async () => {
-        saveEmployeeLink.disabled = true;
-        try {
-          await api(`/admin/users/${user.idUsuario}/funcionario`, {
-            method: 'PATCH',
-            body: JSON.stringify({
-              idFuncionario: employeeSelect.value ? Number(employeeSelect.value) : null,
-            }),
-          });
-          window.alert('Funcionário associado à conta.');
-        } catch (error) {
-          window.alert(error.message);
-        } finally {
-          saveEmployeeLink.disabled = false;
-        }
-      });
-      employeeControls.append(employeeSelect, saveEmployeeLink);
-      employeeCell.append(employeeControls);
-
-      row.append(userCell, roleCell, employeeCell);
+      row.append(userCell, roleCell);
       list.append(row);
     }
+
+    // linha exibida quando a busca não encontra nenhuma conta
+    const noResult = document.createElement('tr');
+    noResult.hidden = true;
+    const noResultCell = document.createElement('td');
+    noResultCell.colSpan = 2;
+    noResultCell.className = 'empty-state';
+    noResultCell.textContent = 'Nenhuma conta encontrada para essa busca.';
+    noResult.append(noResultCell);
+    list.append(noResult);
+
+    const applyFilter = () => {
+      const term = (searchInput?.value ?? '').trim().toLocaleLowerCase('pt-BR');
+      let visible = 0;
+      for (const row of list.querySelectorAll('tr[data-busca]')) {
+        const match = !term || row.dataset.busca.includes(term);
+        row.hidden = !match;
+        if (match) visible += 1;
+      }
+      noResult.hidden = visible > 0;
+    };
+    searchInput?.addEventListener('input', applyFilter);
   } catch (error) {
     if (feedback) {
       feedback.classList.add('is-error');
