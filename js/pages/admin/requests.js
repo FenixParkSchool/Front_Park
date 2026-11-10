@@ -49,18 +49,22 @@ export function initAdminRequests({ upsertEmployee, refreshEmployees } = {}) {
     if (!button) return;
 
     const idUsuario = button.dataset.id;
-    const acao = button.dataset.action;
-    const statusNovo = acao === 'aprovar' ? 'APPROVED' : 'REJECTED';
+    const acao = button.dataset.action; // 'aprovar' ou 'rejeitar'
     const token = localStorage.getItem('token') || '';
 
+    // Define a rota exata e o método HTTP correspondente no backend
+    const endpoint = acao === 'aprovar' 
+      ? `${API_URL}/admin/solicitacoes/${idUsuario}/aprovar` 
+      : `${API_URL}/admin/solicitacoes/${idUsuario}/rejeitar`;
+      
+    const metodo = acao === 'aprovar' ? 'PATCH' : 'DELETE';
+
     try {
-      const response = await fetch(`${API_URL}/admin/solicitacoes/${idUsuario}`, {
-        method: 'PATCH',
+      const response = await fetch(endpoint, {
+        method: metodo,
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ status: statusNovo })
+        }
       });
 
       if (response.ok) {
@@ -79,7 +83,7 @@ export function initAdminRequests({ upsertEmployee, refreshEmployees } = {}) {
 
         if (typeof refreshEmployees === 'function') refreshEmployees();
       } else {
-        const errData = await response.json();
+        const errData = await response.json().catch(() => ({}));
         window.alert('Erro ao processar: ' + (errData.error || 'Erro desconhecido'));
       }
     } catch (error) {

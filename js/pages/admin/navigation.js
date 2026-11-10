@@ -1,3 +1,5 @@
+import { initAdminRequests } from './requests.js';
+
 export function initAdminNavigation() {
   document.querySelectorAll('#sidebar [data-nav]').forEach((button) => {
     button.addEventListener('click', () => {
@@ -22,6 +24,23 @@ export function initAdminNavigation() {
     });
   });
 
+  // Ouve quando a tela de solicitações for aberta via evento ou hash inicial
+  document.addEventListener('admin-tela', (e) => {
+    if (e.detail === 'solicitacoes') {
+      initAdminRequests();
+    }
+  });
+
   const initial = decodeURIComponent(window.location.hash.slice(1));
-  if (initial) document.querySelector(`#sidebar [data-nav="${CSS.escape(initial)}"]`)?.click();
+  if (initial) {
+    document.querySelector(`#sidebar [data-nav="${CSS.escape(initial)}"]`)?.click();
+    if (initial === 'solicitacoes') {
+      initAdminRequests();
+    }
+  } else {
+    // Se abrir sem hash, garante inicialização se for o caso
+    if (document.querySelector('[data-tela="solicitacoes"]')?.classList.contains('ativa')) {
+      initAdminRequests();
+    }
+  }
 }

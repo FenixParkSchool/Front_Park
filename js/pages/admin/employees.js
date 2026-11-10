@@ -9,10 +9,10 @@ const FIELD = {
   telefone: 'telefoneFuncionario',
   email: 'emailFuncionario',
   pcd: 'pcdFuncionario',
-  status: 'statusFuncionario',
+  status: 'identificaOFuncionario',
 };
-const PCD_BOOLEANO = true;     // true: a API guarda PCD como true/false; false: como 'sim'/'nao'
-const STATUS_BOOLEANO = false; // true: a API guarda ativo como true/false; false: como 'ativo'/'inativo'
+const PCD_BOOLEANO = true; 
+const STATUS_BOOLEANO = false; 
 
 const fromApi = (row) => ({
   id: row[FIELD.id],
@@ -20,10 +20,9 @@ const fromApi = (row) => ({
   telefone: row[FIELD.telefone] ?? '',
   email: row[FIELD.email] ?? '',
   pcd: [true, 'sim', 'SIM', 1].includes(row[FIELD.pcd]) ? 'sim' : 'nao',
-  status: row[FIELD.status] === undefined || [true, 'ativo', 'ATIVO'].includes(row[FIELD.status]) ? 'ativo' : 'inativo',
+  status: String(row[FIELD.status] || '').toUpperCase() === 'INATIVO' ? 'inativo' : 'ativo',
 });
 
-// Só envia o que foi informado (serve para criar e para editar parcialmente).
 function toApi(data) {
   const body = {};
   if (data.id !== undefined) body[FIELD.id] = data.id;
@@ -47,12 +46,10 @@ async function loadEmployees() {
   const rows = await api('/funcionarios');
   employees = rows.map(fromApi);
   renderEmployees();
-  // avisa outros módulos (ex.: lista de funcionários no cadastro de veículos)
   document.dispatchEvent(new CustomEvent('funcionarios-atualizados'));
   return employees;
 }
 
-// Atualizado para async/await para garantir que a interface recarrega na hora
 export async function refreshEmployees() {
   try {
     await loadEmployees();
@@ -72,13 +69,12 @@ async function saveEmployee(data, { creating }) {
   await loadEmployees();
 }
 
-// Nunca rejeita: mostra o erro num alerta.
 export async function upsertEmployee(employee) {
   try {
     const exists = employees.some((item) => String(item.id) === String(employee.id));
     const { cargo, ...data } = employee;
     const idValido = Number.isInteger(Number(data.id)) && Number(data.id) >= 1 && Number(data.id) <= 2147483647;
-    if (!exists && !idValido) delete data.id; // ids antigos (Date.now()) não cabem: o banco gera um
+    if (!exists && !idValido) delete data.id;
     await saveEmployee(data, { creating: !exists });
   } catch (error) {
     window.alert(error.message);
@@ -124,8 +120,26 @@ function renderEmployees() {
 async function changeEmployeeStatus(id) {
   const employee = employees.find((item) => String(item.id) === String(id));
   if (!employee) return;
+  
+  const novoStatusAtivo = employee.status !== 'ativo';
+  const token = localStorage.getItem('token') || '';
+
   try {
-    await saveEmployee({ id: employee.id, status: employee.status === 'ativo' ? 'inativo' : 'ativo' }, { creating: false });
+    const response = await fetch(`http://localhost:3000/admin/funcionarios/${id}/status`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ ativo: novoStatusAtivo })
+    });
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(errData.error || 'Não foi possível alterar o status.');
+    }
+
+    await loadEmployees();
   } catch (error) {
     window.alert(error.message);
   }
@@ -138,8 +152,6 @@ function setFilter(filter) {
   });
   renderEmployees();
 }
-
-/* ---------- Modo edição ---------- */
 
 function setEditMode(on) {
   const title = $('titulo-novo-funcionario');
@@ -182,8 +194,6 @@ function startEdit(id) {
   setEditMode(true);
 }
 
-/* ---------- Criar / salvar ---------- */
-
 async function handleCreateEmployee(event) {
   event.preventDefault();
   const form = event.currentTarget;
@@ -220,8 +230,6 @@ async function handleCreateEmployee(event) {
     if (submit) submit.disabled = false;
   }
 }
-
-/* ---------- Inicialização ---------- */
 
 export function initAdminEmployees() {
   $('busca-input')?.addEventListener('input', renderEmployees);
