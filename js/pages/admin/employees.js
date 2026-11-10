@@ -23,7 +23,6 @@ const fromApi = (row) => ({
   pcd: row[FIELD.pcd] === true ? 'sim' : 'nao',
 });
 
-// Só envia o que foi informado (serve para criar e para editar parcialmente).
 function toApi(data) {
   const body = {};
 
@@ -134,7 +133,6 @@ async function saveEmployee(data, { creating }) {
   await loadEmployees();
 }
 
-// Nunca rejeita: mostra o erro num alerta.
 export async function upsertEmployee(employee) {
   try {
     const exists = employees.some(
@@ -220,8 +218,6 @@ function renderEmployees() {
     .join('');
 }
 
-/* ---------- Modo edição ---------- */
-
 function setEditMode(on) {
   const title = $('titulo-novo-funcionario');
   const desc = $('desc-novo-funcionario');
@@ -291,8 +287,6 @@ function startEdit(id) {
 
   setEditMode(true);
 }
-
-/* ---------- Criar / salvar ---------- */
 
 async function handleCreateEmployee(event) {
   event.preventDefault();
@@ -370,8 +364,6 @@ async function handleCreateEmployee(event) {
     if (submit) submit.disabled = false;
   }
 }
-
-/* ---------- Inicialização ---------- */
 
 export function initAdminEmployees() {
   $('busca-input')?.addEventListener('input', renderEmployees);
