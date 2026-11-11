@@ -104,7 +104,7 @@
           aria-labelledby="titulo-funcionarios">
           <header class="page-heading"><span class="page-eyebrow">PESSOAS</span>
             <h1 id="titulo-funcionarios">Funcionários</h1>
-            <p>Pesquise um funcionário e marque-o como ativo ou inativo quando ele sair ou voltar à unidade.</p>
+            <p>Pesquise, consulte e edite as fichas dos funcionários cadastrados.</p>
           </header>
           <div class="toolbar-row">
             <div class="admin-search"><label class="visually-hidden" for="busca-input">Buscar funcionário por
@@ -117,50 +117,45 @@
               data-action="ir-para-tela" data-screen="novo-funcionario"><i class="bi bi-person-plus"
                 aria-hidden="true"></i> Novo funcionário</button>
           </div>
-          <div class="filter-list" role="group" aria-label="Filtrar funcionários por status">
-            <button class="filtro-btn active" type="button" data-filtro="todos">Todos <span
-                id="cont-todos">0</span></button>
-            <button class="filtro-btn" type="button" data-filtro="ativo">Ativos <span id="cont-ativos">0</span></button>
-            <button class="filtro-btn" type="button" data-filtro="inativo">Inativos <span
-                id="cont-inativos">0</span></button>
-          </div>
+          
+          <p id="funcionarios-feedback" class="form-text mb-3" role="status" aria-live="polite"></p>
           <div class="lista-func admin-list" id="lista-funcionarios" aria-live="polite"></div>
         </section>
  
         <section id="tela-perfis" data-tela="perfis" class="admin-screen" aria-labelledby="titulo-perfis">
-  <header class="page-heading">
-    <span class="page-eyebrow">ADMINISTRAÇÃO</span>
-    <h1 id="titulo-perfis">Perfis de acesso</h1>
-    <p>Gerencie o perfil de acesso de cada usuário do sistema.</p>
-  </header>
-  <div class="admin-profile-panel">
-    <div class="admin-profile-panel-heading">
-      <div>
-        <h2>Contas do sistema</h2>
-        <p>Atualize o perfil de cada usuário. Cada alteração é salva separadamente.</p>
-      </div>
-    </div>
-    <div class="admin-search mb-3">
-      <label class="visually-hidden" for="busca-perfis">Buscar usuário</label>
-      <div class="input-group ds-input-group">
-        <span class="input-group-text border-end-0"><i class="bi bi-search" aria-hidden="true"></i></span>
-        <input id="busca-perfis" type="search" class="form-control border-start-0 ps-0" placeholder="Buscar por nome ou e-mail...">
-      </div>
-    </div>
-    <div id="perfis-feedback" class="admin-profile-feedback" role="status" aria-live="polite">Carregando contas...</div>
-    <div class="table-responsive admin-profile-table-wrap">
-      <table class="table admin-profile-table">
-        <caption class="visually-hidden">Gerenciar o perfil de acesso dos usuários</caption>
-        <thead>
-          <tr>
-            <th scope="col">Usuário</th>
-            <th scope="col">Perfil de acesso</th>
-          </tr>
-        </thead>
-        <tbody id="lista-perfis"></tbody>
-      </table>
+<header class="page-heading">
+  <span class="page-eyebrow">ADMINISTRAÇÃO</span>
+  <h1 id="titulo-perfis">Perfis de acesso</h1>
+  <p>Gerencie o perfil de acesso de cada usuário do sistema.</p>
+</header>
+<div class="admin-profile-panel">
+  <div class="admin-profile-panel-heading">
+    <div>
+      <h2>Contas do sistema</h2>
+      <p>Atualize o perfil de cada usuário. Cada alteração é salva separadamente.</p>
     </div>
   </div>
+  <div class="admin-search mb-3">
+    <label class="visually-hidden" for="busca-perfis">Buscar usuário</label>
+    <div class="input-group ds-input-group">
+      <span class="input-group-text border-end-0"><i class="bi bi-search" aria-hidden="true"></i></span>
+      <input id="busca-perfis" type="search" class="form-control border-start-0 ps-0" placeholder="Buscar por nome ou e-mail...">
+    </div>
+  </div>
+  <div id="perfis-feedback" class="admin-profile-feedback" role="status" aria-live="polite">Carregando contas...</div>
+  <div class="table-responsive admin-profile-table-wrap">
+    <table class="table admin-profile-table">
+      <caption class="visually-hidden">Gerenciar o perfil de acesso dos usuários</caption>
+      <thead>
+        <tr>
+          <th scope="col">Usuário</th>
+          <th scope="col">Perfil de acesso</th>
+        </tr>
+      </thead>
+      <tbody id="lista-perfis"></tbody>
+    </table>
+  </div>
+</div>
 </section>
  
         <section id="tela-novo-funcionario" data-tela="novo-funcionario" class="admin-screen"
@@ -179,17 +174,24 @@
               </div>
             </div>
             <div class="row g-3">
+              <div class="col-12" id="novo-func-conta-grupo">
+  <label class="form-label" for="novo-func-conta">Conta do funcionário</label>
+  <select id="novo-func-conta" class="form-select" required>
+    <option value="">Carregando contas...</option>
+  </select>
+  <div class="form-text">Somente contas com perfil Funcionário que ainda não possuem ficha.</div>
+</div>
               <div class="col-12"><label class="form-label" for="novo-func-nome">Nome completo</label><input type="text"
                   id="novo-func-nome" class="form-control" placeholder="Ex.: Maria Oliveira" autocomplete="name"
                   required></div>
               <div class="col-md-6"><label class="form-label" for="novo-func-telefone">Telefone</label><input type="tel"
-                  id="novo-func-telefone" class="form-control" placeholder="(00) 00000-0000" autocomplete="tel"
+                  id="novo-func-telefone" class="form-control" placeholder="(00) 00000-0000" maxlength="15" autocomplete="tel"
                   required></div>
               <div class="col-md-6"><label class="form-label" for="novo-func-email">E-mail</label><input type="email"
                   id="novo-func-email" class="form-control" placeholder="email@empresa.com" autocomplete="email"
                   required></div>
-              <div class="col-md-6"><label class="form-label" for="novo-func-id">ID do funcionário</label><input
-                  type="text" id="novo-func-id" class="form-control" placeholder="Ex.: 1050" inputmode="numeric"
+                   <div class="col-md-6"><label class="form-label" for="novo-func-id">ID do funcionário</label><input
+                  type="text" id="novo-func-id" class="form-control" placeholder="Ex.: 154824" maxlength="100"
                   required></div>
               <fieldset class="col-md-6">
                 <legend class="form-label">Deficiência física (PCD)</legend>
@@ -201,6 +203,7 @@
                 </div>
               </fieldset>
             </div>
+            <p id="novo-func-feedback" class="form-text mt-3 mb-0" role="status" aria-live="polite"></p>
             <div class="form-actions">
               <button type="submit" class="btn ds-btn-primary d-inline-flex align-items-center gap-2">
                 <i class="bi bi-check2" aria-hidden="true"></i>
