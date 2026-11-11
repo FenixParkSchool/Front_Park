@@ -11,3 +11,4 @@ export const loginDestinationForProfile = (perfil) => {
   const normalizedProfile = perfil === 'ADMIN' ? 'ADMINISTRADOR' : perfil;
   return Object.hasOwn(loginDestinations, normalizedProfile) ? loginDestinations[normalizedProfile] : null;
 };
+//
