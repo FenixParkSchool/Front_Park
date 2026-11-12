@@ -10,3 +10,5 @@ const arrayRepo = (key) => ({
 
 export const vehiclesRepo = arrayRepo('park_veiculos');
 export const requestsRepo = arrayRepo('park_solicitacoes');
+
+//
