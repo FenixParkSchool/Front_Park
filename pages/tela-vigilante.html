@@ -158,6 +158,33 @@
  
       <!-- COLUNA LATERAL -->
       <aside class="side-column">
+
+                <!-- REGISTRAR ENTRADA -->
+        <section class="panel entry-panel" id="painelEntrada" hidden>
+
+          <div class="panel-header compact">
+            <div>
+              <h2>Registrar entrada</h2>
+              <p id="entradaVaga">Vaga selecionada</p>
+            </div>
+          </div>
+
+          <form id="formEntrada" novalidate>
+            <label class="form-label" for="placaEntrada">Placa do veículo</label>
+            <input id="placaEntrada" class="form-control text-uppercase" type="text"
+              maxlength="8" placeholder="ABC1D23" autocomplete="off" required>
+
+            <small id="entradaAviso" class="d-block mt-2 text-secondary"></small>
+
+            <div class="d-flex gap-2 mt-3">
+              <button id="btnRegistrarEntrada" class="btn ds-btn-primary" type="submit">
+                <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Registrar
+              </button>
+              <button id="btnCancelarEntrada" class="btn ds-btn-outline" type="button">Cancelar</button>
+            </div>
+          </form>
+
+        </section>
  
         <!-- RESERVAS DE HOJE -->
         <section class="panel notification-panel">

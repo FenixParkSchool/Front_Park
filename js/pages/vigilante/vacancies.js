@@ -179,7 +179,8 @@ function slotHtml(vaga, { compact = false, estilo = '' } = {}) {
     `${vaga.placaAtual ? ` · ${vaga.placaAtual}` : ''}`;
 
   const base =
-    `vaga-card ${estado.css} tipo-${escapeHtml(chave)} ${combina ? '' : 'is-dim'}`;
+    `vaga-card ${estado.css} tipo-${escapeHtml(chave)} ${combina ? '' : 'is-dim'} ` +
+    `${vaga.idVaga === state.vagaSelecionada ? 'is-selected' : ''}`;
 
   const style = estilo ? ` style="${estilo}"` : '';
 
@@ -248,6 +249,19 @@ export function renderVacancies() {
     container.innerHTML =
       '<p class="empty-state">Nenhuma vaga cadastrada.</p>';
     return;
+  }
+
+    // F15: se a vaga selecionada deixou de aceitar entrada (ficou ocupada ou
+  // indisponível depois de um refresh), limpa a seleção e fecha o painel.
+  if (state.vagaSelecionada !== null) {
+    const sel = state.vagas.find((v) => v.idVaga === state.vagaSelecionada);
+    if (!sel || !['DISPONIVEL', 'RESERVADA'].includes(sel.estadoAtual)) {
+      state.vagaSelecionada = null;
+      const painel = $('painelEntrada');
+      if (painel) painel.hidden = true;
+      const campo = $('placaEntrada');
+      if (campo) campo.value = '';
+    }
   }
 
   // Separa cada vaga na área do desenho pelo número.

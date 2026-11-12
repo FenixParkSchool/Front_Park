@@ -737,3 +737,11 @@ body.vigilante-page .vagas-grid {
   color: #6b7280;
   opacity: .75;
 }
+
+/* F15: vaga selecionada para registrar entrada */
+.vaga-card.is-selected {
+  outline: 3px solid #1D397D;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px rgba(29, 57, 125, 0.18);
+  transform: translateY(-2px);
+}
