@@ -4,4 +4,5 @@ export const state = {
   vagas: [], reservas: [],
   erroVagas: null, erroReservas: null,
   carregando: true, filtroEstado: null,
+  vagaSelecionada: null, // idVaga escolhido pelo vigilante para registrar entrada
 };
