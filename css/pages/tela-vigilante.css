@@ -1,18 +1,21 @@
-/* Tela do vigilante CSS — ParkSchool */
+/* =====================================================================
+   Tela do vigilante — ParkSchool
+   ===================================================================== */
 
 /* ---------- Cores de tipo e de estado (um único lugar) ---------- */
 :root,
 .vigilante-page {
   --t-comum: #a855f7;
   --t-senac: #f59e0b;
-  --t-pcd:   #3b82f6;
+  --t-pcd: #3b82f6;
   --t-carga: #94a3b8;
-  --t-moto:  #a8756f;
+  --t-moto: #a8756f;
 
   --s-available: #10b981;
-  --s-occupied:  #ef4444;
-  --s-reserved:  #ff6600;
-  --s-unknown:   #6b7280;
+  --s-occupied: #ef4444;
+  --s-reserved: #ff6600;
+  --s-unavailable: #9ca3af;
+  --s-unknown: #6b7280;
 }
 
 .vigilante-page {
@@ -200,15 +203,16 @@
   display: inline-block;
 }
 
-.dot.available { background: var(--s-available, #10b981); }
-.dot.occupied  { background: var(--s-occupied, #ef4444); }
-.dot.reserved  { background: var(--s-reserved, #f59e0b); }
+.dot.available   { background: var(--s-available); }
+.dot.occupied    { background: var(--s-occupied); }
+.dot.reserved    { background: var(--s-reserved); }
+.dot.unavailable { background: var(--s-unavailable); }
 
-.dot.t-comum { background: var(--t-comum, #a855f7); }
-.dot.t-senac { background: var(--t-senac, #f59e0b); }
-.dot.t-pcd   { background: var(--t-pcd, #3b82f6); }
-.dot.t-carga { background: var(--t-carga, #94a3b8); }
-.dot.t-moto  { background: var(--t-moto, #a8756f); }
+.dot.t-comum { background: var(--t-comum); }
+.dot.t-senac { background: var(--t-senac); }
+.dot.t-pcd   { background: var(--t-pcd); }
+.dot.t-carga { background: var(--t-carga); }
+.dot.t-moto  { background: var(--t-moto); }
 
 /* ---------- Busca e filtros ---------- */
 
@@ -259,24 +263,25 @@
 /* =====================================================================
    MAPA DE VAGAS
    Corredor de cima: 23 … 1  |  corredor de baixo: 40 … 57
-   Motos: 4 no canto superior (2x2) e 12 no bloco inferior (3x4)
+   As duas fileiras usam a MESMA grade de 23 colunas, então a vaga 57
+   fica exatamente em frente da vaga 5 (coluna 19).
+   Motos: 4 no canto superior (2x2) e 12 no bloco inferior esquerdo (3x4).
+   A posição de cada vaga vem do número (style="grid-column / grid-row").
    ===================================================================== */
 
 body.vigilante-page .vagas-grid {
   display: block;
   padding: var(--spacing-3);
-  overflow: visible;           /* sem rolagem em telas largas */
+  overflow: visible; /* sem rolagem em telas largas */
 }
 
 .lot {
   --gap: 6px;
   --moto-w: 42px;
-  --motos-w: calc(3 * var(--moto-w) + 2 * 4px);      /* bloco de baixo: 3 colunas */
-  --motos-top-w: calc(2 * var(--moto-w) + 4px);      /* bloco de cima: 2 colunas */
-  --pull: calc(var(--motos-w) - var(--motos-top-w)); /* folga que sobra em cima */
+  --motos-w: calc(3 * var(--moto-w) + 2 * 4px); /* coluna das motos: largura do bloco de baixo (3 colunas) */
 }
 
-/* bloco de motos | vagas de carro */
+/* coluna das motos | vagas de carro */
 .lot-row {
   display: grid;
   grid-template-columns: var(--motos-w) minmax(0, 1fr);
@@ -289,36 +294,30 @@ body.vigilante-page .vagas-grid {
   margin: 12px 0;
 }
 
-/* 23 colunas iguais nas duas fileiras: a de baixo (18 vagas) alinha com a de cima */
+/* 23 colunas iguais nas duas fileiras */
 .lot-slots {
   display: grid;
   grid-template-columns: repeat(23, minmax(0, 1fr));
   gap: var(--gap);
   min-width: 0;
-  /* encosta as vagas nas motos de cima (as duas fileiras usam o mesmo
-     deslocamento, então as colunas continuam alinhadas) */
-  margin-left: calc(-1 * var(--pull));
-}
-
-/* fileira de baixo começa na 2ª coluna: a vaga 57 fica sob a vaga 5 */
-.lot-slots-base > :first-child {
-  grid-column-start: 2;
 }
 
 .lot-motos {
   display: grid;
   gap: 4px;
   align-content: start;
-  justify-content: start;
 }
+
+/* as 4 motos de cima ficam coladas na vaga 23 */
 .lot-motos-top {
   grid-template-columns: repeat(2, var(--moto-w));
+  justify-content: end;
 }
+
+/* as 12 motos de baixo ocupam a coluna inteira (3 x 4) */
 .lot-motos-base {
-  grid-auto-flow: column;
-  grid-template-rows: repeat(4, auto);
   grid-auto-columns: var(--moto-w);
-  grid-template-columns: none;
+  justify-content: start;
 }
 
 /* ---------- Card da vaga ----------
@@ -326,8 +325,8 @@ body.vigilante-page .vagas-grid {
    Faixa grossa embaixo = ESTADO (disponível / ocupada / reservada). */
 
 .lot .vaga-card {
-  --tipo: var(--t-comum, #a855f7);
-  --estado: var(--s-available, #10b981);
+  --tipo: var(--t-comum);
+  --estado: var(--s-available);
 
   position: relative;
   display: flex;
@@ -347,16 +346,33 @@ body.vigilante-page .vagas-grid {
   box-shadow: inset 0 -4px 0 var(--estado);
 }
 
-.lot .vaga-card.tipo-comum { --tipo: var(--t-comum, #a855f7); }
-.lot .vaga-card.tipo-senac { --tipo: var(--t-senac, #f59e0b); }
-.lot .vaga-card.tipo-pcd   { --tipo: var(--t-pcd, #3b82f6); }
-.lot .vaga-card.tipo-carga { --tipo: var(--t-carga, #94a3b8); }
-.lot .vaga-card.tipo-moto  { --tipo: var(--t-moto, #a8756f); }
+.lot .vaga-card[data-id-vaga] {
+  cursor: pointer;
+  transition: transform var(--transition-fast);
+}
+.lot .vaga-card[data-id-vaga]:hover { transform: translateY(-2px); }
+.lot .vaga-card:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
 
-.lot .vaga-card.available { --estado: var(--s-available, #10b981); }
-.lot .vaga-card.occupied  { --estado: var(--s-occupied, #ef4444); }
-.lot .vaga-card.reserved  { --estado: var(--s-reserved, #f59e0b); }
-.lot .vaga-card.unknown   { --estado: var(--s-unknown, #6b7280); }
+.lot .vaga-card.tipo-comum { --tipo: var(--t-comum); }
+.lot .vaga-card.tipo-senac { --tipo: var(--t-senac); }
+.lot .vaga-card.tipo-pcd   { --tipo: var(--t-pcd); }
+.lot .vaga-card.tipo-carga { --tipo: var(--t-carga); }
+.lot .vaga-card.tipo-moto  { --tipo: var(--t-moto); }
+
+.lot .vaga-card.available   { --estado: var(--s-available); }
+.lot .vaga-card.occupied    { --estado: var(--s-occupied); }
+.lot .vaga-card.reserved    { --estado: var(--s-reserved); }
+.lot .vaga-card.unavailable { --estado: var(--s-unavailable); }
+.lot .vaga-card.unknown     { --estado: var(--s-unknown); }
+
+.lot .vaga-card.unavailable {
+  background: #e5e7eb;
+  color: #6b7280;
+  opacity: 0.75;
+}
 
 .lot .vaga-card.is-dim { opacity: 0.25; }
 
@@ -410,11 +426,11 @@ body.vigilante-page .vagas-grid {
 .lot .vaga-chip {
   min-width: var(--moto-w);
   min-height: 46px;
-  padding: 6px 2px 12px;       /* espaço extra embaixo para a faixa */
-  background: color-mix(in srgb, var(--t-moto, #a8756f) 35%, #fff);
+  padding: 6px 2px 12px; /* espaço extra embaixo para a faixa */
+  background: color-mix(in srgb, var(--t-moto) 35%, #fff);
   border-top-width: 1px;
   border-radius: 4px;
-  box-shadow: inset 0 -8px 0 var(--estado);   /* faixa de status (era 4px) */
+  box-shadow: inset 0 -8px 0 var(--estado); /* faixa de status */
   color: #0e0d0d;
 }
 
@@ -423,7 +439,6 @@ body.vigilante-page .vagas-grid {
   font-weight: 700;
 }
 
-/* sem bolinha */
 .lot .vaga-chip::before,
 .lot .vaga-chip::after {
   content: none;
@@ -447,7 +462,7 @@ body.vigilante-page .vagas-grid {
 }
 
 /* =====================================================================
-   COLUNA LATERAL (agora embaixo do mapa, em duas colunas)
+   COLUNA LATERAL (embaixo do mapa, em duas colunas)
    ===================================================================== */
 
 .side-column {
@@ -480,7 +495,7 @@ body.vigilante-page .vagas-grid {
 
 .notification-list {
   padding: 0 var(--spacing-5) var(--spacing-3);
-  max-height: 320px;
+  max-height: 420px;
   overflow-y: auto;
   overflow-x: hidden;
 }
@@ -532,6 +547,27 @@ body.vigilante-page .vagas-grid {
   font-size: var(--font-size-xs);
   color: var(--text-secondary);
 }
+
+/* botões Confirmar / Recusar da central */
+.notification-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-2);
+}
+
+.accept-btn {
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-1) var(--spacing-2);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  background: rgba(16, 185, 129, 0.14);
+  color: #047857;
+}
+
+.accept-btn:hover:not(:disabled) { background: rgba(16, 185, 129, 0.24); }
+.accept-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .quick-panel { padding-bottom: var(--spacing-2); }
 
@@ -728,20 +764,4 @@ body.vigilante-page .vagas-grid {
   }
 
   .filter-bar select { max-width: 120px; }
-}
-
-.vaga-card[data-id-vaga] { cursor: pointer; }
-.vaga-card.unavailable {
-  background: #e5e7eb;
-  border-color: #9ca3af;
-  color: #6b7280;
-  opacity: .75;
-}
-
-/* F15: vaga selecionada para registrar entrada */
-.vaga-card.is-selected {
-  outline: 3px solid #1D397D;
-  outline-offset: 2px;
-  box-shadow: 0 0 0 5px rgba(29, 57, 125, 0.18);
-  transform: translateY(-2px);
 }
