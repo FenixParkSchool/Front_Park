@@ -8,6 +8,7 @@ const pageLoaders = {
   registrar: () => import('./pages/registrar/index.js'),
   cadastroVeiculo: () => import('./pages/cadastro-veiculo/index.js'),
   esqueciSenha: () => import('./pages/esqueci-senha/index.js'),
+  redefinirSenha: () => import('./pages/redefinir-senha/index.js'),
   vigilante: () => import('./pages/vigilante/index.js'),
   perfil: () => import('./pages/perfil.js'),
 };
@@ -25,7 +26,10 @@ async function initializePage() {
   }
 }
 
-if (isProtectedPage(pageName)) {
+// Lista de páginas que NUNCA devem exigir sessão ativa (evita expulsar quem clica no e-mail)
+const publicPages = ['login', 'registrar', 'esqueciSenha', 'redefinirSenha'];
+
+if (isProtectedPage(pageName) && !publicPages.includes(pageName)) {
   const verifyCurrentSession = async () => {
     const authorized = await protectPage(pageName, initializePage);
     if (authorized) bindLogout();

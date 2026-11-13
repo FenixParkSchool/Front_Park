@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Redefinir senha - Sistema de Vagas Senac</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Estilos globais e da página -->
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+
+<body class="forgot-password-page d-flex flex-column" data-page="redefinirSenha">
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-home px-3 px-lg-4 py-3">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center gap-2 text-white fw-bold" href="../index.html">
+                <img class="logo-home" src="../assets/logo_pkg/08_branca/08_branca_icone_200.webp" alt="">
+                <span>ParkSchool</span>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navHome"
+                aria-controls="navHome" aria-expanded="false" aria-label="Alternar navegação">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse justify-content-end" id="navHome">
+                <ul class="navbar-nav align-items-lg-center gap-lg-2">
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-home" href="sobre.html">Sobre</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-home" href="registrar.html">Cadastro</a>
+                    </li>
+                    <li class="nav-item ms-lg-2">
+                        <a class="btn ds-btn-primary btn-nav-login px-4" href="login.html">
+                            <i class="fa-solid fa-right-to-bracket me-2" aria-hidden="true"></i>Entrar
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="esqueci-senha-main flex-grow-1 d-flex align-items-center justify-content-center p-3 position-relative overflow-hidden">
+        <div class="esqueci-senha-wrapper">
+
+            <div id="step-reset">
+                <div class="recovery-icon mb-4 mx-auto d-flex align-items-center justify-content-center rounded-circle" aria-hidden="true">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <h2 class="recovery-title fw-bold mb-2 text-center">Criar nova senha</h2>
+                <p class="recovery-description ds-text-secondary text-center mb-4">Digite a nova senha para a sua conta. Use no mínimo 8 caracteres.</p>
+
+                <form id="reset-form" novalidate>
+                    <div class="mb-3 form-field" id="field-password">
+                        <label for="password" class="form-label fw-medium">Nova senha</label>
+                        <div class="input-group ds-input-group">
+                            <span class="input-group-text border-end-0"><i class="fa-solid fa-lock" aria-hidden="true"></i></span>
+                            <input type="password" class="form-control border-start-0 border-end-0 ps-0" id="password"
+                                placeholder="Mínimo de 8 caracteres" autocomplete="new-password" required>
+                            <button class="btn btn-outline-secondary border-start-0" type="button"
+                                id="toggle-password" aria-label="Mostrar ou ocultar senha">
+                                <i class="fa-regular fa-eye" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mb-4 form-field" id="field-confirm">
+                        <label for="confirm" class="form-label fw-medium">Confirmar nova senha</label>
+                        <div class="input-group ds-input-group">
+                            <span class="input-group-text border-end-0"><i class="fa-solid fa-lock" aria-hidden="true"></i></span>
+                            <input type="password" class="form-control border-start-0 ps-0" id="confirm"
+                                placeholder="Repita a nova senha" autocomplete="new-password" required>
+                        </div>
+                        <div class="form-text text-danger d-none" id="confirm-error">As senhas não coincidem.</div>
+                    </div>
+
+                    <button class="recovery-submit btn ds-btn-primary w-100 fw-semibold d-flex justify-content-center align-items-center gap-2"
+                        id="submit-btn" type="submit">
+                        <span id="submit-label">Salvar nova senha</span>
+                        <span class="spinner-border spinner-border-sm d-none" id="submit-spinner" role="status" aria-hidden="true"></span>
+                    </button>
+                </form>
+
+                <a href="login.html" class="recovery-back-link d-flex justify-content-center align-items-center gap-2 mt-4 fw-medium">
+                    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Voltar para o login
+                </a>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Toast de Notificação -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="recoveryToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body fw-medium" id="toast-message"></div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fechar"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script principal apontando corretamente para a raiz do JS -->
+    <script type="module" src="../js/main.js"></script>
+</body>
+
+</html>
