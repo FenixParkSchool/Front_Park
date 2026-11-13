@@ -1,12 +1,32 @@
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 
+// Mapeia todas as páginas do sistema localizadas na pasta pages/
 const pages = [
-  'admin', 'cadastro_veiculo', 'esqueci_senha', 'login', 'perfil',
-  'registrar', 'reserva_vaga', 'sobre', 'tela-vigilante', 'tela_termos',
+  'admin',
+  'cadastro_veiculo',
+  'esqueci_senha',
+  'redefinir_senha',
+  'login',
+  'perfil',
+  'registrar',
+  'reserva_vaga',
+  'sobre',
+  'tela-vigilante',
+  'tela_termos',
 ];
-const input = Object.fromEntries(pages.map((page) => [page, fileURLToPath(new URL(`./pages/${page}.html`, import.meta.url))]));
-input.home = fileURLToPath(new URL('./index.html', import.meta.url));
+
+const input = Object.fromEntries(
+  pages.map((page) => [
+    page,
+    fileURLToPath(new URL(`./pages/${page}.html`, import.meta.url)),
+  ])
+);
+
+// Adiciona a página inicial (index.html) na raiz do projeto
+input.home = fileURLToPath(
+  new URL('./index.html', import.meta.url)
+);
 
 function htmlUtf8Headers() {
   const addCharset = (_request, response, next) => {
@@ -14,9 +34,18 @@ function htmlUtf8Headers() {
 
     response.writeHead = function writeHeadWithUtf8Charset(...args) {
       const contentType = response.getHeader('Content-Type');
-      if (typeof contentType === 'string' && /^text\/html(?:;|$)/iu.test(contentType) && !/;\s*charset=/iu.test(contentType)) {
-        response.setHeader('Content-Type', `${contentType}; charset=utf-8`);
+
+      if (
+        typeof contentType === 'string' &&
+        /^text\/html(?:;|$)/iu.test(contentType) &&
+        !/;\s*charset=/iu.test(contentType)
+      ) {
+        response.setHeader(
+          'Content-Type',
+          `${contentType}; charset=utf-8`
+        );
       }
+
       return writeHead.apply(this, args);
     };
 
@@ -25,9 +54,11 @@ function htmlUtf8Headers() {
 
   return {
     name: 'parkschool-html-utf8-headers',
+
     configureServer(server) {
       server.middlewares.use(addCharset);
     },
+
     configurePreviewServer(server) {
       server.middlewares.use(addCharset);
     },
@@ -36,11 +67,16 @@ function htmlUtf8Headers() {
 
 export default defineConfig({
   plugins: [htmlUtf8Headers()],
+
   root: '.',
+
+  // Garante caminhos relativos corretos nos assets gerados no build (essencial para hospedagem estática)
   base: './',
+
   build: {
     outDir: 'dist',
     emptyOutDir: true,
+
     rollupOptions: {
       input,
     },
