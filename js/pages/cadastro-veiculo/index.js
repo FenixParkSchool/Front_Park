@@ -1,3 +1,4 @@
+//Arquivo:Front_Park/js/pages/cadastro-veiculo/index.js
 import { api } from '../../services/auth.js';
 import { localStore, sessionStore } from '../../shared/storage.js';
 import { isValidPlate, normalizePlate } from '../../shared/utils.js';

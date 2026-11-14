@@ -49,6 +49,7 @@ export async function loadReservas() {
           saida: hhmm(r.horaSaida),
           placa: r.placaReserva ?? '',
           visitante: v ? { nome: v.nomeVisitante, telefone: v.telefoneVisitante } : null,
+          visto: Boolean(r.visto),
         };
       });
     state.erroReservas = null;

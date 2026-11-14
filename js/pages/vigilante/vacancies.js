@@ -92,9 +92,9 @@ export function updateMetrics() {
   set('vagasIndisponiveis', ok ? count('INDISPONIVEL') : '—');
  
   const okRes = !state.carregando && !state.erroReservas;
-  const pendentes = okRes ? state.reservas.filter((r) => r.tipo === 'VISITA' && r.status === 'PENDENTE').length : '—';
-  set('visitasPendentes', pendentes);
-  set('badgeNotificacoes', pendentes);
+const pendentes = okRes ? state.reservas.filter((r) => !r.visto).length : '—';
+set('visitasPendentes', pendentes);
+set('badgeNotificacoes', pendentes);
 }
  
 // Card da vaga: categoria + ícone, número, situação e placa. Motos usam a versão compacta.
@@ -214,3 +214,4 @@ export function renderVacancies() {
  
     </div>`;
 }
+
