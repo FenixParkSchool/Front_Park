@@ -62,7 +62,7 @@ function saveVehicles(getEmployees) {
   const created = [];
   for (const form of forms) {
     const modelo = form.querySelector('.campo-modelo').value.trim();
-    const placa = form.querySelector('.campo-placa').value.trim().toUpperCase();
+    const placa = normalizePlate(get('funcionario-placa'));
     const cor = form.querySelector('.campo-cor').value.trim();
     const tipo = form.querySelector('.campo-tipo:checked')?.value || 'carro';
     if (!modelo || !placa || !cor) {
