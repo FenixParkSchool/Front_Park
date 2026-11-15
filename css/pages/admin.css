@@ -316,72 +316,97 @@
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12);
 }
 
+/* =========================================
+   NOVO LAYOUT OTIMIZADO: Vagas em Grid Compacto
+   ========================================= */
 #grupos-vagas {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--spacing-5) var(--spacing-6);
-  padding: var(--spacing-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-5);
+  padding: var(--spacing-6);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   background: var(--bg-surface);
   box-shadow: var(--shadow-sm);
 }
+
 .vagas-grupo {
-  min-width: 0;
-  padding: 0;
-  border: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  padding-bottom: var(--spacing-4);
+  border-bottom: 1px solid var(--border-color);
 }
-.vagas-grupo:nth-child(4) {
-  grid-column: 1 / -1;
-  justify-self: center;
-  width: min(100%, 48rem);
+
+.vagas-grupo:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
 }
+
 .vagas-grupo > .d-flex {
-  margin-bottom: var(--spacing-2) !important;
+  margin-bottom: 0 !important;
 }
+
 .vagas-grupo h2 {
   font-family: var(--font-family-heading);
   font-size: var(--font-size-base) !important;
   font-weight: var(--font-weight-semibold) !important;
+  color: var(--text-primary);
 }
+
 #grupos-vagas .vagas-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(3.25rem, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: var(--spacing-2);
 }
+
 #grupos-vagas .vaga-card {
   display: flex;
-  cursor: default;
-  min-height: 3.5rem;
-  flex-direction: column;
+  cursor: pointer;
+  min-height: 3rem;
+  min-width: 130px;
+  flex: 1 1 130px;
+  flex-direction: row;
   align-items: center;
-  justify-content: center;
-  padding: var(--spacing-2);
+  justify-content: space-between;
+  padding: var(--spacing-2) var(--spacing-3);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   background: var(--bg-body);
   color: var(--text-secondary);
   line-height: 1.2;
+  transition: all 0.2s ease-in-out;
 }
+
+#grupos-vagas .vaga-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+  border-color: var(--color-primary);
+}
+
 #grupos-vagas .vaga-card .icone-vaga {
-  margin-bottom: 2px;
+  margin-bottom: 0;
   font-size: var(--font-size-sm);
 }
+
 #grupos-vagas .vaga-card .status {
-  margin-top: 2px;
+  margin-top: 0;
   font-size: var(--font-size-xs) !important;
   font-weight: var(--font-weight-medium);
 }
+
 #grupos-vagas .vaga-card.livre {
   border-color: var(--color-success) !important;
   color: var(--color-success-hover) !important;
   background: color-mix(in srgb, var(--color-success) 5%, var(--bg-surface));
 }
+
 #grupos-vagas .vaga-card.ocupada {
   border-color: var(--color-primary) !important;
   background: var(--color-primary);
   color: var(--color-white);
 }
+
 #grupos-vagas .vaga-card.ocupada .status {
   color: var(--color-warning);
 }
@@ -802,23 +827,6 @@
   .admin-stats {
     margin-bottom: var(--spacing-8);
   }
-  #grupos-vagas {
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--spacing-4);
-    padding: var(--spacing-4);
-  }
-  .vagas-grupo:nth-child(4) {
-    grid-column: auto;
-    justify-self: stretch;
-    width: auto;
-  }
-  .vagas-grupo:not(:last-child) {
-    padding-bottom: var(--spacing-4);
-    border-bottom: 1px solid var(--border-color);
-  }
-  #grupos-vagas .vagas-grid {
-    grid-template-columns: repeat(auto-fill, minmax(3.5rem, 1fr));
-  }
   .admin-profile-panel {
     padding: var(--spacing-4);
   }
@@ -944,24 +952,23 @@
   max-width: 340px;
   margin-left: .5px;
 }
- 
-.admin-profile-table .admin-profile-control .form-select
-{ flex: 0 1 190px;
+  
+.admin-profile-table .admin-profile-control .form-select {
+  flex: 0 1 190px;
   min-width: 0;
-margin-left: .5px;
+  margin-left: .5px;
 }
- 
+  
 .admin-profile-table .admin-profile-control .btn {
   flex: 0 0 auto;
   white-space: nowrap;
-margin-left: .5px;
+  margin-left: .5px;
 }
- 
-  .admin-profile-panel{
-    max-width: 850px;
-  }
- 
-  .admin-profile-table{
-    max-width: 800px;
- 
-  }
+  
+.admin-profile-panel {
+  max-width: 850px;
+}
+
+.admin-profile-table {
+  max-width: 800px;
+}
