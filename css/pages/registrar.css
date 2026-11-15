@@ -183,6 +183,12 @@
     border-color: var(--color-danger) !important;
 }
 
+/* Mensagens de erro (e-mail, senha, confirmação) */
+.registro-wrapper .invalid-feedback {
+    color: var(--color-danger, #dc3545);
+    font-size: var(--font-size-sm, 0.875rem);
+}
+
 .ds-text-secondary {
     color: var(--text-secondary);
 }
@@ -195,6 +201,54 @@
 .ds-text-primary:hover {
     color: var(--color-primary-hover);
 }
+
+/* =========================================
+   BARRA DE FORÇA DA SENHA + CHECKLIST
+   ========================================= */
+
+.password-strength {
+    height: 6px;
+    overflow: hidden;
+    border-radius: 999px;
+    background-color: var(--color-gray-200, #e5e7eb);
+}
+
+.password-strength-fill {
+    width: 0;
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.password-strength-fill[data-level="1"] { width: 25%;  background-color: var(--color-danger, #dc3545); }
+.password-strength-fill[data-level="2"] { width: 50%;  background-color: #fd7e14; }
+.password-strength-fill[data-level="3"] { width: 75%;  background-color: #ffc107; }
+.password-strength-fill[data-level="4"] { width: 100%; background-color: var(--color-success, #198754); }
+
+.password-rules {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--spacing-3, 0.75rem);
+    row-gap: 2px;
+}
+
+.password-rules li {
+    color: var(--text-secondary);
+    transition: color 0.2s ease;
+}
+
+.password-rules li i {
+    width: 1.1em;
+    margin-right: 4px;
+}
+
+.password-rules li.ok {
+    color: var(--color-success, #198754);
+}
+
+/* =========================================
+   RESPONSIVO
+   ========================================= */
 
 @media (max-width: 991.98px) {
     .registration-layout.row {
@@ -322,6 +376,11 @@
     .registro-wrapper .btn.ds-btn-primary {
         min-height: var(--spacing-10);
     }
+
+    /* Checklist em coluna única só quando falta espaço lateral */
+    .password-rules {
+        grid-template-columns: 1fr;
+    }
 }
 
 @media (max-width: 991.98px) and (max-height: 720px) {
@@ -381,6 +440,10 @@
     .registro-wrapper > form > p {
         font-size: var(--font-size-xs);
         line-height: 1.25;
+    }
+
+    .password-rules {
+        font-size: var(--font-size-xs);
     }
 }
 
@@ -454,7 +517,9 @@
 
 @media (prefers-reduced-motion: reduce) {
     .registro-wrapper .btn.ds-btn-primary,
-    .registration-page .ds-text-primary {
+    .registration-page .ds-text-primary,
+    .password-strength-fill,
+    .password-rules li {
         transition: none;
     }
 }

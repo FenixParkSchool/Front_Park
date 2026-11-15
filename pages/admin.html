@@ -45,7 +45,6 @@
          class="bi bi-calendar-plus" aria-hidden="true"></i><span>Reservar vaga</span></button>
           <button type="button" class="nav-link" data-nav="perfis" aria-controls="tela-perfis"><i 
               class="bi bi-person-gear" aria-hidden="true"></i><span>Perfis de acesso</span></button>
-
         </nav>
       </div>
       <div class="sidebar-footer">
@@ -174,13 +173,6 @@
               </div>
             </div>
             <div class="row g-3">
-              <div class="col-12" id="novo-func-conta-grupo">
-  <label class="form-label" for="novo-func-conta">Conta do funcionário</label>
-  <select id="novo-func-conta" class="form-select" required>
-    <option value="">Carregando contas...</option>
-  </select>
-  <div class="form-text">Somente contas com perfil Funcionário que ainda não possuem ficha.</div>
-</div>
               <div class="col-12"><label class="form-label" for="novo-func-nome">Nome completo</label><input type="text"
                   id="novo-func-nome" class="form-control" placeholder="Ex.: Maria Oliveira" autocomplete="name"
                   required></div>
@@ -214,46 +206,51 @@
           </form>
         </section>
  
+        <!-- Seção de veículos atualizada com busca interativa e sem a lista de recentes -->
         <section id="tela-veiculos" data-tela="veiculos" class="admin-screen" aria-labelledby="titulo-veiculos">
           <header class="page-heading"><span class="page-eyebrow">CADASTROS</span>
             <h1 id="titulo-veiculos">Cadastro de veículos</h1>
-            <p>Escolha o funcionário e cadastre o veículo. Se ele tiver mais de um, adicione quantos forem necessários
-              antes de salvar.</p>
+            <p>Pesquise o funcionário, selecione-o e cadastre o veículo. Se ele tiver mais de um, adicione quantos forem necessários antes de salvar.</p>
           </header>
-          <div class="admin-form-field"><label class="form-label" for="select-funcionario">Selecionar
-              funcionário</label><select id="select-funcionario" class="form-select"></select></div>
+          
+          <div class="admin-form-field mb-3">
+            <label class="form-label" for="busca-funcionario-veiculo">Pesquisar e selecionar funcionário</label>
+            <div class="input-group ds-input-group mb-2">
+              <span class="input-group-text border-end-0"><i class="bi bi-search" aria-hidden="true"></i></span>
+              <input id="busca-funcionario-veiculo" type="search" class="form-control border-start-0 ps-0" placeholder="Digite o nome do funcionário para buscar..." autocomplete="off">
+            </div>
+            <select id="select-funcionario" class="form-select" size="5" style="display: none;"></select>
+            <div id="funcionario-selecionado-badge" class="form-text text-success fw-semibold" style="display: none;"></div>
+          </div>
+
           <div id="lista-forms-veiculo"></div>
-          <div class="vehicle-actions"><button type="button" id="btnAdicionarFormVeiculo"
+          
+          <div class="vehicle-actions mt-3">
+            <button type="button" id="btnAdicionarFormVeiculo"
               class="btn ds-btn-outline d-inline-flex align-items-center justify-content-center gap-2"><i
-                class="bi bi-plus-lg" aria-hidden="true"></i> Adicionar outro veículo</button><button type="button"
+                class="bi bi-plus-lg" aria-hidden="true"></i> Adicionar outro veículo</button>
+            <button type="button"
               id="btnSalvarVeiculosAdmin"
               class="btn ds-btn-primary d-inline-flex align-items-center justify-content-center gap-2"><i
-                class="bi bi-check2" aria-hidden="true"></i> Cadastrar veículo(s)</button></div>
-          <div class="section-heading">
-            <div>
-              <h2>Veículos cadastrados recentemente</h2>
-              <p>Registros vinculados aos funcionários da unidade.</p>
-            </div>
+                class="bi bi-check2" aria-hidden="true"></i> Cadastrar veículo(s)</button>
           </div>
-          <div class="lista-veiculos-cadastrados" id="lista-veiculos-cadastrados" aria-live="polite"></div>
         </section>
  
         <section id="tela-solicitacoes" data-tela="solicitacoes" class="admin-screen"
           aria-labelledby="titulo-solicitacoes">
-          <header class="page-heading"><span class="page-eyebrow">PENDÊNCIAS</span>
-            <h1 id="titulo-solicitacoes">Solicitações de cadastro</h1>
-            <p>Acompanhe os cadastros de funcionários, vigilantes e patrimônio que aguardam aprovação do administrador.
-            </p>
+          <header class="page-heading d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+              <span class="page-eyebrow">PENDÊNCIAS</span>
+              <h1 id="titulo-solicitacoes" class="mb-1">Solicitações de cadastro</h1>
+              <p class="mb-0">Acompanhe os cadastros de funcionários, vigilantes e patrimônio que aguardam aprovação do administrador.</p>
+            </div>
 
-            <button id="btn-atualizar-solicitacoes" type="button"
-              class="btn d-inline-flex align-items-center gap-2 mt-2"
-              style="background-color: #17bd6f; color: #ffffff; border: 1px solid #198754;">
+            <button id="btn-atualizar-solicitacoes" type="button" class="btn ds-btn-outline d-inline-flex align-items-center gap-2">
               <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
-              <span>Atualizar</span>
+              <span>Atualizar lista</span>
             </button>
-
           </header>
-          <div id="lista-solicitacoes" class="admin-list" aria-live="polite"></div>
+          <div id="lista-solicitacoes" class="admin-list d-flex flex-column gap-3" aria-live="polite"></div>
         </section>
  
         

@@ -71,6 +71,9 @@
                                 <input type="email" class="form-control border-start-0 ps-0" id="email"
                                     placeholder="nome@estacionamento.com" required>
                             </div>
+                            <div id="emailFeedback" class="invalid-feedback d-none mt-1 fs-7">
+                                Digite um e-mail válido, por exemplo: nome@empresa.com
+                            </div>
                         </div>
 
                         <!-- Nível de Acesso / Perfil (Apenas perfis permitidos: Funcionário e Vigilante) -->
@@ -101,6 +104,25 @@
                                     <i class="fa-regular fa-eye text-secondary"></i>
                                 </button>
                             </div>
+
+                            <!-- Barra de força da senha -->
+                            <div class="password-strength mt-2" aria-hidden="true">
+                                <div class="password-strength-fill" id="passwordStrengthFill" data-level="0"></div>
+                            </div>
+                            <div class="d-flex justify-content-between mt-1">
+                                <small class="ds-text-secondary">Força da senha</small>
+                                <small id="passwordStrengthLabel" class="fw-semibold" aria-live="polite"></small>
+                            </div>
+
+                            <!-- Requisitos -->
+                            <ul class="password-rules list-unstyled small mt-2 mb-0">
+                                <li data-rule="length"><i class="fa-regular fa-circle"></i> Mínimo de 8 caracteres</li>
+                                <li data-rule="upper"><i class="fa-regular fa-circle"></i> Uma letra maiúscula</li>
+                                <li data-rule="lower"><i class="fa-regular fa-circle"></i> Uma letra minúscula</li>
+                                <li data-rule="number"><i class="fa-regular fa-circle"></i> Um número</li>
+                                <li data-rule="special"><i class="fa-regular fa-circle"></i> Um símbolo (!@#$%...)</li>
+                            </ul>
+                            <div id="passwordFeedback" class="invalid-feedback d-none mt-1 fs-7"></div>
                         </div>
 
                         <!-- Confirmar Senha -->
@@ -165,18 +187,18 @@
                 <div class="modal-body">
                     <p class="text-muted small">Última atualização: 11 de setembro de 2026</p>
                     <p>Ao utilizar o sistema <strong>ParkSchool</strong> de Gestão de Estacionamento, você concorda com os termos e condições descritos abaixo. Por favor, leia-os atentamente.</p>
-                    
+
                     <hr class="my-3">
-                    
+
                     <h6 class="fw-bold text-dark">1. Aceitação dos Termos</h6>
                     <p class="small text-muted">Ao acessar ou se registrar na plataforma como funcionário ou vigilante, você concorda em cumprir estes Termos de Uso e todas as políticas de segurança aplicáveis.</p>
-                    
+
                     <h6 class="fw-bold text-dark mt-3">2. Uso Autorizado</h6>
                     <p class="small text-muted">Esta ferramenta destina-se exclusivamente à administração, controle de vagas e segurança do estacionamento. O acesso é restrito a colaboradores autorizados. O compartilhamento de credenciais de acesso é proibido.</p>
-                    
+
                     <h6 class="fw-bold text-dark mt-3">3. Privacidade e Proteção de Dados</h6>
                     <p class="small text-muted">Seus dados cadastrais (nome e e-mail corporativo) são coletados e armazenados com o único propósito de controle de acesso, identificação e auditoria interna de segurança.</p>
-                    
+
                     <h6 class="fw-bold text-dark mt-3">4. Segurança da Conta</h6>
                     <p class="small text-muted">Você é totalmente responsável por manter a confidencialidade de sua senha e por todas as atividades que ocorram sob sua conta. Notifique imediatamente os administradores em caso de qualquer uso suspeito.</p>
                 </div>

@@ -272,7 +272,12 @@
 body.vigilante-page .vagas-grid {
   display: block;
   padding: var(--spacing-3);
-  overflow: visible; /* sem rolagem em telas largas */
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+body.vigilante-page .vaga-card:hover {
+  transform: translateY(-2px);
 }
 
 .lot {

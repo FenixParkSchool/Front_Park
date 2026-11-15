@@ -22,7 +22,7 @@ export function init() {
     toast.show();
   };
 
-  // O token vem no link do e-mail: redefinir_senha.html?token=XXXX
+  // O token vem no link do e-mail e deve ser enviado junto ao parâmetro token.
   const token = new URLSearchParams(window.location.search).get('token');
   if (!token) {
     submit.disabled = true;
