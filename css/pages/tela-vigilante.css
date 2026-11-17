@@ -770,3 +770,8 @@ body.vigilante-page .vaga-card:hover {
 
   .filter-bar select { max-width: 120px; }
 }
+
+.lot .vaga-card.occupied {
+  --tipo: var(--s-occupied);
+  background: color-mix(in srgb, var(--s-occupied) 18%, #fff);
+}
