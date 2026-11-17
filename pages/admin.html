@@ -234,6 +234,16 @@
               class="btn ds-btn-primary d-inline-flex align-items-center justify-content-center gap-2"><i
                 class="bi bi-check2" aria-hidden="true"></i> Cadastrar veículo(s)</button>
           </div>
+
+          <div class="admin-form-field lista-veiculos-cadastrados-wrapper mt-3">
+            <button type="button" id="btnAlternarVeiculosCadastrados"
+              class="btn ds-btn-outline w-100 d-flex align-items-center justify-content-between gap-2"
+              aria-expanded="false" aria-controls="listaVeiculosCadastrados">
+              <span><i class="bi bi-car-front me-2" aria-hidden="true"></i>Veículos cadastrados</span>
+              <i id="iconeVeiculosCadastrados" class="bi bi-chevron-down" aria-hidden="true"></i>
+            </button>
+            <div id="listaVeiculosCadastrados" class="lista-veiculos-cadastrados mt-3" hidden aria-live="polite"></div>
+          </div>
         </section>
  
         <section id="tela-solicitacoes" data-tela="solicitacoes" class="admin-screen"
