@@ -3,6 +3,7 @@ import { escapeHtml } from '../../shared/utils.js';
 
 let formSequence = 0;
 let funcionarioSelecionadoId = null;
+let getEmployeesProvider = () => [];
 
 function setFeedback(message, type = 'sucesso') {
   const element = document.getElementById('veiculos-feedback');
@@ -122,6 +123,78 @@ function setupEmployeeSearch(getEmployees) {
   });
 }
 
+function getVehicleRows(response) {
+  if (Array.isArray(response)) return response;
+  if (Array.isArray(response?.veiculos)) return response.veiculos;
+  if (Array.isArray(response?.data)) return response.data;
+  if (Array.isArray(response?.rows)) return response.rows;
+  return [];
+}
+
+function renderRegisteredVehicles(vehicles, getEmployees) {
+  const list = document.getElementById('listaVeiculosCadastrados');
+  if (!list) return;
+
+  if (!vehicles.length) {
+    list.innerHTML = '<p class="empty-state mb-0">Nenhum veículo cadastrado.</p>';
+    return;
+  }
+
+  const employees = getEmployees() || [];
+  list.innerHTML = vehicles.map((vehicle) => {
+    const model = vehicle.modeloVeiculo ?? vehicle.modelo_veiculo ?? vehicle.modelo ?? 'Modelo não informado';
+    const type = vehicle.tipoVeiculo ?? vehicle.tipo_veiculo ?? vehicle.tipo ?? '';
+    const plate = vehicle.placaVeiculo ?? vehicle.placa_veiculo ?? vehicle.placa ?? '';
+    const color = vehicle.corVeiculo ?? vehicle.cor_veiculo ?? vehicle.cor ?? '';
+    const year = vehicle.anoVeiculo ?? vehicle.ano_veiculo ?? vehicle.ano ?? '';
+    const employeeId = vehicle.idFuncionario ?? vehicle.id_funcionario ?? vehicle.funcionarioId ?? vehicle.employeeId;
+    const employee = vehicle.funcionario?.nome
+      ?? employees.find((item) => String(item.id) === String(employeeId))?.nome
+      ?? '';
+    const details = [type, plate, color, year].filter((value) => value !== '' && value !== null && value !== undefined);
+
+    return `<article class="veiculo-registrado">
+      <div class="d-flex align-items-center gap-3">
+        <span class="stat-icon icone-veiculo" aria-hidden="true"><i class="bi bi-car-front"></i></span>
+        <div>
+          <h3 class="h6 mb-1 fw-semibold">${escapeHtml(model)}</h3>
+          <p class="mb-1 text-secondary small">${details.map(escapeHtml).join(' · ') || 'Dados do veículo não informados'}</p>
+          ${employee ? `<p class="mb-0 text-muted small">Funcionário: ${escapeHtml(employee)}</p>` : ''}
+        </div>
+      </div>
+    </article>`;
+  }).join('');
+}
+
+async function loadRegisteredVehicles(getEmployees) {
+  const list = document.getElementById('listaVeiculosCadastrados');
+  if (!list) return;
+
+  list.innerHTML = '<p class="empty-state mb-0">Carregando veículos...</p>';
+  try {
+    const response = await api('/veiculos');
+    renderRegisteredVehicles(getVehicleRows(response), getEmployees);
+  } catch (error) {
+    list.innerHTML = `<p class="empty-state mb-0 text-danger">${escapeHtml(error.message || 'Não foi possível carregar os veículos.')}</p>`;
+  }
+}
+
+function setupRegisteredVehiclesToggle(getEmployees) {
+  const button = document.getElementById('btnAlternarVeiculosCadastrados');
+  const panel = document.getElementById('listaVeiculosCadastrados');
+  const icon = document.getElementById('iconeVeiculosCadastrados');
+  if (!button || !panel) return;
+
+  button.addEventListener('click', async () => {
+    const isOpening = button.getAttribute('aria-expanded') !== 'true';
+    button.setAttribute('aria-expanded', String(isOpening));
+    panel.hidden = !isOpening;
+    if (icon) icon.className = `bi ${isOpening ? 'bi-chevron-up' : 'bi-chevron-down'}`;
+
+    if (isOpening) await loadRegisteredVehicles(getEmployees);
+  });
+}
+
 async function saveVehicles() {
   const inputBusca = document.getElementById('busca-funcionario-veiculo');
   const btnSalvar = document.getElementById('btnSalvarVeiculosAdmin');
@@ -207,7 +280,6 @@ async function saveVehicles() {
 
     setFeedback('Veículo(s) cadastrado(s) com sucesso!');
 
-    // Limpa formulários e reseta a seleção de funcionário
     document.getElementById('lista-forms-veiculo').innerHTML = '';
     formSequence = 0;
     addForm();
@@ -220,6 +292,9 @@ async function saveVehicles() {
 
     const selectResultados = document.getElementById('select-funcionario');
     if (selectResultados) selectResultados.style.display = 'none';
+
+    const panel = document.getElementById('listaVeiculosCadastrados');
+    if (panel && !panel.hidden) await loadRegisteredVehicles(getEmployeesProvider);
   } catch (error) {
     setFeedback(error.message || 'Erro ao cadastrar o(s) veículo(s).', 'erro');
   } finally {
@@ -228,6 +303,7 @@ async function saveVehicles() {
 }
 
 export function initAdminVehicles(getEmployees) {
+  getEmployeesProvider = getEmployees;
   funcionarioSelecionadoId = null;
 
   const inputBusca = document.getElementById('busca-funcionario-veiculo');
@@ -241,6 +317,7 @@ export function initAdminVehicles(getEmployees) {
 
   setFeedback('');
   setupEmployeeSearch(getEmployees);
+  setupRegisteredVehiclesToggle(getEmployees);
 
   document.getElementById('btnAdicionarFormVeiculo')?.addEventListener('click', addForm);
   document.getElementById('btnSalvarVeiculosAdmin')?.addEventListener('click', saveVehicles);
