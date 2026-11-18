@@ -1,3 +1,4 @@
+//Arquivo:Front_Park/js/pages/main.js
 import { bindLogout, protectPage, isProtectedPage } from './sessao.js';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap';

@@ -2,6 +2,8 @@ import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 
 
+
+// Mapeia todas as páginas do sistema localizadas na pasta pages/
 const pages = [
   'admin',
   'cadastro_veiculo',
@@ -81,4 +83,11 @@ export default defineConfig({
       input,
     },
   },
+  server: {
+    headers: { 'X-Content-Type-Options': 'nosniff' },
+  },
+  preview: {
+    headers: { 'X-Content-Type-Options': 'nosniff' },
+  },
 });
+

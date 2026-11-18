@@ -1,3 +1,4 @@
+//Arquivo:Front_Park/js/pages/sessao.js
 import { api } from './api.js';
 
 const HOME_BY_PROFILE = Object.freeze({

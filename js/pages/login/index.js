@@ -1,3 +1,4 @@
+//Arquivo:Front_Park/js/pages/login/index.js
 import { api, loginDestinationForProfile } from '../../services/auth.js';
 
 export function init() {
@@ -10,6 +11,8 @@ export function init() {
   const submitButton = form.querySelector('button[type="submit"]');
   const submitLabel = document.getElementById('login-submit-label');
   const defaultLabel = submitLabel?.textContent || 'Entrar';
+  
+  try { localStorage.removeItem('token'); } catch { /* ignora */ }
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -29,10 +32,6 @@ export function init() {
         }),
       });
 
-      // Guarda o token no localStorage com a chave exigida pelo painel administrativo
-      if (data.token) {
-        localStorage.setItem('token', data.token);
-      }
 
       const user = data.user || data;
       const destination = loginDestinationForProfile(user?.perfil ?? user?.role);
