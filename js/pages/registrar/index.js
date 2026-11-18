@@ -250,9 +250,9 @@ export function init() {
       });
       const data = await response.json().catch(() => ({}));
 
-      if (response.status === 201) {
-        window.alert('Conta cadastrada com sucesso! Redirecionando para o login.');
-        window.location.href = 'login.html';
+            if (response.status === 201) {                                   
+        window.alert('Cadastro enviado! Sua conta precisa ser aprovada pelo administrador antes do primeiro login. Redirecionando para o login.');   // linha 254 (troca)
+        window.location.href = 'login.html';                           
       } else if (response.status === 409) {
         window.alert(data.error || 'Este e-mail ou matrícula já está cadastrado no sistema.');
         email.focus();
