@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
-    <!-- Estilos globais e da página -->
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="../css/pages/registrar.css">
 </head>
@@ -18,7 +17,6 @@
     <div class="container-fluid p-0">
         <div class="registration-layout row vh-100 g-0">
 
-            <!-- Lado Esquerdo: Hero & Apresentação -->
             <div class="registration-visual-panel col-12 col-lg-6 p-0 position-relative overflow-hidden">
                 <div class="hero-bg h-100 w-100"></div>
                 <div class="registration-text-layer text-layer position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center align-items-start text-white text-start pe-none">
@@ -31,7 +29,6 @@
                 </div>
             </div>
 
-            <!-- Lado Direito: Formulário de Registro -->
             <div class="registration-form-panel form-container col-12 col-lg-6 d-flex align-items-center justify-content-center p-4 p-md-5">
                 <div class="w-100 registro-wrapper">
 
@@ -46,7 +43,6 @@
                         <p class="ds-text-secondary mb-0">Preencha os campos abaixo para registrar um novo usuário.</p>
                     </div>
 
-                    <!-- ATENÇÃO AO ID DO FORMULÁRIO E DOS CAMPOS -->
                     <form id="formRegistro" novalidate>
 
                         <!-- Nome Completo -->
@@ -61,7 +57,6 @@
                             </div>
                         </div>
 
-                        <!-- E-mail -->
                         <div class="mb-3">
                             <label for="email" class="form-label fw-medium">E-mail corporativo</label>
                             <div class="input-group ds-input-group">
@@ -76,7 +71,20 @@
                             </div>
                         </div>
 
-                        <!-- Nível de Acesso / Perfil (Apenas perfis permitidos: Funcionário e Vigilante) -->
+                        <div class="mb-3">
+                            <label for="matricula" class="form-label fw-medium">Matrícula/identificação funcional</label>
+                            <div class="input-group ds-input-group">
+                                <span class="input-group-text border-end-0">
+                                    <i class="fa-solid fa-id-badge"></i>
+                                </span>
+                                <input type="text" class="form-control border-start-0 ps-0" id="matricula"
+                                    placeholder="12345-6" maxlength="7" inputmode="numeric" required>
+                            </div>
+                            <div id="matriculaFeedback" class="invalid-feedback d-none mt-1 fs-7">
+                                Digite a matrícula no formato 12345-6 (apenas números).
+                            </div>
+                        </div>
+
                         <div class="mb-3">
                             <label for="perfil" class="form-label fw-medium">Nível de acesso</label>
                             <div class="input-group ds-input-group">
@@ -90,7 +98,6 @@
                             </div>
                         </div>
 
-                        <!-- Senha (mapeada para senhaHash no envio) -->
                         <div class="mb-3">
                             <label for="senha" class="form-label fw-medium">Senha</label>
                             <div class="input-group ds-input-group">
@@ -105,7 +112,6 @@
                                 </button>
                             </div>
 
-                            <!-- Barra de força da senha -->
                             <div class="password-strength mt-2" aria-hidden="true">
                                 <div class="password-strength-fill" id="passwordStrengthFill" data-level="0"></div>
                             </div>
@@ -114,7 +120,6 @@
                                 <small id="passwordStrengthLabel" class="fw-semibold" aria-live="polite"></small>
                             </div>
 
-                            <!-- Requisitos -->
                             <ul class="password-rules list-unstyled small mt-2 mb-0">
                                 <li data-rule="length"><i class="fa-regular fa-circle"></i> Mínimo de 8 caracteres</li>
                                 <li data-rule="upper"><i class="fa-regular fa-circle"></i> Uma letra maiúscula</li>
@@ -125,7 +130,6 @@
                             <div id="passwordFeedback" class="invalid-feedback d-none mt-1 fs-7"></div>
                         </div>
 
-                        <!-- Confirmar Senha -->
                         <div class="mb-3">
                             <label for="confirmarSenha" class="form-label fw-medium">Confirmar senha</label>
                             <div class="input-group ds-input-group">
@@ -144,7 +148,6 @@
                             </div>
                         </div>
 
-                        <!-- Aceite de Termos -->
                         <div class="form-check mb-4">
                             <input type="checkbox" class="form-check-input" id="termos" required>
                             <label class="form-check-label ds-text-secondary small" for="termos">
@@ -158,12 +161,10 @@
                             </label>
                         </div>
 
-                        <!-- Botão de Envio -->
                         <button type="submit" id="btnCadastrar" class="ds-btn-primary w-100 py-2 fw-semibold mb-3">
                             Criar Conta
                         </button>
 
-                        <!-- Link para Login -->
                         <p class="text-center ds-text-secondary mb-0">
                             Já possui uma conta?
                             <a href="login.html" class="ds-text-primary fw-semibold text-decoration-none ms-1">Fazer login</a>
@@ -177,7 +178,6 @@
         </div>
     </div>
 
-    <!-- Modal de Termos Integrado -->
     <div class="modal fade" id="modalTermos" tabindex="-1" aria-labelledby="modalTermosLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
             <div class="modal-content">

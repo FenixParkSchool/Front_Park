@@ -25,7 +25,7 @@ const input = Object.fromEntries(
   ])
 );
 
-// Adiciona a página inicial (index.html) na raiz do projeto
+
 input.home = fileURLToPath(
   new URL('./index.html', import.meta.url)
 );
@@ -72,7 +72,7 @@ export default defineConfig({
 
   root: '.',
 
-  // Garante caminhos relativos corretos nos assets gerados no build (essencial para hospedagem estática)
+  
   base: './',
 
   build: {

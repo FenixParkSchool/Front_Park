@@ -29,8 +29,6 @@
         </a>
         <div class="sidebar-caption">GERENCIAMENTO</div>
         <nav class="nav flex-column admin-nav" aria-label="Seções do painel">
-          <button type="button" class="nav-link active" data-nav="vagas" aria-current="page"
-            aria-controls="tela-vagas"><i class="bi bi-grid-3x3-gap" aria-hidden="true"></i><span>Vagas</span></button>
           <button type="button" class="nav-link" data-nav="funcionarios" aria-controls="tela-funcionarios"><i
               class="bi bi-people" aria-hidden="true"></i><span>Funcionários</span></button>
           <button type="button" class="nav-link" data-nav="novo-funcionario" aria-controls="tela-novo-funcionario"><i
@@ -45,6 +43,8 @@
          class="bi bi-calendar-plus" aria-hidden="true"></i><span>Reservar vaga</span></button>
           <button type="button" class="nav-link" data-nav="perfis" aria-controls="tela-perfis"><i 
               class="bi bi-person-gear" aria-hidden="true"></i><span>Perfis de acesso</span></button>
+               <button type="button" class="nav-link active" data-nav="vagas" aria-current="page"
+            aria-controls="tela-vagas"><i class="bi bi-grid-3x3-gap" aria-hidden="true"></i><span>Vagas</span></button>
         </nav>
       </div>
       <div class="sidebar-footer">
@@ -233,6 +233,16 @@
               id="btnSalvarVeiculosAdmin"
               class="btn ds-btn-primary d-inline-flex align-items-center justify-content-center gap-2"><i
                 class="bi bi-check2" aria-hidden="true"></i> Cadastrar veículo(s)</button>
+          </div>
+
+          <div class="admin-form-field lista-veiculos-cadastrados-wrapper mt-3">
+            <button type="button" id="btnAlternarVeiculosCadastrados"
+              class="btn ds-btn-outline w-100 d-flex align-items-center justify-content-between gap-2"
+              aria-expanded="false" aria-controls="listaVeiculosCadastrados">
+              <span><i class="bi bi-car-front me-2" aria-hidden="true"></i>Veículos cadastrados</span>
+              <i id="iconeVeiculosCadastrados" class="bi bi-chevron-down" aria-hidden="true"></i>
+            </button>
+            <div id="listaVeiculosCadastrados" class="lista-veiculos-cadastrados mt-3" hidden aria-live="polite"></div>
           </div>
         </section>
  

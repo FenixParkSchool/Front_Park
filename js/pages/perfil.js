@@ -4,7 +4,33 @@ let initialized = false;
 let currentEmail = '';
 let currentVehicles = [];
 
+const MATRICULA_REGEX = /^\d{5}-\d{1}$/;
+
 const byId = (id) => document.getElementById(id);
+
+function formatMatricula(rawValue) {
+  const numbers = String(rawValue || '').replace(/\D/g, '').slice(0, 6);
+  if (!numbers) return '';
+  if (numbers.length <= 5) return numbers;
+  return `${numbers.slice(0, 5)}-${numbers.slice(5, 6)}`;
+}
+
+function formatTelefone(rawValue) {
+  const numbers = String(rawValue || '').replace(/\D/g, '').slice(0, 11);
+  if (!numbers) return '';
+  
+  if (numbers.length <= 2) {
+    return `(${numbers}`;
+  } else if (numbers.length <= 6) {
+    return `(${numbers.slice(0, 2)}) ${numbers.slice(2)}`;
+  } else if (numbers.length <= 10) {
+    // Formato com 8 dígitos no número: (12) 3456-7890
+    return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 6)}-${numbers.slice(6)}`;
+  } else {
+    // Formato com 9 dígitos no número (celular): (12) 99999-9999
+    return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 7)}-${numbers.slice(7, 11)}`;
+  }
+}
 
 function setFeedback(message = '', tone = 'info') {
   const feedback = byId('perfil-feedback');
@@ -32,12 +58,11 @@ function getFormData() {
 
 function fillForm(funcionario = {}) {
   byId('nomeFuncionario').value = funcionario.nomeFuncionario || '';
-  byId('telefoneFuncionario').value = funcionario.telefoneFuncionario || '';
-  byId('identificaOFuncionario').value = funcionario.identificaOFuncionario || '';
+  byId('telefoneFuncionario').value = formatTelefone(funcionario.telefoneFuncionario);
+  byId('identificaOFuncionario').value = formatMatricula(funcionario.identificaOFuncionario);
   byId('pcdFuncionario').checked = funcionario.pcdFuncionario === true;
   byId('form-funcionario').dataset.idFuncionario = funcionario.idFuncionario || '';
 }
-
 
 const VEHICLE_FIELDS = [
   { key: 'tipoVeiculo', label: 'Tipo' },
@@ -210,30 +235,30 @@ function renderVehicleEditor(card, vehicle) {
 
     const plateInput = editor.elements.namedItem('placaVeiculo');
 
-const normalizedPlate = plateInput.value
-  .replace(/[^a-zA-Z0-9]/g, '')
-  .toUpperCase();
+    const normalizedPlate = plateInput.value
+      .replace(/[^a-zA-Z0-9]/g, '')
+      .toUpperCase();
 
-const duplicatePlate = currentVehicles.some((item) => {
-  if (String(item.idVeiculo) === String(vehicle.idVeiculo)) {
-    return false;
-  }
+    const duplicatePlate = currentVehicles.some((item) => {
+      if (String(item.idVeiculo) === String(vehicle.idVeiculo)) {
+        return false;
+      }
 
-  const existingPlate = String(item.placaVeiculo || '')
-    .replace(/[^a-zA-Z0-9]/g, '')
-    .toUpperCase();
+      const existingPlate = String(item.placaVeiculo || '')
+        .replace(/[^a-zA-Z0-9]/g, '')
+        .toUpperCase();
 
-  return existingPlate === normalizedPlate;
-});
+      return existingPlate === normalizedPlate;
+    });
 
-if (duplicatePlate) {
-  window.alert(
-    'Esta placa já está cadastrada em outro veículo. Informe uma placa diferente.'
-  );
+    if (duplicatePlate) {
+      window.alert(
+        'Esta placa já está cadastrada em outro veículo. Informe uma placa diferente.'
+      );
 
-  plateInput.focus();
-  return;
-}
+      plateInput.focus();
+      return;
+    }
 
     const changes = {};
 
@@ -255,31 +280,31 @@ if (duplicatePlate) {
     saveButton.disabled = true;
     cancelButton.disabled = true;
 
-try {
-  await api(`/veiculos/${encodeURIComponent(vehicle.idVeiculo)}`, {
-    method: 'PUT',
-    body: JSON.stringify(changes)
-  });
+    try {
+      await api(`/veiculos/${encodeURIComponent(vehicle.idVeiculo)}`, {
+        method: 'PUT',
+        body: JSON.stringify(changes)
+      });
 
-  setFeedback('Veículo atualizado com sucesso.', 'success');
+      setFeedback('Veículo atualizado com sucesso.', 'success');
 
-  await loadVehicles();
+      await loadVehicles();
 
-} catch (error) {
-  if (error.status === 409) {
-    window.alert(
-      'Esta placa já está cadastrada em outro veículo. Informe uma placa diferente.'
-    );
-  } else {
-    setFeedback(
-      `Não foi possível atualizar o veículo: ${error.message}`,
-      'error'
-    );
-  }
+    } catch (error) {
+      if (error.status === 409) {
+        window.alert(
+          'Esta placa já está cadastrada em outro veículo. Informe uma placa diferente.'
+        );
+      } else {
+        setFeedback(
+          `Não foi possível atualizar o veículo: ${error.message}`,
+          'error'
+        );
+      }
 
-  saveButton.disabled = false;
-  cancelButton.disabled = false;
-}
+      saveButton.disabled = false;
+      cancelButton.disabled = false;
+    }
   });
 }
 
@@ -330,7 +355,6 @@ async function removeVehicle(idVeiculo, button) {
   }
 }
 
-
 async function loadVehicles() {
   try {
     const vehicles = await api('/veiculos');
@@ -376,16 +400,83 @@ function bindForm() {
   const form = byId('form-funcionario');
   if (!form || initialized) return;
   initialized = true;
+
+  // --- MÁSCARA DE MATRÍCULA (12345-6) ---
+  const inputIdentificacao = byId('identificaOFuncionario');
+  if (inputIdentificacao) {
+    inputIdentificacao.setAttribute('maxlength', '7');
+    inputIdentificacao.setAttribute('placeholder', '12345-6');
+    inputIdentificacao.setAttribute('inputmode', 'numeric');
+
+    inputIdentificacao.addEventListener('keydown', (e) => {
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      const allowedKeys = ['Backspace', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight', 'Delete', 'Home', 'End'];
+      if (allowedKeys.includes(e.key)) return;
+      if (!/^[0-9]$/.test(e.key)) e.preventDefault();
+    });
+
+    inputIdentificacao.addEventListener('beforeinput', (e) => {
+      if (e.data && /\D/.test(e.data)) e.preventDefault();
+    });
+
+    inputIdentificacao.addEventListener('input', (e) => {
+      e.target.value = formatMatricula(e.target.value);
+    });
+
+    inputIdentificacao.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const pasteData = (e.clipboardData || window.clipboardData).getData('text');
+      inputIdentificacao.value = formatMatricula(pasteData);
+    });
+  }
+
+  // --- MÁSCARA DE TELEFONE ((12) 99999-9999) ---
+  const inputTelefone = byId('telefoneFuncionario');
+  if (inputTelefone) {
+    inputTelefone.setAttribute('maxlength', '15');
+    inputTelefone.setAttribute('placeholder', '(12) 99999-9999');
+    inputTelefone.setAttribute('inputmode', 'numeric');
+
+    inputTelefone.addEventListener('keydown', (e) => {
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      const allowedKeys = ['Backspace', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight', 'Delete', 'Home', 'End'];
+      if (allowedKeys.includes(e.key)) return;
+      if (!/^[0-9]$/.test(e.key)) e.preventDefault();
+    });
+
+    inputTelefone.addEventListener('beforeinput', (e) => {
+      if (e.data && /\D/.test(e.data)) e.preventDefault();
+    });
+
+    inputTelefone.addEventListener('input', (e) => {
+      e.target.value = formatTelefone(e.target.value);
+    });
+
+    inputTelefone.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const pasteData = (e.clipboardData || window.clipboardData).getData('text');
+      inputTelefone.value = formatTelefone(pasteData);
+    });
+  }
+
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (!form.reportValidity()) return;
+
+    const data = getFormData();
+    if (!MATRICULA_REGEX.test(data.identificaOFuncionario)) {
+      setFeedback('Informe a matrícula no formato 12345-6 (apenas números).', 'error');
+      inputIdentificacao?.focus();
+      return;
+    }
+
     setLoading(true);
     setFeedback('Salvando sua ficha…', 'info');
     try {
       const idFuncionario = form.dataset.idFuncionario;
       const method = idFuncionario ? 'PUT' : 'POST';
       const path = idFuncionario ? `/funcionarios/${encodeURIComponent(idFuncionario)}` : '/funcionarios';
-      await api(path, { method, body: JSON.stringify(getFormData()) });
+      await api(path, { method, body: JSON.stringify(data) });
       setFeedback('Ficha salva com sucesso.', 'success');
       await loadProfile();
     } catch (error) {
