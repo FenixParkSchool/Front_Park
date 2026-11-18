@@ -49,7 +49,7 @@
                     <!-- ATENÇÃO AO ID DO FORMULÁRIO E DOS CAMPOS -->
                     <form id="formRegistro" novalidate>
 
-                        <!-- Nome Completo (mapeado para username) -->
+                        <!-- Nome Completo -->
                         <div class="mb-3">
                             <label for="nome" class="form-label fw-medium">Nome completo</label>
                             <div class="input-group ds-input-group">
@@ -149,8 +149,12 @@
                             <input type="checkbox" class="form-check-input" id="termos" required>
                             <label class="form-check-label ds-text-secondary small" for="termos">
                                 Eu li e concordo com os
-                                <a href="#" data-bs-toggle="modal" data-bs-target="#modalTermos"
-                                    class="ds-text-primary fw-medium text-decoration-none">Termos de Uso e Políticas de Privacidade</a>
+                                <button type="button"
+                            data-bs-toggle="modal"
+                             data-bs-target="#modalTermos"
+                       class="ds-text-primary fw-medium text-decoration-none border-0 bg-transparent p-0">
+                             Termos de Uso e Políticas de Privacidade
+                            </button>
                             </label>
                         </div>
 

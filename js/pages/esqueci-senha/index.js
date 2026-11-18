@@ -1,3 +1,4 @@
+//Arquivo:Front_Park/js/pages/esqueci-senha/index.js
 import { Toast } from 'bootstrap';
 import { api } from '../../api.js';
 
