@@ -1,4 +1,5 @@
-//Arquivo: Front_Park/js/pages/admin/vehicles.js
+// Arquivo: Front_Park/js/pages/admin/vehicles.js
+import { api } from '../../services/auth.js';
 import { vehiclesRepo } from '../../services/repositories.js';
 import { escapeHtml, isValidPlate, normalizePlate, maskPlate } from '../../shared/utils.js';
  
@@ -12,17 +13,8 @@ function setFeedback(message, type = 'sucesso') {
     if (message) window.alert(message);
     return;
   }
-  const employees = getEmployees();
-  container.innerHTML = vehicles.map((vehicle) => {
-    const employee = employees.find((item) => String(item.id) === String(vehicle.funcionarioId));
-    const icon = vehicle.tipo === 'moto' ? 'bi-bicycle' : 'bi-car-front-fill';
-    return `<article class="veiculo-registrado">
-      <div class="d-flex align-items-center gap-3"><span class="icon-circle icon-circle-md icon-circle-primary"><i class="bi ${icon}" aria-hidden="true"></i></span>
-      <div><p>${escapeHtml(vehicle.modelo)} <span class="badge text-bg-light border text-secondary text-capitalize fw-normal">${escapeHtml(vehicle.tipo)}</span></p>
-      <p><i class="bi bi-person me-1" aria-hidden="true"></i>${escapeHtml(employee?.nome || 'Funcionário não encontrado')}</p></div></div>
-      <div class="text-end"><p class="fw-bold">${escapeHtml(vehicle.placa)}</p><p class="d-flex align-items-center justify-content-end gap-1 mt-1"><span class="rounded-circle" style="width:12px;height:12px;background:${escapeHtml(vehicle.cor)};border:1px solid var(--border-color)"></span>${escapeHtml(vehicle.cor)}</p></div>
-    </article>`;
-  }).join('');
+  element.textContent = message;
+  element.className = `alert alert-${type === 'erro' ? 'danger' : 'success'} mt-3`;
 }
  
 function populateEmployees(getEmployees) {
@@ -83,13 +75,15 @@ function renderRegisteredVehicles(vehicles, getEmployees) {
       ?? '';
     const details = [type, plate, color, year].filter((value) => value !== '' && value !== null && value !== undefined);
 
+    const icon = type === 'moto' ? 'bi-bicycle' : 'bi-car-front-fill';
+
     return `<article class="veiculo-registrado">
       <div class="d-flex align-items-center gap-3">
-        <span class="stat-icon icone-veiculo" aria-hidden="true"><i class="bi bi-car-front"></i></span>
+        <span class="icon-circle icon-circle-md icon-circle-primary"><i class="bi ${icon}" aria-hidden="true"></i></span>
         <div>
           <h3 class="h6 mb-1 fw-semibold">${escapeHtml(model)}</h3>
           <p class="mb-1 text-secondary small">${details.map(escapeHtml).join(' · ') || 'Dados do veículo não informados'}</p>
-          ${employee ? `<p class="mb-0 text-muted small">Funcionário: ${escapeHtml(employee)}</p>` : ''}
+          ${employee ? `<p class="mb-0 text-muted small"><i class="bi bi-person me-1" aria-hidden="true"></i>Funcionário: ${escapeHtml(employee)}</p>` : ''}
         </div>
       </div>
     </article>`;
@@ -140,8 +134,10 @@ async function saveVehicles() {
     }
     return;
   }
+  
   const forms = [...document.querySelectorAll('[data-form-veiculo]')];
-  const created = [];
+  const veiculosParaCriar = [];
+
   for (const form of forms) {
     const modelo = form.querySelector('.campo-modelo').value.trim();
     const placa = normalizePlate(form.querySelector('.campo-placa').value);
@@ -172,11 +168,11 @@ async function saveVehicles() {
     }
 
     veiculosParaCriar.push({
-      idFuncionario: funcionarioSelecionadoId,
+      idFuncionario: Number(funcionarioSelecionadoId),
       tipoVeiculo: tipo,
       modeloVeiculo: modelo,
       corVeiculo: cor,
-      anoVeiculo: ano,
+      anoVeiculo: new Date().getFullYear(),
       placaVeiculo: placa,
     });
   }
@@ -209,19 +205,14 @@ async function saveVehicles() {
     if (selectResultados) selectResultados.style.display = 'none';
 
     const panel = document.getElementById('listaVeiculosCadastrados');
-    if (panel && !panel.hidden) await loadRegisteredVehicles(getEmployeesProvider);
+    if (panel && !panel.hidden) {
+      await loadRegisteredVehicles(getEmployeesProvider);
+    }
   } catch (error) {
     setFeedback(error.message || 'Erro ao cadastrar o(s) veículo(s).', 'erro');
   } finally {
     if (btnSalvar) btnSalvar.disabled = false;
   }
-  if (!created.length) return;
-  vehicles = [...vehicles, ...created];
-  vehiclesRepo.save(vehicles);
-  renderVehicleList(getEmployees);
-  document.getElementById('lista-forms-veiculo').innerHTML = '';
-  formSequence = 0;
-  addForm();
 }
  
 export function initAdminVehicles(getEmployees) {
@@ -238,11 +229,10 @@ export function initAdminVehicles(getEmployees) {
   if (selectResultados) selectResultados.style.display = 'none';
 
   setFeedback('');
-  setupEmployeeSearch(getEmployees);
   setupRegisteredVehiclesToggle(getEmployees);
 
   document.getElementById('btnAdicionarFormVeiculo')?.addEventListener('click', addForm);
-  document.getElementById('btnSalvarVeiculosAdmin')?.addEventListener('click', () => saveVehicles(getEmployees));
+  document.getElementById('btnSalvarVeiculosAdmin')?.addEventListener('click', saveVehicles);
  
   const formsContainer = document.getElementById('lista-forms-veiculo');
  
