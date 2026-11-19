@@ -239,7 +239,7 @@ test('falha de rede no logout mantém o botão disponível e exibe erro sem redi
 
 test('todas as páginas privadas apresentam gate antes do conteúdo e carregam main.js', () => {
   const root = fileURLToPath(new URL('../', import.meta.url));
-  const privatePages = ['admin.html', 'tela-vigilante.html', 'perfil.html', 'reserva_vaga.html', 'cadastro_veiculo.html'];
+  const privatePages = ['admin.html', 'tela-vigilante.html', 'perfil.html', 'cadastro_veiculo.html'];
   for (const page of privatePages) {
     const html = readFileSync(`${root}pages/${page}`, 'utf8');
     assert.match(html, /data-access-required="true"/u, `${page} precisa iniciar protegida`);

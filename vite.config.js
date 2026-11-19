@@ -12,7 +12,6 @@ const pages = [
   'login',
   'perfil',
   'registrar',
-  'reserva_vaga',
   'sobre',
   'tela-vigilante',
   'tela_termos',
