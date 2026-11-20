@@ -1,7 +1,33 @@
-import { requestsRepo } from '../../services/repositories.js';
-import { escapeHtml } from '../../shared/utils.js';
+import { escapeHtml } from '/js/shared/utils.js';
 
-const API_URL = 'http://localhost:3000';
+const API_BASE = 'http://localhost:3000';
+
+async function requestJson(path, options = {}) {
+  if (typeof globalThis.api === 'function') {
+    return globalThis.api(path, options);
+  }
+
+  const response = await fetch(`${API_BASE}${path}`, {
+    ...options,
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(options.headers || {}),
+    },
+  });
+
+  const data = response.status === 204 ? null : await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const serverMessage = data?.error || data?.message;
+    const message = typeof serverMessage === 'string' && serverMessage.trim()
+      ? serverMessage
+      : 'Não foi possível concluir a operação.';
+    throw Object.assign(new Error(message), { status: response.status });
+  }
+
+  return data;
+}
 
 export function initAdminRequests({ upsertEmployee, refreshEmployees } = {}) {
   const list = document.getElementById('lista-solicitacoes');
@@ -86,25 +112,17 @@ export function initAdminRequests({ upsertEmployee, refreshEmployees } = {}) {
   };
 
   const carregarSolicitacoesDaAPI = async () => {
-    const token = localStorage.getItem('token') || '';
     const pendentes = modo === 'pendentes';
 
     list.innerHTML = `<p class="text-center py-4 mb-0 text-muted">Carregando solicitações ${pendentes ? 'pendentes' : 'recusadas'}...</p>`;
 
     try {
-      const url = pendentes
-        ? `${API_URL}/admin/solicitacoes`
-        : `${API_URL}/admin/solicitacoes/rejeitadas`;
+      const endpoint = pendentes
+        ? '/admin/solicitacoes'
+        : '/admin/solicitacoes/rejeitadas';
 
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (!response.ok) throw new Error('Erro ao buscar solicitações');
-
-      const requests = await response.json();
+      const data = await requestJson(endpoint);
+      const requests = Array.isArray(data) ? data : (data?.solicitacoes || data?.requests || []);
 
       if (!requests.length) {
         renderVazio();
@@ -114,7 +132,8 @@ export function initAdminRequests({ upsertEmployee, refreshEmployees } = {}) {
       list.innerHTML = requests.map(cardHtml).join('');
     } catch (error) {
       console.error('Erro:', error);
-      list.innerHTML = '<p class="text-center py-4 mb-0 text-danger">Erro ao carregar solicitações do servidor.</p>';
+      const msg = escapeHtml(error?.message || 'Erro ao carregar solicitações do servidor.');
+      list.innerHTML = `<p class="text-center py-4 mb-0 text-danger">${msg}</p>`;
     }
   };
 
@@ -134,52 +153,41 @@ export function initAdminRequests({ upsertEmployee, refreshEmployees } = {}) {
 
     const idUsuario = button.dataset.id;
     const acao = button.dataset.action; // 'aprovar' ou 'rejeitar'
-    const token = localStorage.getItem('token') || '';
 
     // Sempre a mesma rota, mudando só o status no corpo
-    const endpoint = `${API_URL}/admin/solicitacoes/${idUsuario}`;
+    const endpoint = `/admin/solicitacoes/${idUsuario}`;
     const status = acao === 'aprovar' ? 'APPROVED' : 'REJECTED';
 
     const cardItem = button.closest('.solicitacao-item');
     const actionButtons = cardItem?.querySelectorAll('button');
-    actionButtons?.forEach(btn => btn.disabled = true);
+    actionButtons?.forEach((btn) => { btn.disabled = true; });
 
     try {
-      const response = await fetch(endpoint, {
+      await requestJson(endpoint, {
         method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ status })
+        body: JSON.stringify({ status }),
       });
 
-      if (response.ok) {
-        if (cardItem) {
-          cardItem.style.transition = 'all 0.3s ease';
-          cardItem.style.opacity = '0';
-          cardItem.style.transform = 'translateY(-10px)';
-          setTimeout(() => {
-            cardItem.remove();
+      if (cardItem) {
+        cardItem.style.transition = 'all 0.3s ease';
+        cardItem.style.opacity = '0';
+        cardItem.style.transform = 'translateY(-10px)';
+        setTimeout(() => {
+          cardItem.remove();
 
-            if (!list.querySelector('.solicitacao-item')) {
-              renderVazio();
-            }
-          }, 300);
-        }
+          if (!list.querySelector('.solicitacao-item')) {
+            renderVazio();
+          }
+        }, 300);
+      }
 
-        if (acao === 'aprovar' && typeof refreshEmployees === 'function') {
-          refreshEmployees();
-        }
-      } else {
-        const errData = await response.json().catch(() => ({}));
-        window.alert('Erro ao processar: ' + (errData.error || 'Erro desconhecido'));
-        actionButtons?.forEach(btn => btn.disabled = false);
+      if (acao === 'aprovar' && typeof refreshEmployees === 'function') {
+        refreshEmployees();
       }
     } catch (error) {
       console.error('Erro na requisição:', error);
-      window.alert('Erro de conexão com o servidor.');
-      actionButtons?.forEach(btn => btn.disabled = false);
+      window.alert('Erro ao processar: ' + (error?.message || 'Erro desconhecido'));
+      actionButtons?.forEach((btn) => { btn.disabled = false; });
     }
   });
 
