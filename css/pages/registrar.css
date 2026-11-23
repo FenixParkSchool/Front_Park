@@ -54,7 +54,7 @@
     position: absolute;
     z-index: 0;
     inset: 0;
-    background-image: url('../../assets/img/pexels-anna-klymenko-2154232859-38264204.jpg');
+    background-image: url('../../assets/img/pexels-anna-klymenko-2154232859-38264204.webp');
     background-position: center;
     background-size: cover;
     filter: brightness(0.9) saturate(0.9);
@@ -288,6 +288,7 @@
         line-height: 1.4;
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 2;
+        line-clamp: 2;
     }
 
     .registration-layout.row > .registration-form-panel {
