@@ -1,4 +1,7 @@
-export const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL || 'http://localhost:3000').replace(/\/$/, '');
+const configuredApiUrl = (import.meta.env?.VITE_API_BASE_URL || 'http://localhost:3000').trim();
+export const API_BASE_URL = (/^https?:\/\//i.test(configuredApiUrl)
+  ? configuredApiUrl
+  : `https://${configuredApiUrl}`).replace(/\/+$/, '');
 
 function dispatchApiEvent(name, detail = {}) {
   if (typeof window === 'undefined' || typeof window.dispatchEvent !== 'function' || typeof CustomEvent !== 'function') return;
