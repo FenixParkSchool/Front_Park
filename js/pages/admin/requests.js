@@ -1,13 +1,12 @@
 import { escapeHtml } from '/js/shared/utils.js';
-
-const API_BASE = 'http://localhost:3000';
+import { API_BASE_URL } from '../../api.js';
 
 async function requestJson(path, options = {}) {
   if (typeof globalThis.api === 'function') {
     return globalThis.api(path, options);
   }
 
-  const response = await fetch(`${API_BASE}${path}`, {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
     ...options,
     credentials: 'include',
     headers: {

@@ -33,3 +33,5 @@ A arquitetura do projeto baseia-se em carregamento dinâmico e forte modulariza�
 
 *   **Variáveis de Ambiente:** Para apontar para um servidor backend diferente em produção ou staging, configure a variável `VITE_API_BASE_URL` no ambiente do Vite (utilizando um arquivo `.env`).
 
+O comando `npm run build` usa `.env.production`, com a API `https://apit13-tecin-dne5h7gydzbvgzhn.centralus-01.azurewebsites.net`. Se a hospedagem definir `VITE_API_BASE_URL`, atualize essa variável também: ela tem prioridade sobre o arquivo. A URL é incorporada durante o build; gere novamente e publique `dist/` após alterá-la. No Azure do backend, configure `API_ORIGIN` com essa mesma URL e `FRONTEND_ORIGIN` com a origem do frontend publicado.
+

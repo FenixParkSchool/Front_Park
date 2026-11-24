@@ -1,6 +1,6 @@
 import { Modal } from 'bootstrap';
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000').replace(/\/$/, '');
+import { API_BASE_URL } from '../../api.js';
 
 const EMAIL_REGEX = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}$/;
 const MATRICULA_REGEX = /^\d{5}-\d{1}$/;

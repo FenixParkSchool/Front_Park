@@ -1,7 +1,6 @@
 // Arquivo: Front_Park/js/pages/admin/visits.js
 import { escapeHtml, isValidPlate, normalizePlate } from '../../shared/utils.js';
-
-const API_URL = (window.API_URL ?? 'http://localhost:3000').replace(/\/$/, '');
+import { API_BASE_URL } from '../../api.js';
 
 function errorMessage(data, status) {
   if (data?.errors?.[0]?.message) return data.errors[0].message;
@@ -12,7 +11,7 @@ function errorMessage(data, status) {
 }
 
 async function api(path, { method = 'GET', body } = {}) {
-  const response = await fetch(`${API_URL}${path}`, {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
     method,
     credentials: 'include',
     headers: body ? { 'Content-Type': 'application/json' } : undefined,
